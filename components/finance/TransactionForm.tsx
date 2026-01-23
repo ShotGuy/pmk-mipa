@@ -41,6 +41,7 @@ export function TransactionForm() {
         }
     })
 
+    // eslint-disable-next-line react-hooks/incompatible-library
     const jenis = watch("jenisTransaksi")
 
     function onSubmit(values: z.infer<typeof formSchema>) {
