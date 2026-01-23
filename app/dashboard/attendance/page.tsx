@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { QRGenerator } from "@/components/attendance/QRGenerator";
 import { QRScanner } from "@/components/attendance/QRScanner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Need to check if Tabs exist, otherwise create manual tabs or install
+
 
 export default async function AttendancePage() {
     const session = await auth();

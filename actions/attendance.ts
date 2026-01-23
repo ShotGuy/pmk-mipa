@@ -60,7 +60,7 @@ export async function recordAttendance(qrCode: string) {
                 idKegiatan: kegiatanId,
                 idAnggota: user.idAnggota, // Can be null
                 nama: user.name || "Unknown",
-                status: "HADIR",
+                status: user.idAnggota ? "APMK" : "NON_APMK",
                 // Fill other fields if available in Anggota, but here we just record basics
             }
         });

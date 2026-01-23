@@ -42,7 +42,7 @@ export function QRScanner() {
         /* verbose= */ false
         );
 
-        function onScanSuccess(decodedText: string, _decodedResult: unknown) {
+        function onScanSuccess(decodedText: string) {
             // Stop scanning temporarily
             scanner.clear();
             setScanResult(decodedText);
@@ -50,7 +50,7 @@ export function QRScanner() {
             handleAttendance(decodedText);
         }
 
-        function onScanFailure(_error: unknown) {
+        function onScanFailure() {
             // gentle failure
         }
 
@@ -59,7 +59,6 @@ export function QRScanner() {
         return () => {
             scanner.clear().catch(console.error);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [scanResult]);
 
     return (
