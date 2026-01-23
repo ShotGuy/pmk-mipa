@@ -15,6 +15,7 @@ enum Role {
   KTB
   ACARA
   DOA
+  USER
 }
 
 enum StatusPengontrolan {
