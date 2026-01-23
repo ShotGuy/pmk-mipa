@@ -81,7 +81,53 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
     const filteredNav = navItems.filter(item => item.roles.includes(user.role))
 
-    const NavContent = () => (
+    return (
+        <>
+            {/* Desktop Sidebar */}
+            <aside className="hidden md:flex flex-col w-64 border-r bg-background h-screen sticky top-0">
+                <NavContent
+                    filteredNav={filteredNav}
+                    pathname={pathname}
+                    user={user}
+                    setOpen={setOpen}
+                />
+            </aside>
+
+            {/* Mobile Sidebar */}
+            <div className="md:hidden sticky top-0 z-40 bg-background border-b px-4 h-16 flex items-center justify-between">
+                <span className="font-serif font-bold text-lg">Dashboard</span>
+                <Sheet open={open} onOpenChange={setOpen}>
+                    <SheetTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <Menu className="w-5 h-5" />
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="p-0 w-72">
+                        <NavContent
+                            filteredNav={filteredNav}
+                            pathname={pathname}
+                            user={user}
+                            setOpen={setOpen}
+                        />
+                    </SheetContent>
+                </Sheet>
+            </div>
+        </>
+    )
+}
+
+function NavContent({
+    filteredNav,
+    pathname,
+    user,
+    setOpen
+}: {
+    filteredNav: NavItem[],
+    pathname: string,
+    user: AppSidebarProps["user"],
+    setOpen: (open: boolean) => void
+}) {
+    return (
         <div className="flex flex-col h-full py-4">
             <div className="px-6 mb-8">
                 <Link href="/" className="flex items-center gap-2 font-serif font-bold text-xl text-primary">
@@ -129,28 +175,5 @@ export function AppSidebar({ user }: AppSidebarProps) {
             </div>
         </div>
     )
-
-    return (
-        <>
-            {/* Desktop Sidebar */}
-            <aside className="hidden md:flex flex-col w-64 border-r bg-background h-screen sticky top-0">
-                <NavContent />
-            </aside>
-
-            {/* Mobile Sidebar */}
-            <div className="md:hidden sticky top-0 z-40 bg-background border-b px-4 h-16 flex items-center justify-between">
-                <span className="font-serif font-bold text-lg">Dashboard</span>
-                <Sheet open={open} onOpenChange={setOpen}>
-                    <SheetTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <Menu className="w-5 h-5" />
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="p-0 w-72">
-                        <NavContent />
-                    </SheetContent>
-                </Sheet>
-            </div>
-        </>
-    )
 }
+

@@ -52,7 +52,7 @@ export function Timeline() {
     );
 }
 
-function TimelineItem({ event, index }: { event: any; index: number }) {
+function TimelineItem({ event, index }: { event: { year: string; title: string; description: string }; index: number }) {
     const isEven = index % 2 === 0;
 
     return (

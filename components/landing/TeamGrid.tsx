@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Github, Linkedin, Twitter } from "lucide-react";
+import { Linkedin, Twitter } from "lucide-react";
 
 const teamMembers = [
     {
@@ -50,7 +50,7 @@ export function TeamGrid() {
     );
 }
 
-function TeamCard({ member, index }: { member: any; index: number }) {
+function TeamCard({ member, index }: { member: { name: string; role: string; major: string; image: string }; index: number }) {
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}

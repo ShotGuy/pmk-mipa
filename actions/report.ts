@@ -1,7 +1,6 @@
 "use server"
 
-import { db } from "@/lib/db";
-import { format } from "date-fns"; // Check if date-fns is available, if not use native. I'll use native in code below to be safe or assuming I can install it. I'll stick to string range or native Date.
+
 
 export async function getHPDTReport(startDate: Date, endDate: Date) {
     try {
@@ -21,6 +20,7 @@ export async function getHPDTReport(startDate: Date, endDate: Date) {
         });
 
         // Flatten data for Excel
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return data.map((item: any) => ({
             Nama: item.anggota?.nama || "Unknown",
             Tanggal: item.tanggal.toISOString().split('T')[0],

@@ -10,40 +10,6 @@ export function QRScanner() {
     const [scanResult, setScanResult] = useState<string | null>(null)
     const [isProcessing, setIsProcessing] = useState(false)
 
-    useEffect(() => {
-        // Only init scanner if not processing to avoid double scans
-        if (scanResult) return;
-
-        const scanner = new Html5QrcodeScanner(
-            "reader",
-            {
-                fps: 10,
-                qrbox: { width: 250, height: 250 },
-                rememberLastUsedCamera: true,
-                aspectRatio: 1.0
-            },
-        /* verbose= */ false
-        );
-
-        scanner.render(onScanSuccess, onScanFailure);
-
-        async function onScanSuccess(decodedText: string, decodedResult: any) {
-            // Stop scanning temporarily
-            scanner.clear();
-            setScanResult(decodedText);
-
-            handleAttendance(decodedText);
-        }
-
-        function onScanFailure(error: any) {
-            // gentle failure
-        }
-
-        return () => {
-            scanner.clear().catch(console.error);
-        }
-    }, [scanResult]);
-
     async function handleAttendance(code: string) {
         setIsProcessing(true);
         toast.info("Memproses presensi...");
@@ -61,6 +27,41 @@ export function QRScanner() {
         setIsProcessing(false);
     }
 
+    useEffect(() => {
+        // Only init scanner if not processing to avoid double scans
+        if (scanResult) return;
+
+        const scanner = new Html5QrcodeScanner(
+            "reader",
+            {
+                fps: 10,
+                qrbox: { width: 250, height: 250 },
+                rememberLastUsedCamera: true,
+                aspectRatio: 1.0
+            },
+        /* verbose= */ false
+        );
+
+        function onScanSuccess(decodedText: string, _decodedResult: unknown) {
+            // Stop scanning temporarily
+            scanner.clear();
+            setScanResult(decodedText);
+
+            handleAttendance(decodedText);
+        }
+
+        function onScanFailure(_error: unknown) {
+            // gentle failure
+        }
+
+        scanner.render(onScanSuccess, onScanFailure);
+
+        return () => {
+            scanner.clear().catch(console.error);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [scanResult]);
+
     return (
         <Card>
             <CardHeader>
@@ -77,8 +78,9 @@ export function QRScanner() {
                         <button
                             onClick={() => setScanResult(null)}
                             className="text-sm text-primary underline"
+                            disabled={isProcessing}
                         >
-                            Scan Lagi
+                            {isProcessing ? "Memproses..." : "Scan Lagi"}
                         </button>
                     </div>
                 )}

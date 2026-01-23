@@ -36,10 +36,10 @@ export const {
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                // Explicitly cast user to any to avoid "Property does not exist on User"
-                // because AdapterUser type might not automatically infer custom fields from Prisma
-                token.role = (user as any).role
-                token.idAnggota = (user as any).idAnggota || undefined
+                // Explicitly cast user to custom type to access extended fields
+                const u = user as unknown as { role: Role; idAnggota?: string };
+                token.role = u.role
+                token.idAnggota = u.idAnggota || undefined
             }
             return token
         },
