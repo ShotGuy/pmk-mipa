@@ -15,11 +15,8 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 
-const formSchema = z.object({
-    jenisTransaksi: z.nativeEnum(JenisTransaksi),
-    nominal: z.coerce.number().positive("Nominal harus lebih dari 0"),
-    keterangan: z.string().min(3, "Keterangan minimal 3 karakter"),
-})
+import { TransactionSchema } from "@/lib/schemas"
+const formSchema = TransactionSchema;
 
 export function TransactionForm() {
     const [isPending, startTransition] = useTransition()
