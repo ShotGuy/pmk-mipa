@@ -1,0 +1,36 @@
+name: PMK MIPA CI/CD
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'pnpm'
+        
+    - name: Install Dependencies
+      run: npm install -g pnpm && pnpm install --frozen-lockfile
+      
+    - name: Run Linter
+      run: pnpm lint
+      
+    - name: Type Check
+      run: pnpm type-check
+      
+    - name: Build Project
+      run: pnpm build
+      env:
+        # Mock env vars for build
+        DATABASE_URL: "postgresql://user:password@localhost:5432/pmk_mipa"
+        NEXTAUTH_SECRET: "mock_secret_for_build_test"
