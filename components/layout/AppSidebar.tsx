@@ -47,7 +47,7 @@ const navItems: NavItem[] = [
         title: "Overview",
         href: "/dashboard",
         icon: LayoutDashboard,
-        roles: ["USER", "BENDAHARA", "KETUA", "ADMIN"]
+        roles: ["ANGGOTA", "BENDAHARA", "KETUA", "ADMIN"]
     },
     {
         title: "Keuangan",
@@ -59,7 +59,7 @@ const navItems: NavItem[] = [
         title: "Absensi",
         href: "/dashboard/attendance",
         icon: QrCode,
-        roles: ["USER", "ADMIN", "KETUA"] // Updated: User needs to scan
+        roles: ["ANGGOTA", "ADMIN", "KETUA"] // Updated: User needs to scan
     },
     {
         title: "Reporting",
