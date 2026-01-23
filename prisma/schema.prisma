@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  KETUA
+  BENDAHARA
+  KTB
+  ACARA
+  DOA
+}
+
+enum StatusPengontrolan {
+  AKTIF
+  MACET
+  VAKUM
+  MERGER
+}
+
+enum StatusKehadiran {
+  APMK
+  NON_APMK
+  AKTB
+}
+
+enum JenisTransaksi {
+  PEMASUKAN
+  PENGELUARAN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  username      String?   @unique
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(USER)
+  
+  // Relation to Anggota (Optional, 1-to-1 or 1-to-many depending on logic, strict 1-1 usually)
+  anggota       Anggota?  @relation(fields: [idAnggota], references: [id])
+  idAnggota     String?   @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Anggota {
+  id            String    @id @default(cuid())
+  nama          String
+  jenisKelamin  String    @db.Char(1) // L / P
+  tanggalLahir  DateTime
+  noHp          String?
+  prodi         String?
+  
+  // Relations
+  user          User?
+  
+  ktb           KTB?      @relation("AnggotaKTB", fields: [idKTB], references: [id])
+  idKTB         String?
+
+  ktbDipimpin   KTB[]     @relation("PemimpinKTB")
+  
+  badanPengurus BadanPengurus[]
+  hpdt          Hpdt[]
+  kehadiran     Kehadiran[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model KTB {
+  id              String   @id @default(cuid())
+  angkatan        Int
+  terbentukDimana String?
+  
+  pemimpin        Anggota  @relation("PemimpinKTB", fields: [idPemimpin], references: [id])
+  idPemimpin      String
+  
+  pengurus        BadanPengurus @relation(fields: [idPengurus], references: [id])
+  idPengurus      String
+
+  anggotas        Anggota[] @relation("AnggotaKTB")
+  pengontrolan    Pengontrolan[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Pengontrolan {
+  id          String   @id @default(cuid())
+  tanggal     DateTime
+  bahan       String?
+  status      StatusPengontrolan
+  keterangan  String?
+  
+  ktb         KTB      @relation(fields: [idKTB], references: [id])
+  idKTB       String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BadanPengurus {
+  id          String   @id @default(cuid())
+  masaJabatan String
+  status      Boolean  @default(true) // Aktif?
+  foto        String?  // URL to image
+  prodi       String?
+  socialMedia String?  // URL/Handle link
+
+  
+  anggota     Anggota  @relation(fields: [idAnggota], references: [id])
+  idAnggota   String
+
+  ktbDibina   KTB[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Hpdt {
+  id              String   @id @default(cuid())
+  tanggal         DateTime
+  isSate          Boolean  @default(false)
+  isDoa           Boolean  @default(false)
+  isAttendedKTB   Boolean  @default(false)
+  isGereja        Boolean  @default(false)
+  ayatAlkitab     String?
+  judulBuku       String?
+  
+  anggota         Anggota  @relation(fields: [idAnggota], references: [id])
+  idAnggota       String
+}
+
+model JenisKegiatan {
+  id        String     @id @default(cuid())
+  nama      String
+  kegiatan  Kegiatan[]
+}
+
+model Kegiatan {
+  id              String   @id @default(cuid())
+  nama            String
+  tanggal         DateTime
+  lokasi          String?
+  waktu           DateTime? @db.Time
+  pembicara       String?
+  
+  jenisKegiatan   JenisKegiatan @relation(fields: [idJenisKegiatan], references: [id])
+  idJenisKegiatan String
+
+  gallery         Gallery[]
+  kehadiran       Kehadiran[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Gallery {
+  id         String   @id @default(cuid())
+  photos     String   // URL or CSV? Assuming URL string for now or Text
+  isPublish  Boolean  @default(false)
+  
+  kegiatan   Kegiatan @relation(fields: [idKegiatan], references: [id])
+  idKegiatan String
+}
+
+model Kehadiran {
+  id              String   @id @default(cuid())
+  nama            String
+  tanggalLahir    DateTime?
+  status          StatusKehadiran
+  prodi           String?
+  angkatan        Int?
+  tauPmkDariMana  String?
+  
+  anggota         Anggota? @relation(fields: [idAnggota], references: [id])
+  idAnggota       String?
+  
+  kegiatan        Kegiatan @relation(fields: [idKegiatan], references: [id])
+  idKegiatan      String
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Kas {
+  id        String      @id @default(cuid())
+  nama      String
+  saldo     Decimal
+  transaksi Transaksi[]
+}
+
+model Transaksi {
+  id             String         @id @default(cuid())
+  jenisTransaksi JenisTransaksi
+  nominal        Decimal
+  keterangan     String?
+  
+  kas            Kas            @relation(fields: [idKas], references: [id])
+  idKas          String
+
+  createdAt      DateTime @default(now())
+}
