@@ -11,7 +11,7 @@ export function Hero() {
             {/* Background with Overlay */}
             <div className="absolute inset-0 z-0">
                 <Image
-                    src="/images/hero-bg.png"
+                    src="/images/hero-bg.jpg"
                     alt="PMK MIPA Activity"
                     fill
                     className="object-cover"
