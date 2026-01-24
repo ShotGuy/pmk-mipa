@@ -3,6 +3,7 @@ import authConfig from "@/auth.config"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { db } from "@/lib/db"
 import { Role } from "@prisma/client"
+import Credentials from "next-auth/providers/credentials"
 
 // Extend session types
 import { type DefaultSession } from "next-auth"
@@ -58,4 +59,37 @@ export const {
         }
     },
     ...authConfig,
+    providers: [
+        Credentials({
+            async authorize(credentials) {
+                const z = (await import("zod")).z;
+                const LoginSchema = z.object({
+                    email: z.string().email(),
+                    password: z.string().min(1)
+                });
+
+                const validatedFields = LoginSchema.safeParse(credentials);
+
+                if (validatedFields.success) {
+                    const { email, password } = validatedFields.data; // Fixed: was using validatedFields which is SafeParseResult, need .data
+
+                    const user = await db.user.findUnique({
+                        where: { email }
+                    });
+
+                    if (!user || !user.password) return null;
+
+                    const bcrypt = (await import("bcryptjs")).default;
+                    const passwordsMatch = await bcrypt.compare(
+                        password,
+                        user.password
+                    );
+
+                    if (passwordsMatch) return user;
+                }
+
+                return null;
+            }
+        })
+    ],
 })
