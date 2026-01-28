@@ -12,10 +12,15 @@ enum Role {
   ADMIN
   KETUA
   BENDAHARA
-  KTB
-  ACARA
-  DOA
-  ANGGOTA
+  
+  KOORKTB
+  ANGGOTAKTB
+  
+  KOORACARA
+  ANGGOTAACARA
+  
+  KOORDOA
+  ANGGOTADOA
 }
 
 enum StatusPengontrolan {
@@ -44,7 +49,7 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  role          Role      @default(ANGGOTA)
+  role          Role
   
   // Relation to Anggota (Optional, 1-to-1 or 1-to-many depending on logic, strict 1-1 usually)
   anggota       Anggota?  @relation(fields: [idAnggota], references: [id])

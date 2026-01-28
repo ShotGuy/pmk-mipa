@@ -7,8 +7,19 @@ import {
     FileSpreadsheet,
     ShieldCheck,
     LogOut,
-    Menu
+    Menu,
+    Users,
+    UserCog,
+    Network,
+    BookOpenCheck,
+    Briefcase,
+    ScrollText,
+    CalendarDays,
+    Palette,
+    Camera,
+    Receipt
 } from "lucide-react"
+import { logout } from "@/actions/auth-actions"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -23,7 +34,7 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Role } from "@prisma/client"
 
 interface AppSidebarProps {
@@ -44,42 +55,109 @@ interface NavItem {
 
 const navItems: NavItem[] = [
     {
-        title: "Overview",
-        href: "/dashboard",
+        title: "Dashboard",
+        href: "/admin/dashboard",
         icon: LayoutDashboard,
-        roles: ["ANGGOTA", "BENDAHARA", "KETUA", "ADMIN"]
-    },
-    {
-        title: "Keuangan",
-        href: "/dashboard/finance",
-        icon: Wallet,
-        roles: ["BENDAHARA", "KETUA", "ADMIN"]
-    },
-    {
-        title: "Absensi",
-        href: "/dashboard/attendance",
-        icon: QrCode,
-        roles: ["ANGGOTA", "ADMIN", "KETUA"] // Updated: User needs to scan
-    },
-    {
-        title: "Reporting",
-        href: "/dashboard/reporting",
-        icon: FileSpreadsheet,
-        roles: ["BENDAHARA", "KETUA", "ADMIN"]
-    },
-    {
-        title: "Admin",
-        href: "/dashboard/admin",
-        icon: ShieldCheck,
         roles: ["ADMIN"]
-    }
+    },
+    {
+        title: "User Management",
+        href: "/admin/user",
+        icon: Users,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Data Anggota",
+        href: "/admin/anggota",
+        icon: UserCog,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Data KTB",
+        href: "/admin/ktb",
+        icon: Network,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Pengontrolan KTB",
+        href: "/admin/pengontrolan",
+        icon: BookOpenCheck,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Badan Pengurus",
+        href: "/admin/badan-pengurus",
+        icon: Briefcase,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "HPDT",
+        href: "/admin/hpdt",
+        icon: ScrollText,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Jenis Kegiatan",
+        href: "/admin/jenis-kegiatan",
+        icon: Palette,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Kegiatan",
+        href: "/admin/kegiatan",
+        icon: CalendarDays,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Gallery",
+        href: "/admin/gallery",
+        icon: Camera,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Kehadiran",
+        href: "/admin/kehadiran",
+        icon: QrCode,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Kas",
+        href: "/admin/kas",
+        icon: Wallet,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Transaksi",
+        href: "/admin/transaksi",
+        icon: Receipt,
+        roles: ["ADMIN"]
+    },
 ]
 
 export function AppSidebar({ user }: AppSidebarProps) {
     const pathname = usePathname()
     const [open, setOpen] = useState(false)
 
+    const [isMounted, setIsMounted] = useState(false)
+
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
+
     const filteredNav = navItems.filter(item => item.roles.includes(user.role))
+
+    if (!isMounted) {
+        return (
+            <aside className="hidden md:flex flex-col w-64 border-r bg-background h-screen sticky top-0">
+                <NavContent
+                    filteredNav={filteredNav}
+                    pathname={pathname}
+                    user={user}
+                    setOpen={setOpen}
+                />
+            </aside>
+        )
+    }
 
     return (
         <>
@@ -143,7 +221,7 @@ function NavContent({
                         onClick={() => setOpen(false)}
                         className={cn(
                             "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors hover:bg-secondary/50",
-                            pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard")
+                            pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/")
                                 ? "bg-secondary text-primary"
                                 : "text-muted-foreground"
                         )}
@@ -165,8 +243,7 @@ function NavContent({
                         <p className="text-xs text-muted-foreground truncate capitalize">{user.role.toLowerCase()}</p>
                     </div>
                 </div>
-                {/* Normally we'd use a server action or specific signout flow, but for now just a button */}
-                <form action="/api/auth/signout" method="POST">
+                <form action={logout}>
                     <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive" type="submit">
                         <LogOut className="w-5 h-5" />
                         Sign Out
