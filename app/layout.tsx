@@ -34,7 +34,7 @@ export default function RootLayout({
         className={`${playfair.variable} ${inter.variable} font-sans antialiased bg-background text-foreground flex flex-col min-h-screen`}
       >
         {children}
-        <Toaster />
+        <Toaster richColors />
       </body>
     </html>
   );
