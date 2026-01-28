@@ -1,11 +1,10 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useSearchParams } from "next/navigation";
-import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -19,10 +18,7 @@ const LoginSchema = z.object({
 });
 
 export function LoginForm() {
-    const searchParams = useSearchParams();
-    const urlError = searchParams.get("error") === "OAuthAccountNotLinked"
-        ? "Email already in use with different provider!"
-        : "";
+    // searchParams removed as unused
 
     const [isPending, startTransition] = useTransition();
 
@@ -105,7 +101,7 @@ export function LoginForm() {
             </CardContent>
             <CardFooter className="flex justify-center">
                 <Button variant="link" size="sm" asChild>
-                    <a href="/register">Don't have an account? Register</a>
+                    <a href="/register">Don&apos;t have an account? Register</a>
                 </Button>
             </CardFooter>
         </Card>

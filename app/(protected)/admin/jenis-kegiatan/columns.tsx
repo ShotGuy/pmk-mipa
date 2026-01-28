@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, Pencil, Trash } from "lucide-react"
+import { Pencil, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export type JenisKegiatan = {
@@ -17,7 +17,7 @@ export const columns: ColumnDef<JenisKegiatan>[] = [
     {
         id: "actions",
         header: "Actions",
-        cell: ({ row }) => {
+        cell: () => {
             return (
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600">

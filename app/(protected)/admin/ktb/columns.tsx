@@ -41,7 +41,7 @@ export const columns: ColumnDef<KTB>[] = [
     {
         id: "actions",
         header: "Actions",
-        cell: ({ row }) => {
+        cell: () => {
             return (
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600">

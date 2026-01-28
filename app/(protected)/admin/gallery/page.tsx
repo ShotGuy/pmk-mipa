@@ -8,20 +8,7 @@ export default async function GalleryPage() {
         include: { kegiatan: { select: { nama: true } } }
     });
 
-    const filters = [
-        {
-            key: "isPublish", // Boolean filtering might need custom handling or toString mapping.
-            // Tanstack default string filter might expect "true" or "false".
-            // Let's assume boolean column AccessorFn returns boolean, search input is string.
-            // Ideally we map boolean to "Published"/"Draft" in accessor for easier filtering?
-            // Or just supply "true"/"false" values.
-            title: "Status",
-            options: [
-                { label: "Published", value: "true" },
-                { label: "Draft", value: "false" }
-            ]
-        }
-    ];
+
 
     return (
         <div className="space-y-6">

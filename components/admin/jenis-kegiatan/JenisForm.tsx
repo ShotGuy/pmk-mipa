@@ -63,8 +63,8 @@ export function JenisForm({ initialData, onSuccess, onCancel }: JenisFormProps) 
             } else {
                 toast.error("Gagal Menyimpan", { description: res.message })
             }
-        } catch (error) {
-            toast.error("Terjadi Kesalahan", { description: "Sistem mengalami gangguan, silakan coba lagi." })
+        } catch {
+            toast.error("Terjadi Kesalahan", { description: "Gagal memproses permintaan." })
         } finally {
             setIsPending(false)
         }

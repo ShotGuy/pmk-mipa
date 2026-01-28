@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, Pencil, Trash } from "lucide-react"
+import { Pencil, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export type Gallery = {
@@ -17,6 +17,7 @@ export const columns: ColumnDef<Gallery>[] = [
         header: "Preview",
         cell: ({ row }) => (
             <div className="w-20 h-12 relative overflow-hidden rounded bg-gray-100">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src={row.original.photos}
                     alt="Gallery"
@@ -43,7 +44,7 @@ export const columns: ColumnDef<Gallery>[] = [
     {
         id: "actions",
         header: "Actions",
-        cell: ({ row }) => {
+        cell: () => {
             return (
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600">

@@ -4,8 +4,6 @@ import {
     LayoutDashboard,
     Wallet,
     QrCode,
-    FileSpreadsheet,
-    ShieldCheck,
     LogOut,
     Menu,
     Users,
@@ -34,7 +32,7 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Role } from "@prisma/client"
 
 interface AppSidebarProps {
@@ -138,27 +136,10 @@ export function AppSidebar({ user }: AppSidebarProps) {
     const pathname = usePathname()
     const [open, setOpen] = useState(false)
 
-    const [isMounted, setIsMounted] = useState(false)
-
-    useEffect(() => {
-        setIsMounted(true)
-    }, [])
-
     const filteredNav = navItems.filter(item => item.roles.includes(user.role))
 
-    if (!isMounted) {
-        return (
-            <aside className="hidden md:flex flex-col w-64 border-r bg-background h-screen sticky top-0">
-                <NavContent
-                    filteredNav={filteredNav}
-                    pathname={pathname}
-                    user={user}
-                    setOpen={setOpen}
-                />
-            </aside>
-        )
-    }
-
+    // Remove isMounted check to fix lint warning and unnecessary re-render.
+    // If hydration issues arise (e.g. icon random matching), we can re-evaluate.
     return (
         <>
             {/* Desktop Sidebar */}

@@ -1,34 +1,20 @@
 import { db } from "@/lib/db";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { DataTable } from "@/components/admin/DataTable";
-import { columns } from "./columns";
+import { KasClient } from "@/components/admin/kas/KasClient";
 
 export default async function KasPage() {
-    // Serialize decimal? Prisma Decimal often returns object/string.
-    // In server component -> client, we might need toString() if it's not serializable.
-    // But TanStack table needs primitives.
-    // Let's assume Prisma + App Router serializes Decimal to string or number or passes as is?
-    // Usually it causes warning "Only plain objects...". 
-    // We should map it to number or string.
-    const rawData = await db.kas.findMany();
-    const data = rawData.map(k => ({
-        ...k,
-        saldo: k.saldo.toNumber() // Convert Decimal to JS Number
+    const data = await db.kas.findMany({
+        orderBy: { nama: 'asc' }
+    });
+
+    // Prisma Decimal is not directly serializable to Client Component in some Next.js versions without conversion.
+    // However, recent versions are smarter. If error occurs, we map it.
+    // Let's map it to number/string to be safe.
+    const formattedData = data.map(item => ({
+        ...item,
+        saldo: item.saldo.toNumber() // Convert Decimal to JS Number
     }));
 
     return (
-        <div className="space-y-6">
-            <AdminPageHeader
-                title="Manajemen Kas"
-                addLabel="Buat Akun Kas"
-                href="/admin/kas/new"
-            />
-
-            <DataTable
-                columns={columns}
-                data={data}
-                searchKey="nama"
-            />
-        </div>
+        <KasClient data={formattedData} />
     );
 }

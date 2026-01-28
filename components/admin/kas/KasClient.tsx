@@ -3,8 +3,7 @@
 import { useState } from "react"
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
 import { DataTable } from "@/components/admin/DataTable"
-import { JenisKegiatan } from "@/app/(protected)/admin/jenis-kegiatan/columns"
-import { JenisForm } from "./JenisForm"
+import { KasForm } from "./KasForm"
 import {
     Dialog,
     DialogContent,
@@ -22,19 +21,25 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { deleteJenisKegiatan } from "@/actions/jenis-kegiatan"
+import { deleteKas } from "@/actions/kas"
 import { toast } from "sonner"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-interface JenisKegiatanClientProps {
-    data: JenisKegiatan[]
+export type Kas = {
+    id: string
+    nama: string
+    saldo: number // Received as number from Page component
 }
 
-export function JenisKegiatanClient({ data }: JenisKegiatanClientProps) {
+interface KasClientProps {
+    data: Kas[]
+}
+
+export function KasClient({ data }: KasClientProps) {
     const [open, setOpen] = useState(false)
-    const [selectedItem, setSelectedItem] = useState<JenisKegiatan | null>(null)
+    const [selectedItem, setSelectedItem] = useState<Kas | null>(null)
     const [deleteId, setDeleteId] = useState<string | null>(null)
     const [alertOpen, setAlertOpen] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
@@ -43,9 +48,9 @@ export function JenisKegiatanClient({ data }: JenisKegiatanClientProps) {
         if (!deleteId) return
         setIsDeleting(true)
         try {
-            const res = await deleteJenisKegiatan(deleteId)
+            const res = await deleteKas(deleteId)
             if (res.success) {
-                toast.success(res.message, { description: "Jenis kegiatan telah dihapus permanen." })
+                toast.success(res.message, { description: "Data kas telah dihapus permanen." })
                 setAlertOpen(false)
             } else {
                 toast.error("Gagal Menghapus", { description: res.message })
@@ -58,10 +63,22 @@ export function JenisKegiatanClient({ data }: JenisKegiatanClientProps) {
         }
     }
 
-    const clientColumns: ColumnDef<JenisKegiatan>[] = [
+    const columns: ColumnDef<Kas>[] = [
         {
             accessorKey: "nama",
-            header: "Nama Jenis",
+            header: "Nama Kas",
+        },
+        {
+            accessorKey: "saldo",
+            header: "Saldo",
+            cell: ({ row }) => {
+                const amount = parseFloat(row.getValue("saldo"))
+                const formatted = new Intl.NumberFormat("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                }).format(amount)
+                return <div className="font-medium">{formatted}</div>
+            },
         },
         {
             id: "actions",
@@ -100,8 +117,8 @@ export function JenisKegiatanClient({ data }: JenisKegiatanClientProps) {
     return (
         <div className="space-y-6">
             <AdminPageHeader
-                title="Master Jenis Kegiatan"
-                addLabel="Tambah Jenis"
+                title="Manajemen Kas"
+                addLabel="Tambah Kas"
                 onAdd={() => {
                     setSelectedItem(null)
                     setOpen(true)
@@ -109,7 +126,7 @@ export function JenisKegiatanClient({ data }: JenisKegiatanClientProps) {
             />
 
             <DataTable
-                columns={clientColumns}
+                columns={columns}
                 data={data}
                 searchKey="nama"
             />
@@ -118,16 +135,17 @@ export function JenisKegiatanClient({ data }: JenisKegiatanClientProps) {
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{selectedItem ? "Edit Jenis Kegiatan" : "Tambah Jenis Kegiatan"}</DialogTitle>
+                        <DialogTitle>{selectedItem ? "Edit Data Kas" : "Tambah Kas Baru"}</DialogTitle>
                         <DialogDescription>
-                            {selectedItem ? "Ubah detail jenis kegiatan." : "Buat kategori baru untuk kegiatan."}
+                            {selectedItem ? "Ubah detail kas." : "Buat akun kas penyimpanan baru."}
                         </DialogDescription>
                     </DialogHeader>
                     {/* Key forces remount when item changes to reset form default values */}
-                    <JenisForm
+                    <KasForm
                         key={selectedItem?.id || "new"}
                         initialData={selectedItem}
                         onSuccess={() => setOpen(false)}
+                        onCancel={() => setOpen(false)}
                     />
                 </DialogContent>
             </Dialog>
@@ -138,14 +156,14 @@ export function JenisKegiatanClient({ data }: JenisKegiatanClientProps) {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Tindakan ini tidak dapat dibatalkan. Data yang dihapus akan hilang dari database.
+                            Tindakan ini tidak dapat dibatalkan. Jika kas ini memiliki riwayat transaksi, penghapusan mungkin akan gagal.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={(e) => {
-                                e.preventDefault() // Prevent modal closing handled by auto-events
+                                e.preventDefault()
                                 handleDelete()
                             }}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

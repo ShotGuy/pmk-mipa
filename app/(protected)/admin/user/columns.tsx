@@ -1,16 +1,8 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, MoreHorizontal, Pencil, Trash } from "lucide-react"
+import { ArrowUpDown, Pencil, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 
 // This type is used to define the shape of our data.
@@ -74,8 +66,7 @@ export const columns: ColumnDef<User>[] = [
     {
         id: "actions",
         header: "Actions",
-        cell: ({ row }) => {
-            const user = row.original
+        cell: () => {
 
             return (
                 <div className="flex items-center gap-2">

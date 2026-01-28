@@ -21,8 +21,8 @@ export async function createJenisKegiatan(data: z.infer<typeof JenisKegiatanSche
 
         revalidatePath("/admin/jenis-kegiatan")
         return { success: true, message: "Jenis Kegiatan berhasil ditambahkan" }
-    } catch (error) {
-        return { success: false, message: "Gagal membuat data" }
+    } catch {
+        return { success: false, message: "Gagal membuat jenis kegiatan" }
     }
 }
 
@@ -38,8 +38,8 @@ export async function updateJenisKegiatan(id: string, data: z.infer<typeof Jenis
         revalidatePath("/admin/jenis-kegiatan")
         revalidatePath("/admin/kegiatan") // Revalidate dependent page
         return { success: true, message: "Jenis Kegiatan berhasil diupdate" }
-    } catch (error) {
-        return { success: false, message: "Gagal update data" }
+    } catch {
+        return { success: false, message: "Gagal mengupdate jenis kegiatan" }
     }
 }
 
@@ -52,7 +52,7 @@ export async function deleteJenisKegiatan(id: string) {
 
         revalidatePath("/admin/jenis-kegiatan")
         return { success: true, message: "Jenis Kegiatan berhasil dihapus" }
-    } catch (error) {
+    } catch {
         return { success: false, message: "Gagal menghapus data (Mungkin sedang digunakan di Kegiatan lain)" }
     }
 }

@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { JenisTransaksi } from "@prisma/client";
+
 import { z } from "zod";
 
 import { TransactionSchema } from "@/lib/schemas";
