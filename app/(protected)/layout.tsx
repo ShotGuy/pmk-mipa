@@ -24,7 +24,7 @@ export default async function DashboardLayout({
     }
 
     return (
-        <div className="flex min-h-screen bg-background text-foreground">
+        <div className="flex h-screen bg-background text-foreground overflow-hidden">
             <AppSidebar user={user} />
             <main className="flex-1 overflow-y-auto max-h-screen w-full">
                 {/* Mobile header compensation if needed is in AppSidebar sheet trigger */}

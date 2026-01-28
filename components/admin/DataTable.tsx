@@ -31,11 +31,22 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
+import { Filter } from "lucide-react"
 
 export type FacetedFilterConfig = {
     key: string
     title: string
     options: { label: string; value: string }[]
+}
+
+export type RangeFilterConfig = {
+    key: string
+    title: string
 }
 
 interface DataTableProps<TData, TValue> {
@@ -49,8 +60,9 @@ export function DataTable<TData, TValue>({
     columns,
     data,
     searchKey = "name",
-    facetedFilters
-}: DataTableProps<TData, TValue>) {
+    facetedFilters,
+    rangeFilters
+}: DataTableProps<TData, TValue> & { rangeFilters?: RangeFilterConfig[] }) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -126,6 +138,68 @@ export function DataTable<TData, TValue>({
                         </Select>
                     ))}
                 </div>
+
+                <div className="flex flex-wrap gap-2">
+                    {rangeFilters?.map((filter) => {
+                        const column = table.getColumn(filter.key)
+                        const filterValue = column?.getFilterValue() as [number, number] | undefined
+
+                        return (
+                            <Popover key={filter.key}>
+                                <PopoverTrigger asChild>
+                                    <Button variant="outline" className="border-dashed">
+                                        <Filter className="mr-2 h-4 w-4" />
+                                        {filter.title}
+                                        {filterValue?.[0] ? ` >= ${filterValue[0]}` : ""}
+                                        {filterValue?.[1] ? ` <= ${filterValue[1]}` : ""}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80">
+                                    <div className="grid gap-4">
+                                        <div className="space-y-2">
+                                            <h4 className="font-medium leading-none">Filter {filter.title}</h4>
+                                            <p className="text-sm text-muted-foreground">
+                                                Masukkan rentang nilai untuk filter.
+                                            </p>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div className="grid gap-2">
+                                                <label htmlFor="min" className="text-sm font-medium">Min</label>
+                                                <Input
+                                                    id="min"
+                                                    type="number"
+                                                    placeholder="Dari"
+                                                    value={(filterValue as [number, number])?.[0] ?? ""}
+                                                    onChange={(e) =>
+                                                        column?.setFilterValue((old: [number, number] | undefined) => [
+                                                            e.target.value ? Number(e.target.value) : undefined,
+                                                            old?.[1],
+                                                        ])
+                                                    }
+                                                />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <label htmlFor="max" className="text-sm font-medium">Max</label>
+                                                <Input
+                                                    id="max"
+                                                    type="number"
+                                                    placeholder="Sampai"
+                                                    value={(filterValue as [number, number])?.[1] ?? ""}
+                                                    onChange={(e) =>
+                                                        column?.setFilterValue((old: [number, number] | undefined) => [
+                                                            old?.[0],
+                                                            e.target.value ? Number(e.target.value) : undefined,
+                                                        ])
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        )
+                    })}
+                </div>
             </div>
 
             <div className="rounded-md border">
@@ -180,9 +254,31 @@ export function DataTable<TData, TValue>({
             </div>
 
             <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
-                    Page {table.getState().pagination.pageIndex + 1} of{" "}
-                    {table.getPageCount()}
+                <div className="flex-1 text-sm text-muted-foreground flex items-center gap-4">
+                    <span>
+                        Page {table.getState().pagination.pageIndex + 1} of{" "}
+                        {table.getPageCount()}
+                    </span>
+                    <div className="flex items-center space-x-2">
+                        <p className="text-sm font-medium">Rows per page</p>
+                        <Select
+                            value={`${table.getState().pagination.pageSize}`}
+                            onValueChange={(value) => {
+                                table.setPageSize(Number(value))
+                            }}
+                        >
+                            <SelectTrigger className="h-8 w-[70px]">
+                                <SelectValue placeholder={table.getState().pagination.pageSize} />
+                            </SelectTrigger>
+                            <SelectContent side="top">
+                                {[10, 20, 30, 40, 50, 100].map((pageSize) => (
+                                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                                        {pageSize}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
                 <Button
                     variant="outline"

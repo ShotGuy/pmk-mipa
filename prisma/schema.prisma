@@ -63,9 +63,10 @@ model Anggota {
   id            String    @id @default(cuid())
   nama          String
   jenisKelamin  String    @db.Char(1) // L / P
-  tanggalLahir  DateTime
+  tanggalLahir  DateTime?
   noHp          String?
   prodi         String?
+  angkatan      Int?
   
   // Relations
   user          User?
