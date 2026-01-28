@@ -51,7 +51,7 @@ interface NavItem {
     roles: Role[]
 }
 
-const navItems: NavItem[] = [
+export const navItems: NavItem[] = [
     {
         title: "Dashboard",
         href: "/admin/dashboard",
@@ -134,48 +134,26 @@ const navItems: NavItem[] = [
 
 export function AppSidebar({ user }: AppSidebarProps) {
     const pathname = usePathname()
+    // Mobile logic moved to AdminHeader, but we need setOpen for desktop NavContent if it's used there? 
+    // Actually desktop sidebar doesn't need setOpen to close anything.
+    // However, NavContent expects it. We can pass a no-op or reuse state if needed, but for desktop it stays open.
     const [open, setOpen] = useState(false)
 
     const filteredNav = navItems.filter(item => item.roles.includes(user.role))
 
-    // Remove isMounted check to fix lint warning and unnecessary re-render.
-    // If hydration issues arise (e.g. icon random matching), we can re-evaluate.
     return (
-        <>
-            {/* Desktop Sidebar */}
-            <aside className="hidden md:flex flex-col w-64 border-r bg-background h-screen sticky top-0">
-                <NavContent
-                    filteredNav={filteredNav}
-                    pathname={pathname}
-                    user={user}
-                    setOpen={setOpen}
-                />
-            </aside>
-
-            {/* Mobile Sidebar */}
-            <div className="md:hidden sticky top-0 z-40 bg-background border-b px-4 h-16 flex items-center justify-between">
-                <span className="font-serif font-bold text-lg">Dashboard</span>
-                <Sheet open={open} onOpenChange={setOpen}>
-                    <SheetTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <Menu className="w-5 h-5" />
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="p-0 w-72">
-                        <NavContent
-                            filteredNav={filteredNav}
-                            pathname={pathname}
-                            user={user}
-                            setOpen={setOpen}
-                        />
-                    </SheetContent>
-                </Sheet>
-            </div>
-        </>
+        <aside className="hidden md:flex flex-col w-64 border-r bg-background h-screen sticky top-0">
+            <NavContent
+                filteredNav={filteredNav}
+                pathname={pathname}
+                user={user}
+                setOpen={setOpen} // No-op on desktop technically
+            />
+        </aside>
     )
 }
 
-function NavContent({
+export function NavContent({
     filteredNav,
     pathname,
     user,
@@ -194,7 +172,7 @@ function NavContent({
                 </Link>
             </div>
 
-            <nav className="flex-1 px-4 space-y-2">
+            <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
                 {filteredNav.map((item) => (
                     <Link
                         key={item.href}
@@ -224,12 +202,6 @@ function NavContent({
                         <p className="text-xs text-muted-foreground truncate capitalize">{user.role.toLowerCase()}</p>
                     </div>
                 </div>
-                <form action={logout}>
-                    <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive" type="submit">
-                        <LogOut className="w-5 h-5" />
-                        Sign Out
-                    </Button>
-                </form>
             </div>
         </div>
     )

@@ -3,6 +3,8 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { Role } from "@prisma/client";
 
+import { AdminHeader } from "@/components/layout/AdminHeader";
+
 export default async function DashboardLayout({
     children,
 }: {
@@ -26,12 +28,15 @@ export default async function DashboardLayout({
     return (
         <div className="flex h-screen bg-background text-foreground overflow-hidden">
             <AppSidebar user={user} />
-            <main className="flex-1 overflow-y-auto max-h-screen w-full">
-                {/* Mobile header compensation if needed is in AppSidebar sheet trigger */}
-                <div className="p-4 md:p-8 pt-6">
-                    {children}
-                </div>
-            </main>
+            <div className="flex-1 flex flex-col overflow-hidden">
+                <AdminHeader user={user} />
+                <main className="flex-1 overflow-y-auto w-full">
+                    {/* Mobile header compensation if needed is in AppSidebar sheet trigger */}
+                    <div className="p-4 md:p-8 pt-6">
+                        {children}
+                    </div>
+                </main>
+            </div>
         </div>
     );
 }
