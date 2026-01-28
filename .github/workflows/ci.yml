@@ -2,7 +2,7 @@ name: PMK MIPA CI/CD
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ "main", "develop", "feat/**" ]
   pull_request:
     branches: [ "develop" ]
 
