@@ -1,14 +1,12 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import { Moon, Sun, Calendar, Clock } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 export function DateTimeWidget() {
     const [date, setDate] = useState<Date | null>(null)
 
     useEffect(() => {
-        setDate(new Date())
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setDate(new Date()) // Set immediately on mount to avoid hydration mismatch
         const timer = setInterval(() => setDate(new Date()), 1000)
         return () => clearInterval(timer)
     }, [])

@@ -4,8 +4,8 @@ import {
     LayoutDashboard,
     Wallet,
     QrCode,
-    LogOut,
-    Menu,
+    // LogOut,
+    // Menu,
     Users,
     UserCog,
     Network,
@@ -17,16 +17,9 @@ import {
     Camera,
     Receipt
 } from "lucide-react"
-import { logout } from "@/actions/auth-actions"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-    Sheet,
-    SheetContent,
-    SheetTrigger,
-} from "@/components/ui/sheet"
 import {
     Avatar,
     AvatarFallback,
@@ -137,7 +130,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
     // Mobile logic moved to AdminHeader, but we need setOpen for desktop NavContent if it's used there? 
     // Actually desktop sidebar doesn't need setOpen to close anything.
     // However, NavContent expects it. We can pass a no-op or reuse state if needed, but for desktop it stays open.
-    const [open, setOpen] = useState(false)
+    const [, setOpen] = useState(false)
 
     const filteredNav = navItems.filter(item => item.roles.includes(user.role))
 
