@@ -6,23 +6,23 @@ import { cn } from "@/lib/utils";
 const timelineEvents = [
     {
         year: "1998",
-        title: "Awal Mula",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.",
+        title: "Awal Mula Persekutuan Doa",
+        description: "Dimulai dari kerinduan sekelompok kecil mahasiswa Kristen FMIPA untuk bersekutu dan berdoa syafaat di tengah padatnya jadwal perkuliahan dan praktikum laboratorium.",
     },
     {
         year: "2005",
-        title: "Peresmian PMK",
-        description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.",
+        title: "Peresmian Wadah PMK MIPA",
+        description: "Secara resmi disahkan sebagai organisasi kerohanian mahasiswa Kristen di Fakultas MIPA, disertai pembentukan struktur Badan Pengurus Harian (BPH) perdana.",
     },
     {
         year: "2012",
-        title: "Ekspansi Pelayanan",
-        description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis.",
+        title: "Gerakan Pemuridan (KTB)",
+        description: "Menginisiasi pembentukan Kelompok Tumbuh Bersama (KTB) sebagai pilar utama pemuridan rohani kelompok kecil, saling menopang dalam studi, dan pembinaan karakter.",
     },
     {
         year: "2024",
-        title: "Regenerasi Baru",
-        description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
+        title: "Transformasi & Integrasi Digital",
+        description: "Memperluas jangkauan pelayanan melalui sistem informasi digital terpadu, penguatan program mentorship alumni, serta regenerasi kepengurusan yang visioner.",
     },
 ];
 
