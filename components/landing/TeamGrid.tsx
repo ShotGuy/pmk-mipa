@@ -74,7 +74,7 @@ export function TeamGrid() {
                     </h2>
 
                     <p className="text-base text-muted-foreground">
-                        Melayani dengan segenap hati, memimpin dengan keteladanan, dan bertumbuh bersama mahasiswa MIPA.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                     </p>
                 </div>
 

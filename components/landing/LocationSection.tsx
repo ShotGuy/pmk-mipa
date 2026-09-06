@@ -70,8 +70,8 @@ export function LocationSection() {
                                     <div className="space-y-1">
                                         <h4 className="font-bold text-foreground">Alamat Sekretariat</h4>
                                         <p className="text-muted-foreground leading-relaxed">
-                                            Sekretariat PMK MIPA,<br />
-                                            Kawasan Sekitar Kampus Undana, Kota Kupang
+                                            Sekretariat PMK MIPA (JULANOFA&apos;S KOST),<br />
+                                            Kota Kupang, Nusa Tenggara Timur
                                         </p>
                                     </div>
                                 </div>

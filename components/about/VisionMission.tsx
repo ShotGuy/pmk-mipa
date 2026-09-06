@@ -7,22 +7,22 @@ const coreValues = [
     {
         icon: CrossIcon,
         title: "Kristosentris",
-        description: "Menjadikan firman Tuhan dan teladan Kristus sebagai pusat dari seluruh rencana, studi, dan pelayanan.",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt.",
     },
     {
         icon: ShieldCheck,
         title: "Integritas Sains",
-        description: "Menjunjung kejujuran, ketekunan, dan etika riset dalam mengejar prestasi akademik di Fakultas MIPA.",
+        description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.",
     },
     {
         icon: Heart,
         title: "Kasih Persaudaraan",
-        description: "Membangun relasi keluarga yang tulus, saling menerima, dan saling menopang tanpa sekat senioritas.",
+        description: "Excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit.",
     },
     {
         icon: Sparkles,
         title: "Pelayanan Berdampak",
-        description: "Mempraktikkan kepemimpinan yang melayani dengan rendah hati serta menjadi berkat bagi sesama.",
+        description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea.",
     },
 ];
 
@@ -43,10 +43,10 @@ function CrossIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 const missionPoints = [
-    "Membangun kedisiplinan hidup rohani melalui doa syafaat rutin dan pemuridan Kelompok Tumbuh Bersama (KTB).",
-    "Mendukung keberhasilan studi mahasiswa sains melalui budaya kelompok belajar dan bimbingan akademik.",
-    "Mengembangkan karakter kepemimpinan mahasiswa yang berintegritas, takut akan Tuhan, dan siap melayani.",
-    "Menyatakan kepedulian sosial secara nyata melalui aksi kasih dan pengabdian bagi kampus serta masyarakat.",
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt.",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla.",
+    "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.",
+    "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.",
 ];
 
 export function VisionMission() {
@@ -78,7 +78,7 @@ export function VisionMission() {
                             </div>
 
                             <p className="text-base text-muted-foreground leading-relaxed">
-                                &ldquo;Menjadi wadah pembinaan rohani mahasiswa Kristen Fakultas MIPA yang menghasilkan pribadi berkarakter mulia, unggul secara akademik, teguh berpegang pada kebenaran firman Tuhan, dan berdampak bagi gereja, bangsa, dan dunia.&rdquo;
+                                &ldquo;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.&rdquo;
                             </p>
                         </div>
 
@@ -132,7 +132,7 @@ export function VisionMission() {
                             Nilai-Nilai Inti (Core Values)
                         </h3>
                         <p className="text-sm md:text-base text-muted-foreground">
-                            Empat pilar utama yang menjiwai setiap langkah pelayanan dan interaksi keluarga besar PMK MIPA.
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                         </p>
                     </div>
 

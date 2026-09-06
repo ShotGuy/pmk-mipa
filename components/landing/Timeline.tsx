@@ -7,22 +7,22 @@ const timelineEvents = [
     {
         year: "1998",
         title: "Awal Mula Persekutuan Doa",
-        description: "Dimulai dari kerinduan sekelompok kecil mahasiswa Kristen FMIPA untuk bersekutu dan berdoa syafaat di tengah padatnya jadwal perkuliahan dan praktikum laboratorium.",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.",
     },
     {
         year: "2005",
         title: "Peresmian Wadah PMK MIPA",
-        description: "Secara resmi disahkan sebagai organisasi kerohanian mahasiswa Kristen di Fakultas MIPA, disertai pembentukan struktur Badan Pengurus Harian (BPH) perdana.",
+        description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.",
     },
     {
         year: "2012",
         title: "Gerakan Pemuridan (KTB)",
-        description: "Menginisiasi pembentukan Kelompok Tumbuh Bersama (KTB) sebagai pilar utama pemuridan rohani kelompok kecil, saling menopang dalam studi, dan pembinaan karakter.",
+        description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore.",
     },
     {
         year: "2024",
         title: "Transformasi & Integrasi Digital",
-        description: "Memperluas jangkauan pelayanan melalui sistem informasi digital terpadu, penguatan program mentorship alumni, serta regenerasi kepengurusan yang visioner.",
+        description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
     },
 ];
 
@@ -33,7 +33,7 @@ export function Timeline() {
                 <div className="text-center mb-16 space-y-4">
                     <h2 className="text-3xl md:text-5xl font-serif font-bold text-primary">Sejarah Kami</h2>
                     <p className="text-muted-foreground max-w-2xl mx-auto">
-                        Jejak langkah kesetiaan Tuhan menyertai perjalanan pelayanan ini dari masa ke masa.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                     </p>
                 </div>
 

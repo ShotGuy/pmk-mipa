@@ -26,8 +26,8 @@ export default function ContactPage() {
                                     <div>
                                         <h4 className="font-bold">Alamat</h4>
                                         <p className="text-muted-foreground">
-                                            Gedung Student Center Lt. 2,<br />
-                                            Fakultas MIPA, Universitas
+                                            Sekretariat PMK MIPA (JULANOFA&apos;S KOST),<br />
+                                            Kota Kupang, Nusa Tenggara Timur
                                         </p>
                                     </div>
                                 </div>

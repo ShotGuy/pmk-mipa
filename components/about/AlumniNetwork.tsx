@@ -9,25 +9,25 @@ const sectors = [
     {
         icon: GraduationCap,
         title: "Pendidikan & Akademisi",
-        examples: "Dosen Perguruan Tinggi, Guru Sains & Matematika, Peneliti Lembaga Ilmu Pengetahuan.",
+        examples: "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod.",
         count: "150+ Alumni",
     },
     {
         icon: Cpu,
         title: "Teknologi & Industri Data",
-        examples: "Software Engineer, Data Analyst, Product Manager, Cyber Security Specialist.",
+        examples: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.",
         count: "120+ Alumni",
     },
     {
         icon: Building2,
         title: "Pemerintahan & BUMN",
-        examples: "Kementerian Lingkungan Hidup, BMKG, BPS, BUMN Perbankan & Energi.",
+        examples: "Excepteur sint occaecat cupidatat non proident sunt in culpa qui.",
         count: "130+ Alumni",
     },
     {
         icon: Briefcase,
         title: "Wirausaha & Industri Sains",
-        examples: "Quality Assurance Laboratorium, Konsultan Analisis Data, Founder EduTech.",
+        examples: "Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi.",
         count: "100+ Alumni",
     },
 ];
@@ -52,8 +52,7 @@ export function AlumniNetwork() {
                     </h2>
 
                     <p className="text-base text-muted-foreground leading-relaxed">
-                        Lulusan PMK MIPA Undana kini berkarya di berbagai sektor strategis nasional, 
-                        membuka jalan dan memberikan bimbingan karir bagi generasi penerus.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                     </p>
                 </div>
 
@@ -101,7 +100,7 @@ export function AlumniNetwork() {
                             Program Mentorship Skripsi & Persiapan Karir
                         </h3>
                         <p className="text-sm text-muted-foreground leading-relaxed">
-                            Bagi mahasiswa tingkat akhir dan mahasiswa baru, alumni PMK MIPA secara berkala mengadakan sesi *Sharing Session*, bimbingan penyusunan skripsi, serta pelatihan persiapan memasuki dunia kerja profesional.
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
                         </p>
                     </div>
 
@@ -118,10 +117,10 @@ export function AlumniNetwork() {
                 <div className="max-w-3xl mx-auto text-center space-y-4 pt-4">
                     <Quote className="w-8 h-8 mx-auto text-primary opacity-60" />
                     <p className="text-lg md:text-xl font-serif italic text-secondary-foreground font-light leading-relaxed">
-                        &ldquo;PMK MIPA bukan sekadar tempat bersekutu di kampus, melainkan keluarga seumur hidup yang membentuk nilai integritas dan etos kerja saya hingga hari ini.&rdquo;
+                        &ldquo;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.&rdquo;
                     </p>
                     <p className="text-xs uppercase tracking-widest text-primary font-semibold">
-                        — Alumni PMK MIPA (Angkatan 2015, Data Scientist di Perusahaan Teknologi)
+                        — Alumni PMK MIPA (Lorem Ipsum Dolor)
                     </p>
                 </div>
             </div>

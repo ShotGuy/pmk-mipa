@@ -15,11 +15,18 @@ export function Footer() {
                         </p>
                         <div className="flex items-start gap-3 text-muted-foreground mt-4">
                             <MapPin className="w-5 h-5 mt-1 shrink-0 text-primary" />
-                            <span>
-                                Sekretariat PMK MIPA,<br />
-                                Gedung Student Center FMIPA,<br />
-                                Universitas
-                            </span>
+                            <a
+                                href="https://www.google.com/maps/search/?api=1&query=-10.1577683,123.6639163"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-primary transition-colors leading-relaxed"
+                            >
+                                <span>
+                                    Sekretariat PMK MIPA<br />
+                                    JULANOFA&apos;S KOST,<br />
+                                    Kota Kupang, NTT
+                                </span>
+                            </a>
                         </div>
                     </div>
 

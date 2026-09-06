@@ -51,7 +51,7 @@ export function AboutHero() {
                     transition={{ delay: 0.2, duration: 0.6 }}
                     className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto font-light"
                 >
-                    Wadah persekutuan mahasiswa Kristen di Fakultas MIPA Universitas Nusa Cendana yang berkomitmen menjadi garam dan terang, membangun karakter unggul, serta mempererat persaudaraan dalam Kristus.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
                 </motion.p>
 
                 {/* Subtle Scroll Hint */}
