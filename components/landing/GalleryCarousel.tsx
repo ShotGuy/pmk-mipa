@@ -3,14 +3,41 @@
 import React, { useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const images = [
-    "/docs/placeholder-gallery-1.jpg",
-    "/docs/placeholder-gallery-2.jpg",
-    "/docs/placeholder-gallery-3.jpg",
-    "/docs/placeholder-gallery-4.jpg",
+interface GallerySlide {
+    title: string;
+    category: string;
+    image: string;
+    description: string;
+}
+
+const galleryItems: GallerySlide[] = [
+    {
+        title: "Retreat & Ibadah Padang",
+        category: "Kebersamaan",
+        image: "/images/hero-bg.jpg",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    },
+    {
+        title: "Ibadah Raya Mahasiswa",
+        category: "Ibadah Mingguan",
+        image: "/images/hero-bg.jpg",
+        description: "Duis aute irure dolor in reprehenderit in voluptate velit esse.",
+    },
+    {
+        title: "Aksi Sosial & Peduli Sesama",
+        category: "Bakti Sosial",
+        image: "/images/hero-bg.jpg",
+        description: "Excepteur sint occaecat cupidatat non proident sunt in culpa.",
+    },
+    {
+        title: "Kelompok Tumbuh Bersama (KTB)",
+        category: "Pemuridan",
+        image: "/images/hero-bg.jpg",
+        description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
+    },
 ];
 
 export function GalleryCarousel() {
@@ -25,28 +52,51 @@ export function GalleryCarousel() {
     }, [emblaApi]);
 
     return (
-        <div className="relative group">
-            <div className="overflow-hidden rounded-xl" ref={emblaRef}>
-                <div className="flex touch-pan-y -ml-4">
-                    {images.map((src, index) => (
-                        <div key={index} className="flex-[0_0_80%] md:flex-[0_0_40%] min-w-0 pl-4 relative aspect-video">
-                            <div className="relative w-full h-full rounded-xl overflow-hidden shadow-md">
+        <div className="relative group max-w-5xl mx-auto">
+            <div className="overflow-hidden rounded-3xl" ref={emblaRef}>
+                <div className="flex touch-pan-y -ml-6">
+                    {galleryItems.map((item, index) => (
+                        <div
+                            key={index}
+                            className="flex-[0_0_85%] sm:flex-[0_0_55%] md:flex-[0_0_45%] min-w-0 pl-6 relative"
+                        >
+                            <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden shadow-lg border border-border group/card">
                                 <Image
-                                    src={src}
-                                    alt={`Gallery ${index + 1}`}
+                                    src={item.image}
+                                    alt={item.title}
                                     fill
-                                    className="object-cover hover:scale-105 transition-transform duration-500"
+                                    className="object-cover group-hover/card:scale-105 transition-transform duration-500"
                                 />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+
+                                {/* Category Badge */}
+                                <div className="absolute top-4 left-4 z-10">
+                                    <span className="inline-flex items-center gap-1 text-[11px] font-bold px-3 py-1 rounded-full bg-primary text-primary-foreground shadow-sm">
+                                        <Sparkles className="w-3 h-3" />
+                                        {item.category}
+                                    </span>
+                                </div>
+
+                                {/* Content */}
+                                <div className="absolute bottom-0 left-0 right-0 p-5 text-white z-10 space-y-1">
+                                    <h4 className="font-serif font-bold text-lg leading-tight">
+                                        {item.title}
+                                    </h4>
+                                    <p className="text-xs text-gray-300 line-clamp-2">
+                                        {item.description}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
 
+            {/* Navigation Buttons */}
             <Button
                 variant="secondary"
                 size="icon"
-                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                className="absolute left-2 sm:-left-5 top-1/2 -translate-y-1/2 rounded-full opacity-90 hover:opacity-100 transition-opacity shadow-xl bg-card/90 backdrop-blur-sm border border-border z-20"
                 onClick={scrollPrev}
             >
                 <ChevronLeft className="w-5 h-5" />
@@ -55,7 +105,7 @@ export function GalleryCarousel() {
             <Button
                 variant="secondary"
                 size="icon"
-                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                className="absolute right-2 sm:-right-5 top-1/2 -translate-y-1/2 rounded-full opacity-90 hover:opacity-100 transition-opacity shadow-xl bg-card/90 backdrop-blur-sm border border-border z-20"
                 onClick={scrollNext}
             >
                 <ChevronRight className="w-5 h-5" />
