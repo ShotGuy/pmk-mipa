@@ -1,20 +1,18 @@
-import { db } from "@/lib/db";
-import { KasClient } from "@/components/admin/kas/KasClient";
+import { KasClient } from "@/components/admin/kas/KasClient"
+import { getKasWithBalance } from "@/actions/kas"
 
 export default async function KasPage() {
-    const data = await db.kas.findMany({
-        orderBy: { nama: 'asc' }
-    });
+    const res = await getKasWithBalance()
+    const data = res.success ? res.data : []
+    const metrics = res.success
+        ? res.metrics
+        : {
+              totalSaldoTerkini: 0,
+              totalSaldoAwal: 0,
+              totalPemasukanAll: 0,
+              totalPengeluaranAll: 0,
+              totalAkunKas: 0,
+          }
 
-    // Prisma Decimal is not directly serializable to Client Component in some Next.js versions without conversion.
-    // However, recent versions are smarter. If error occurs, we map it.
-    // Let's map it to number/string to be safe.
-    const formattedData = data.map(item => ({
-        ...item,
-        saldo: item.saldo.toNumber() // Convert Decimal to JS Number
-    }));
-
-    return (
-        <KasClient data={formattedData} />
-    );
+    return <KasClient data={data} metrics={metrics} />
 }
