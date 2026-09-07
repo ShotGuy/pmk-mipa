@@ -1,59 +1,112 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Pencil, Trash } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Calendar, Clock, MapPin, Mic } from "lucide-react"
 
-export type Kegiatan = {
+export type KegiatanWithRelation = {
     id: string
     nama: string
-    tanggal: Date
+    tanggal: Date | string
     lokasi: string | null
-    waktu: Date | null
+    waktu: Date | string | null
     pembicara: string | null
-    jenisKegiatan: { nama: string }
+    idJenisKegiatan: string
+    jenisKegiatan: {
+        id: string
+        nama: string
+    }
 }
 
-export const columns: ColumnDef<Kegiatan>[] = [
+// Format waktu helper (from Date/string to HH:mm)
+function formatTime(waktu: Date | string | null): string | null {
+    if (!waktu) return null
+    const d = new Date(waktu)
+    if (isNaN(d.getTime())) return null
+    const hours = String(d.getUTCHours()).padStart(2, "0")
+    const minutes = String(d.getUTCMinutes()).padStart(2, "0")
+    return `${hours}:${minutes}`
+}
+
+export const columns: ColumnDef<KegiatanWithRelation>[] = [
     {
         accessorKey: "nama",
         header: "Nama Kegiatan",
+        cell: ({ row }) => {
+            return (
+                <div className="flex flex-col">
+                    <span className="font-semibold text-foreground text-sm">
+                        {row.original.nama}
+                    </span>
+                    {row.original.pembicara && (
+                        <span className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <Mic className="w-3 h-3 text-primary/70" />
+                            <span>{row.original.pembicara}</span>
+                        </span>
+                    )}
+                </div>
+            )
+        },
     },
     {
-        accessorKey: "jenisKegiatan.nama",
         id: "jenis",
-        header: "Jenis",
+        accessorFn: (row) => row.jenisKegiatan?.nama || "",
+        header: "Jenis Kegiatan",
+        cell: ({ row }) => {
+            const namaJenis = row.original.jenisKegiatan?.nama || "Umum"
+            return (
+                <Badge variant="secondary" className="font-medium text-xs">
+                    {namaJenis}
+                </Badge>
+            )
+        },
     },
     {
         accessorKey: "tanggal",
-        header: "Tanggal",
+        header: "Jadwal Pelaksanaan",
         cell: ({ row }) => {
-            const date = new Date(row.getValue("tanggal"))
-            return <div>{date.toLocaleDateString('id-ID')}</div>
+            const date = new Date(row.original.tanggal)
+            const formattedDate = date.toLocaleDateString("id-ID", {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+            })
+            const formattedTime = formatTime(row.original.waktu)
+
+            return (
+                <div className="flex flex-col gap-0.5 text-xs">
+                    <div className="flex items-center gap-1 font-medium text-foreground">
+                        <Calendar className="w-3.5 h-3.5 text-primary/80" />
+                        <span>{formattedDate}</span>
+                    </div>
+                    {formattedTime && (
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                            <Clock className="w-3 h-3" />
+                            <span>{formattedTime} WITA</span>
+                        </div>
+                    )}
+                </div>
+            )
         },
     },
     {
         accessorKey: "lokasi",
         header: "Lokasi",
-    },
-    {
-        accessorKey: "pembicara",
-        header: "Pembicara",
-    },
-    {
-        id: "actions",
-        header: "Actions",
-        cell: () => {
+        cell: ({ row }) => {
+            const lokasi = row.original.lokasi
+            if (!lokasi) return <span className="text-xs text-muted-foreground italic">-</span>
             return (
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600">
-                        <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600">
-                        <Trash className="h-4 w-4" />
-                    </Button>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground max-w-[200px] truncate" title={lokasi}>
+                    <MapPin className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <span className="truncate">{lokasi}</span>
                 </div>
             )
         },
+    },
+    {
+        id: "actions",
+        header: "Aksi",
+        cell: () => null, // Will be overridden in client component
     },
 ]

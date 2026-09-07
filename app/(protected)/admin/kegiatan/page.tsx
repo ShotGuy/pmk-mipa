@@ -1,37 +1,38 @@
-import { db } from "@/lib/db";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { DataTable } from "@/components/admin/DataTable";
-import { columns } from "./columns";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
+import { KegiatanClient } from "@/components/admin/kegiatan/KegiatanClient"
+import { getAllKegiatan, getJenisKegiatanOptions } from "@/actions/kegiatan"
+import { KegiatanWithRelation } from "./columns"
 
 export default async function KegiatanPage() {
-    const data = await db.kegiatan.findMany({
-        orderBy: { tanggal: 'desc' },
-        include: { jenisKegiatan: true }
-    });
+    const [kegiatanRes, jenisList] = await Promise.all([
+        getAllKegiatan(),
+        getJenisKegiatanOptions(),
+    ])
 
-    const jenisList = await db.jenisKegiatan.findMany();
-    const filters = [
-        {
-            key: "jenis", // Filter by relation name
-            title: "Jenis",
-            options: jenisList.map(j => ({ label: j.nama, value: j.nama }))
-        }
-    ];
+    const data: KegiatanWithRelation[] =
+        kegiatanRes.success && kegiatanRes.data
+            ? (kegiatanRes.data as unknown as KegiatanWithRelation[])
+            : []
+
+    const jenisOptions = jenisList.map((j) => ({
+        label: j.label,
+        value: j.label,
+    }))
 
     return (
         <div className="space-y-6">
             <AdminPageHeader
                 title="Daftar Kegiatan"
+                description="Kelola jadwal ibadah, persekutuan, dan program kegiatan PMK MIPA"
+                breadcrumbs={[
+                    { label: "Dashboard", href: "/admin/dashboard" },
+                    { label: "Kegiatan" },
+                ]}
                 addLabel="Tambah Kegiatan"
                 href="/admin/kegiatan/new"
             />
 
-            <DataTable
-                columns={columns}
-                data={data}
-                searchKey="nama"
-                facetedFilters={filters}
-            />
+            <KegiatanClient data={data} jenisOptions={jenisOptions} />
         </div>
-    );
+    )
 }
