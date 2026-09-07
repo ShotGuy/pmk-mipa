@@ -1,30 +1,60 @@
-import { db } from "@/lib/db";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { DataTable } from "@/components/admin/DataTable";
-import { columns } from "./columns";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
+import { HpdtClient, OverviewData } from "@/components/admin/hpdt/HpdtClient"
+import {
+    getHPDTOverview,
+    getHPDTLogs,
+    getPengurusOptionsForHPDT,
+} from "@/actions/hpdt"
+import { HpdtWithRelation } from "./columns"
 
 export default async function HpdtPage() {
-    const data = await db.hpdt.findMany({
-        orderBy: { tanggal: 'desc' },
-        include: { anggota: { select: { nama: true } } }
-    });
+    const now = new Date()
+    const currentMonth = now.getMonth() + 1
+    const currentYear = now.getFullYear()
 
-    // Maybe filter by Anggota? For now no specific filters requested.
-    // Could add 'isSate' filter etc later.
+    const [overviewRes, logsRes, pengurusList] = await Promise.all([
+        getHPDTOverview(currentMonth, currentYear),
+        getHPDTLogs(),
+        getPengurusOptionsForHPDT(),
+    ])
+
+    const initialOverview: OverviewData =
+        overviewRes.success && overviewRes.data
+            ? overviewRes.data
+            : {
+                  month: currentMonth,
+                  year: currentYear,
+                  elapsedDays: now.getDate(),
+                  daysInMonth: 30,
+                  avgSatePercentage: 0,
+                  avgDoaPercentage: 0,
+                  totalPengurus: 0,
+                  pengurusStats: [],
+              }
+
+    const initialLogs: HpdtWithRelation[] =
+        logsRes.success && logsRes.data
+            ? (logsRes.data as unknown as HpdtWithRelation[])
+            : []
 
     return (
         <div className="space-y-6">
             <AdminPageHeader
-                title="Laporan HPDT"
+                title="Hubungan Pribadi Dengan Tuhan (HPDT)"
+                description="Pantau kedisiplinan rohani dan catatan renungan harian Badan Pengurus PMK MIPA"
+                breadcrumbs={[
+                    { label: "Dashboard", href: "/admin/dashboard" },
+                    { label: "HPDT" },
+                ]}
                 addLabel="Input HPDT"
                 href="/admin/hpdt/new"
             />
 
-            <DataTable
-                columns={columns}
-                data={data}
-                searchKey="anggota"
+            <HpdtClient
+                initialOverview={initialOverview}
+                initialLogs={initialLogs}
+                pengurusList={pengurusList}
             />
         </div>
-    );
+    )
 }
