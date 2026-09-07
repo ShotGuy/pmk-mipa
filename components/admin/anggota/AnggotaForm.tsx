@@ -59,7 +59,7 @@ const formSchema = z.object({
 })
 
 interface AnggotaFormProps {
-    initialData?: Anggota | null
+    initialData?: (Anggota & { idKTB?: string | null }) | null
     ktbOptions: { label: string; value: string }[]
 }
 

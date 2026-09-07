@@ -12,7 +12,6 @@ export type Anggota = {
     noHp: string | null
     prodi: string | null
     angkatan: number | null
-    idKTB: string | null
     createdAt: Date
     updatedAt: Date
 }

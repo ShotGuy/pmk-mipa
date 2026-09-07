@@ -1,58 +1,35 @@
-import { db } from "@/lib/db";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { DataTable } from "@/components/admin/DataTable";
-import { columns } from "./columns";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
+import { KTBClient } from "@/components/admin/ktb/KTBClient"
+import { getAllKTB, getKTBMetrics } from "@/actions/ktb"
+import { KTBWithRelations } from "./columns"
 
 export default async function KTBPage() {
-    // 1. Fetch includes relation
-    const data = await db.kTB.findMany({
-        orderBy: { createdAt: 'desc' },
-        include: {
-            pemimpin: { select: { nama: true } } // Optimize select
-        }
-    });
+    const [ktbRes, metrics] = await Promise.all([
+        getAllKTB(),
+        getKTBMetrics(),
+    ])
 
-    // 2. Dynamic Filters: Angkatan
-    const angkatanList = await db.kTB.groupBy({
-        by: ['angkatan'],
-    });
-
-    // Sort angkatan desc
-    const angkatanOptions = angkatanList
-        .sort((a, b) => b.angkatan - a.angkatan)
-        .map(p => ({
-            label: p.angkatan.toString(),
-            value: p.angkatan.toString() // Select value is string usually?
-            // Note: If table filter expects string, this is fine. 
-            // If accessor is number, filter logic in Tanstack might need 'equals'.
-            // Default global filter turns everything to string, but column filter might rely on exact type.
-            // Since we use 'setFilterValue' in standard DataTable, passing string to number column might mismatch?
-            // Actually standard inputs are strings. Tanstack 'auto' filter handles coercion often or strictly.
-            // Let's assume loose matching for now.
-        }));
-
-    const facetedFilters = [
-        {
-            key: "angkatan",
-            title: "Angkatan",
-            options: angkatanOptions
-        }
-    ];
+    const data: KTBWithRelations[] = ktbRes.success && ktbRes.data
+        ? (ktbRes.data as unknown as KTBWithRelations[])
+        : []
 
     return (
         <div className="space-y-6">
             <AdminPageHeader
                 title="Manajemen KTB"
-                addLabel="Tambah KTB"
+                description="Kelola kelompok tumbuh bersama (pemuridan), pemimpin KTB (PKTB), badan pengurus pendamping, dan riwayat anggota."
+                breadcrumbs={[
+                    { label: "Dashboard", href: "/admin/dashboard" },
+                    { label: "Kelompok KTB" },
+                ]}
+                addLabel="Tambah KTB Baru"
                 href="/admin/ktb/new"
             />
 
-            <DataTable
-                columns={columns}
+            <KTBClient
                 data={data}
-                searchKey="pemimpin" // Using explicit ID 'pemimpin'
-                facetedFilters={facetedFilters}
+                metrics={metrics}
             />
         </div>
-    );
+    )
 }

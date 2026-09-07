@@ -23,6 +23,11 @@ enum Role {
   ANGGOTADOA
 }
 
+enum StatusKTB {
+  AKTIF
+  MERGER
+}
+
 enum StatusPengontrolan {
   AKTIF
   MACET
@@ -83,9 +88,7 @@ model Anggota {
   // Relations
   user          User?
   
-  ktb           KTB?      @relation("AnggotaKTB", fields: [idKTB], references: [id])
-  idKTB         String?
-
+  anggotaKTB    KTBAnggota[]
   ktbDipimpin   KTB[]     @relation("PemimpinKTB")
   
   badanPengurus BadanPengurus[]
@@ -96,21 +99,37 @@ model Anggota {
 }
 
 model KTB {
-  id              String   @id @default(cuid())
+  id              String         @id @default(cuid())
+  nama            String
   angkatan        Int
   terbentukDimana String?
+  status          StatusKTB      @default(AKTIF)
   
-  pemimpin        Anggota  @relation("PemimpinKTB", fields: [idPemimpin], references: [id])
+  pemimpin        Anggota        @relation("PemimpinKTB", fields: [idPemimpin], references: [id])
   idPemimpin      String
   
-  pengurus        BadanPengurus @relation(fields: [idPengurus], references: [id])
+  pengurus        BadanPengurus  @relation(fields: [idPengurus], references: [id])
   idPengurus      String
 
-  anggotas        Anggota[] @relation("AnggotaKTB")
+  anggotaKTB      KTBAnggota[]
   pengontrolan    Pengontrolan[]
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model KTBAnggota {
+  id        String   @id @default(cuid())
+  idKTB     String
+  idAnggota String
+  isAktif   Boolean  @default(true)
+
+  ktb       KTB      @relation(fields: [idKTB], references: [id], onDelete: Cascade)
+  anggota   Anggota  @relation(fields: [idAnggota], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([idKTB, idAnggota])
 }
 
 model Pengontrolan {

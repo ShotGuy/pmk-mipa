@@ -20,14 +20,32 @@ export const getAnggota = async (id: string) => {
         const anggota = await db.anggota.findUnique({
             where: { id },
             include: {
-                ktb: {
+                anggotaKTB: {
+                    where: { isAktif: true },
                     include: {
-                        pemimpin: { select: { nama: true } }
+                        ktb: {
+                            select: {
+                                id: true,
+                                nama: true,
+                                angkatan: true,
+                                pemimpin: { select: { nama: true } }
+                            }
+                        }
                     }
                 }
             }
         });
-        return { success: true, data: anggota };
+        if (!anggota) return { success: false, message: "Anggota tidak ditemukan" };
+
+        const activeKTB = anggota.anggotaKTB?.[0]?.ktb?.id || null;
+
+        return {
+            success: true,
+            data: {
+                ...anggota,
+                idKTB: activeKTB,
+            }
+        };
     } catch {
         return { success: false, message: "Gagal mengambil data anggota" };
     }
@@ -38,9 +56,17 @@ export const getAllAnggota = async () => {
         const anggota = await db.anggota.findMany({
             orderBy: { createdAt: "desc" },
             include: {
-                ktb: {
+                anggotaKTB: {
+                    where: { isAktif: true },
                     include: {
-                        pemimpin: { select: { nama: true } }
+                        ktb: {
+                            select: {
+                                id: true,
+                                nama: true,
+                                angkatan: true,
+                                pemimpin: { select: { nama: true } }
+                            }
+                        }
                     }
                 }
             }
@@ -62,9 +88,9 @@ export const getKTBOptions = async () => {
             orderBy: { angkatan: 'desc' }
         });
 
-        // Format as requested: [Nama Pemimpin] - [Angkatan]
+        // Format: [Nama KTB] - [Nama Pemimpin] ([Angkatan])
         const options = ktbList.map(ktb => ({
-            label: `${ktb.pemimpin.nama} - ${ktb.angkatan}`,
+            label: `${ktb.nama} - ${ktb.pemimpin.nama} (${ktb.angkatan})`,
             value: ktb.id
         }));
 
@@ -82,21 +108,30 @@ export const createAnggota = async (values: z.infer<typeof AnggotaSchema>) => {
     }
 
     try {
+        const { idKTB, ...data } = validatedFields.data;
         await db.anggota.create({
             data: {
-                ...validatedFields.data,
-                tanggalLahir: validatedFields.data.tanggalLahir ?? null,
-                noHp: validatedFields.data.noHp || null,
-                prodi: validatedFields.data.prodi || null,
-                angkatan: validatedFields.data.angkatan || null,
-                idKTB: validatedFields.data.idKTB || null, // Ensure empty string becomes null
+                ...data,
+                tanggalLahir: data.tanggalLahir ?? null,
+                noHp: data.noHp || null,
+                prodi: data.prodi || null,
+                angkatan: data.angkatan || null,
+                ...(idKTB ? {
+                    anggotaKTB: {
+                        create: {
+                            idKTB,
+                            isAktif: true,
+                        }
+                    }
+                } : {})
             }
         });
 
         revalidatePath("/admin/anggota");
+        revalidatePath("/admin/ktb");
         return { success: true, message: "Anggota berhasil ditambahkan" };
     } catch (error) {
-        console.error("Error creating anggota:", error); // Log the actual error
+        console.error("Error creating anggota:", error);
         return { success: false, message: "Gagal menambahkan anggota" };
     }
 };
@@ -109,19 +144,64 @@ export const updateAnggota = async (id: string, values: z.infer<typeof AnggotaSc
     }
 
     try {
+        const { idKTB, ...data } = validatedFields.data;
+
         await db.anggota.update({
             where: { id },
             data: {
-                ...validatedFields.data,
-                tanggalLahir: validatedFields.data.tanggalLahir ?? null,
-                noHp: validatedFields.data.noHp || null,
-                prodi: validatedFields.data.prodi || null,
-                angkatan: validatedFields.data.angkatan || null,
-                idKTB: validatedFields.data.idKTB || null,
+                ...data,
+                tanggalLahir: data.tanggalLahir ?? null,
+                noHp: data.noHp || null,
+                prodi: data.prodi || null,
+                angkatan: data.angkatan || null,
             }
         });
 
+        if (idKTB) {
+            const existing = await db.kTBAnggota.findUnique({
+                where: {
+                    idKTB_idAnggota: {
+                        idKTB,
+                        idAnggota: id,
+                    }
+                }
+            });
+
+            await db.kTBAnggota.updateMany({
+                where: {
+                    idAnggota: id,
+                    idKTB: { not: idKTB },
+                    isAktif: true,
+                },
+                data: { isAktif: false }
+            });
+
+            if (existing) {
+                await db.kTBAnggota.update({
+                    where: { id: existing.id },
+                    data: { isAktif: true }
+                });
+            } else {
+                await db.kTBAnggota.create({
+                    data: {
+                        idKTB,
+                        idAnggota: id,
+                        isAktif: true,
+                    }
+                });
+            }
+        } else {
+            await db.kTBAnggota.updateMany({
+                where: {
+                    idAnggota: id,
+                    isAktif: true,
+                },
+                data: { isAktif: false }
+            });
+        }
+
         revalidatePath("/admin/anggota");
+        revalidatePath("/admin/ktb");
         return { success: true, message: "Anggota berhasil diperbarui" };
     } catch (error) {
         console.error("Error updating anggota:", error);
