@@ -1,74 +1,133 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Pencil, Trash } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { TrendingUp, TrendingDown, Wallet, Calendar } from "lucide-react"
 
-export type Transaksi = {
+export type TransaksiWithKas = {
     id: string
-    jenisTransaksi: string
+    jenisTransaksi: "PEMASUKAN" | "PENGELUARAN"
     nominal: number
     keterangan: string | null
-    kas: { nama: string }
-    createdAt: Date
+    idKas: string
+    kas: {
+        id?: string
+        nama: string
+    }
+    createdAt: Date | string
 }
 
-export const columns: ColumnDef<Transaksi>[] = [
+function formatRupiah(amount: number): string {
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(amount)
+}
+
+export const columns: ColumnDef<TransaksiWithKas>[] = [
     {
         accessorKey: "createdAt",
         header: "Tanggal",
         cell: ({ row }) => {
-            const date = new Date(row.getValue("createdAt"))
-            return <div>{date.toLocaleDateString('id-ID')}</div>
+            const date = new Date(row.original.createdAt)
+            const formatted = date.toLocaleDateString("id-ID", {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+            })
+            return (
+                <div className="flex items-center gap-1.5 text-xs sm:text-sm font-medium whitespace-nowrap">
+                    <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span>{formatted}</span>
+                </div>
+            )
+        },
+    },
+    {
+        id: "kas",
+        accessorFn: (row) => row.kas?.nama || "",
+        header: "Akun Kas",
+        cell: ({ row }) => {
+            return (
+                <div className="flex items-center gap-1.5">
+                    <Wallet className="w-3.5 h-3.5 text-primary shrink-0" />
+                    <span className="font-semibold text-xs sm:text-sm">
+                        {row.original.kas?.nama || "Kas Umum"}
+                    </span>
+                </div>
+            )
         },
     },
     {
         accessorKey: "jenisTransaksi",
         header: "Jenis",
         cell: ({ row }) => {
-            const jenis = row.getValue("jenisTransaksi") as string
+            const jenis = row.original.jenisTransaksi
+            const isPemasukan = jenis === "PEMASUKAN"
+
             return (
-                <div className={jenis === 'PEMASUKAN' ? "text-green-600 font-bold" : "text-red-600 font-bold"}>
-                    {jenis}
-                </div>
+                <Badge
+                    variant={isPemasukan ? "default" : "destructive"}
+                    className={`font-semibold text-xs px-2.5 py-0.5 gap-1 ${
+                        isPemasukan
+                            ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+                            : "bg-rose-100 text-rose-800 hover:bg-rose-200 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800"
+                    }`}
+                >
+                    {isPemasukan ? (
+                        <>
+                            <TrendingUp className="w-3 h-3" />
+                            <span>Pemasukan</span>
+                        </>
+                    ) : (
+                        <>
+                            <TrendingDown className="w-3 h-3" />
+                            <span>Pengeluaran</span>
+                        </>
+                    )}
+                </Badge>
             )
-        }
+        },
     },
     {
         accessorKey: "nominal",
         header: "Nominal",
         cell: ({ row }) => {
-            const amount = parseFloat(row.getValue("nominal"))
-            const formatted = new Intl.NumberFormat("id-ID", {
-                style: "currency",
-                currency: "IDR",
-            }).format(amount)
-            return <div className="font-mono">{formatted}</div>
+            const isPemasukan = row.original.jenisTransaksi === "PEMASUKAN"
+            const amount = row.original.nominal
+
+            return (
+                <div
+                    className={`font-bold font-mono text-sm sm:text-base ${
+                        isPemasukan
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-rose-600 dark:text-rose-400"
+                    }`}
+                >
+                    {isPemasukan ? "+" : "-"} {formatRupiah(amount)}
+                </div>
+            )
         },
     },
     {
         accessorKey: "keterangan",
         header: "Keterangan",
-    },
-    {
-        accessorKey: "kas.nama",
-        id: "kas",
-        header: "Akun Kas",
+        cell: ({ row }) => {
+            const ket = row.original.keterangan
+            if (!ket) return <span className="text-xs text-muted-foreground italic">-</span>
+            return (
+                <span className="text-xs sm:text-sm text-foreground max-w-[280px] line-clamp-1" title={ket}>
+                    {ket}
+                </span>
+            )
+        },
     },
     {
         id: "actions",
-        header: "Actions",
-        cell: () => {
-            return (
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600">
-                        <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600">
-                        <Trash className="h-4 w-4" />
-                    </Button>
-                </div>
-            )
-        },
+        header: "Aksi",
+        cell: () => null, // Overridden in client component
     },
 ]

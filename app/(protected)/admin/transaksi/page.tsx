@@ -1,44 +1,39 @@
-import { db } from "@/lib/db";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { DataTable } from "@/components/admin/DataTable";
-import { columns } from "./columns";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
+import { TransaksiClient } from "@/components/admin/transaksi/TransaksiClient"
+import {
+    getAllTransaksi,
+    getKasOptionsForTransaksi,
+} from "@/actions/transaksi"
+import { TransaksiWithKas } from "./columns"
 
 export default async function TransaksiPage() {
-    const rawData = await db.transaksi.findMany({
-        orderBy: { createdAt: 'desc' },
-        include: { kas: { select: { nama: true } } }
-    });
+    const [transaksiRes, kasOptions] = await Promise.all([
+        getAllTransaksi(),
+        getKasOptionsForTransaksi(),
+    ])
 
-    const data = rawData.map(t => ({
-        ...t,
-        nominal: t.nominal.toNumber()
-    }));
-
-    const filters = [
-        {
-            key: "jenisTransaksi",
-            title: "Jenis",
-            options: [
-                { label: "Pemasukan", value: "PEMASUKAN" },
-                { label: "Pengeluaran", value: "PENGELUARAN" },
-            ]
-        }
-    ];
+    const data: TransaksiWithKas[] =
+        transaksiRes.success && transaksiRes.data
+            ? (transaksiRes.data as unknown as TransaksiWithKas[])
+            : []
 
     return (
         <div className="space-y-6">
             <AdminPageHeader
                 title="Riwayat Transaksi"
+                description="Catat dan pantau seluruh transaksi pemasukan dan pengeluaran kas PMK MIPA"
+                breadcrumbs={[
+                    { label: "Dashboard", href: "/admin/dashboard" },
+                    { label: "Transaksi" },
+                ]}
                 addLabel="Catat Transaksi"
                 href="/admin/transaksi/new"
             />
 
-            <DataTable
-                columns={columns}
+            <TransaksiClient
                 data={data}
-                searchKey="keterangan"
-                facetedFilters={filters}
+                kasAccounts={kasOptions}
             />
         </div>
-    );
+    )
 }

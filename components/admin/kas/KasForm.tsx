@@ -48,7 +48,7 @@ export function KasForm({ initialData, onSuccess, onCancel }: KasFormProps) {
             ? initialData.saldoAwal
             : initialData?.saldo !== undefined
             ? Number(initialData.saldo)
-            : 0
+            : ("" as unknown as number)
 
     const form = useForm<KasFormValues>({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -130,12 +130,19 @@ export function KasForm({ initialData, onSuccess, onCancel }: KasFormProps) {
                             </FormLabel>
                             <FormControl>
                                 <Input
-                                    type="number"
-                                    min="0"
+                                    type="text"
+                                    inputMode="numeric"
                                     placeholder="0"
                                     disabled={isPending}
-                                    {...field}
-                                    onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
+                                    value={
+                                        field.value
+                                            ? new Intl.NumberFormat("id-ID").format(Number(field.value))
+                                            : ""
+                                    }
+                                    onChange={(e) => {
+                                        const clean = e.target.value.replace(/\D/g, "")
+                                        field.onChange(clean === "" ? "" : Number(clean))
+                                    }}
                                 />
                             </FormControl>
                             <FormDescription>
