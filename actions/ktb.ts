@@ -101,6 +101,9 @@ export async function getKTB(id: string) {
                     },
                     orderBy: [{ isAktif: "desc" }, { createdAt: "asc" }],
                 },
+                pengontrolan: {
+                    orderBy: { tanggal: "desc" },
+                },
             },
         })
 

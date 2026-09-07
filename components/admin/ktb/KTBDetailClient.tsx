@@ -18,8 +18,10 @@ import {
     Check,
     ChevronsUpDown,
     Loader2,
+    BookOpenCheck,
+    AlertCircle,
 } from "lucide-react"
-import { StatusKTB } from "@prisma/client"
+import { StatusKTB, StatusPengontrolan } from "@prisma/client"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 
@@ -86,6 +88,14 @@ interface MemberItem {
     }
 }
 
+interface PengontrolanItem {
+    id: string
+    tanggal: Date
+    bahan: string | null
+    status: StatusPengontrolan
+    keterangan: string | null
+}
+
 interface KTBDetailClientProps {
     ktb: {
         id: string
@@ -108,6 +118,7 @@ interface KTBDetailClientProps {
             }
         }
         anggotaKTB: MemberItem[]
+        pengontrolan?: PengontrolanItem[]
     }
 }
 
@@ -249,15 +260,25 @@ export function KTBDetailClient({ ktb }: KTBDetailClientProps) {
                     </div>
                 </div>
 
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2 h-9 text-xs"
-                    onClick={() => router.push(`/admin/ktb/${ktb.id}/edit`)}
-                >
-                    <Pencil className="w-3.5 h-3.5" />
-                    <span>Edit Informasi KTB</span>
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button
+                        size="sm"
+                        className="gap-2 h-9 text-xs"
+                        onClick={() => router.push(`/admin/pengontrolan/new?ktbId=${ktb.id}`)}
+                    >
+                        <BookOpenCheck className="w-4 h-4" />
+                        <span>Catat Pengontrolan</span>
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 h-9 text-xs"
+                        onClick={() => router.push(`/admin/ktb/${ktb.id}/edit`)}
+                    >
+                        <Pencil className="w-3.5 h-3.5" />
+                        <span>Edit Informasi KTB</span>
+                    </Button>
+                </div>
             </div>
 
             {/* KARTU PROFIL PENGURUS & PEMIMPIN */}
@@ -434,6 +455,118 @@ export function KTBDetailClient({ ktb }: KTBDetailClientProps) {
                                                     <Trash2 className="w-3.5 h-3.5" />
                                                 </Button>
                                             </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+
+            {/* BAGIAN RIWAYAT PENGONTROLAN KTB */}
+            <Card className="border shadow-xs bg-card/60 backdrop-blur-sm">
+                <CardHeader className="p-4 sm:p-6 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b">
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <BookOpenCheck className="w-5 h-5 text-primary" />
+                            <CardTitle className="text-base sm:text-lg">
+                                Riwayat Monitoring & Pengontrolan
+                            </CardTitle>
+                        </div>
+                        <CardDescription className="text-xs mt-1">
+                            Catatan berkala evaluasi kesehatan dan bahan firman yang dipelajari kelompok {ktb.nama} (Total: {ktb.pengontrolan?.length || 0} Catatan)
+                        </CardDescription>
+                    </div>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 h-9 text-xs"
+                        onClick={() => router.push(`/admin/pengontrolan/new?ktbId=${ktb.id}`)}
+                    >
+                        <BookOpenCheck className="w-4 h-4 text-primary" />
+                        <span>Catat Pengontrolan Baru</span>
+                    </Button>
+                </CardHeader>
+
+                <CardContent className="p-0">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[40px]">#</TableHead>
+                                <TableHead>Tanggal</TableHead>
+                                <TableHead>Kondisi Kelompok</TableHead>
+                                <TableHead>Bahan yang Dibahas</TableHead>
+                                <TableHead>Catatan Evaluasi</TableHead>
+                                <TableHead className="text-right">Aksi</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {!ktb.pengontrolan || ktb.pengontrolan.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="h-28 text-center text-muted-foreground text-sm">
+                                        Belum ada catatan pengontrolan untuk kelompok ini.
+                                        <div className="mt-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="text-xs gap-1.5"
+                                                onClick={() => router.push(`/admin/pengontrolan/new?ktbId=${ktb.id}`)}
+                                            >
+                                                <BookOpenCheck className="w-3.5 h-3.5 text-primary" />
+                                                Catat Pengontrolan Pertama
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                ktb.pengontrolan.map((item, index) => (
+                                    <TableRow key={item.id}>
+                                        <TableCell className="text-xs text-muted-foreground">
+                                            {index + 1}
+                                        </TableCell>
+                                        <TableCell className="text-xs sm:text-sm font-medium">
+                                            {format(new Date(item.tanggal), "dd MMM yyyy", { locale: localeId })}
+                                        </TableCell>
+                                        <TableCell>
+                                            {item.status === StatusPengontrolan.AKTIF && (
+                                                <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-300 text-xs">
+                                                    AKTIF
+                                                </Badge>
+                                            )}
+                                            {item.status === StatusPengontrolan.MACET && (
+                                                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300 text-xs">
+                                                    MACET
+                                                </Badge>
+                                            )}
+                                            {item.status === StatusPengontrolan.VAKUM && (
+                                                <Badge variant="outline" className="bg-rose-50 text-rose-700 border-rose-300 text-xs">
+                                                    VAKUM
+                                                </Badge>
+                                            )}
+                                            {item.status === StatusPengontrolan.MERGER && (
+                                                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-300 text-xs">
+                                                    MERGER
+                                                </Badge>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-xs sm:text-sm">
+                                            {item.bahan || <span className="text-muted-foreground italic">-</span>}
+                                        </TableCell>
+                                        <TableCell className="text-xs text-muted-foreground max-w-xs truncate">
+                                            {item.keterangan || "-"}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-8 text-xs gap-1 text-blue-600 hover:text-blue-700"
+                                                onClick={() => router.push(`/admin/pengontrolan/${item.id}`)}
+                                            >
+                                                <Pencil className="w-3.5 h-3.5" />
+                                                <span>Edit</span>
+                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))

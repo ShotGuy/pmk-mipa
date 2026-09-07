@@ -1,41 +1,41 @@
-import { db } from "@/lib/db";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { DataTable } from "@/components/admin/DataTable";
-import { columns } from "./columns";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
+import { PengontrolanClient } from "@/components/admin/pengontrolan/PengontrolanClient"
+import {
+    getAllPengontrolan,
+    getPengontrolanMetrics,
+    getKTBOptionsForPengontrolan,
+} from "@/actions/pengontrolan"
+import { PengontrolanWithRelations } from "./columns"
 
 export default async function PengontrolanPage() {
-    const data = await db.pengontrolan.findMany({
-        orderBy: { tanggal: 'desc' },
-        include: { ktb: true }
-    });
+    const [pengontrolanRes, metrics, ktbOptions] = await Promise.all([
+        getAllPengontrolan(),
+        getPengontrolanMetrics(),
+        getKTBOptionsForPengontrolan(),
+    ])
 
-    const facetedFilters = [
-        {
-            key: "status",
-            title: "Status",
-            options: [
-                { label: "Aktif", value: "AKTIF" },
-                { label: "Macet", value: "MACET" },
-                { label: "Vakum", value: "VAKUM" },
-                { label: "Merger", value: "MERGER" },
-            ]
-        }
-    ];
+    const data: PengontrolanWithRelations[] = pengontrolanRes.success && pengontrolanRes.data
+        ? (pengontrolanRes.data as unknown as PengontrolanWithRelations[])
+        : []
 
     return (
         <div className="space-y-6">
             <AdminPageHeader
-                title="Manajemen Pengontrolan"
-                addLabel="Tambah Data"
+                title="Manajemen Pengontrolan KTB"
+                description="Jurnal monitoring berkala oleh Badan Pengurus untuk memantau kesehatan rohani, bahan pemuridan, dan dinamika kelompok KTB."
+                breadcrumbs={[
+                    { label: "Dashboard", href: "/admin/dashboard" },
+                    { label: "Pengontrolan KTB" },
+                ]}
+                addLabel="Catat Pengontrolan"
                 href="/admin/pengontrolan/new"
             />
 
-            <DataTable
-                columns={columns}
+            <PengontrolanClient
                 data={data}
-                searchKey="bahan"
-                facetedFilters={facetedFilters}
+                metrics={metrics}
+                ktbOptions={ktbOptions}
             />
         </div>
-    );
+    )
 }
