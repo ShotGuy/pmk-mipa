@@ -1,39 +1,37 @@
 import { db } from "@/lib/db";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { DataTable } from "@/components/admin/DataTable";
-import { columns } from "./columns";
+import { BadanPengurusClient } from "@/components/admin/badan-pengurus/BadanPengurusClient";
+import { getAllBadanPengurus } from "@/actions/badan-pengurus";
 
 export default async function BadanPengurusPage() {
-    const data = await db.badanPengurus.findMany({
-        orderBy: { createdAt: 'desc' },
-        include: { anggota: { select: { nama: true } } }
-    });
+    const res = await getAllBadanPengurus();
+    const data = res.success && res.data ? res.data : [];
 
     const masaJabatanList = await db.badanPengurus.groupBy({
         by: ['masaJabatan'],
     });
 
-    const filters = [
-        {
-            key: "masaJabatan",
-            title: "Periode",
-            options: masaJabatanList.map(m => ({ label: m.masaJabatan, value: m.masaJabatan }))
-        }
-    ];
+    const periodeOptions = masaJabatanList.map(m => ({
+        label: m.masaJabatan,
+        value: m.masaJabatan
+    }));
 
     return (
         <div className="space-y-6">
             <AdminPageHeader
                 title="Badan Pengurus"
-                addLabel="Tambah BP"
+                description="Kelola struktur organisasi dan kepengurusan PMK MIPA"
+                breadcrumbs={[
+                    { label: "Dashboard", href: "/admin/dashboard" },
+                    { label: "Badan Pengurus" }
+                ]}
+                addLabel="Tambah Pengurus"
                 href="/admin/badan-pengurus/new"
             />
 
-            <DataTable
-                columns={columns}
+            <BadanPengurusClient
                 data={data}
-                searchKey="anggota"
-                facetedFilters={filters}
+                periodeOptions={periodeOptions}
             />
         </div>
     );

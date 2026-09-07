@@ -41,6 +41,18 @@ enum JenisTransaksi {
   PENGELUARAN
 }
 
+enum Jabatan {
+  KETUA
+  SEKRETARIS
+  BENDAHARA
+  KOORDINATOR_ACARA
+  ANGGOTA_ACARA
+  KOORDINATOR_KTB
+  ANGGOTA_KTB
+  KOORDINATOR_DOA_DAN_PEMERHATI
+  ANGGOTA_DOA_DAN_PEMERHATI
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -118,9 +130,9 @@ model Pengontrolan {
 
 model BadanPengurus {
   id          String   @id @default(cuid())
+  jabatan     Jabatan
   masaJabatan String
   status      Boolean  @default(true) // Aktif?
-  foto        String?  // URL to image
   prodi       String?
   socialMedia String?  // URL/Handle link
 
