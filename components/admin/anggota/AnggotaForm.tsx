@@ -105,7 +105,7 @@ export function AnggotaForm({ initialData, ktbOptions }: AnggotaFormProps) {
     return (
 
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto bg-white p-6 rounded-lg border shadow-sm">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
 
 
                 <FormField
@@ -157,7 +157,7 @@ export function AnggotaForm({ initialData, ktbOptions }: AnggotaFormProps) {
                                             <Button
                                                 variant={"outline"}
                                                 className={cn(
-                                                    "w-full pl-3 text-left font-normal",
+                                                    "w-full pl-3 text-left font-normal h-10",
                                                     !field.value && "text-muted-foreground"
                                                 )}
                                                 disabled={isPending}
@@ -251,7 +251,7 @@ export function AnggotaForm({ initialData, ktbOptions }: AnggotaFormProps) {
                                                 role="combobox"
                                                 aria-expanded={openKTB}
                                                 className={cn(
-                                                    "w-full justify-between",
+                                                    "w-full justify-between h-10 font-normal",
                                                     !field.value && "text-muted-foreground"
                                                 )}
                                                 disabled={isPending}

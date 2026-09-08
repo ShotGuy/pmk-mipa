@@ -104,7 +104,7 @@ export function UserForm({ initialData, eligibleAnggotaOptions }: UserFormProps)
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto bg-white p-6 rounded-lg border shadow-sm">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
 
                 {/* Nama & Email */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -219,7 +219,7 @@ export function UserForm({ initialData, eligibleAnggotaOptions }: UserFormProps)
                                             role="combobox"
                                             aria-expanded={openAnggota}
                                             className={cn(
-                                                "w-full justify-between",
+                                                "w-full justify-between h-10 font-normal",
                                                 !field.value && "text-muted-foreground"
                                             )}
                                             disabled={isPending}
