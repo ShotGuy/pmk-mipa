@@ -197,6 +197,10 @@ model Kegiatan {
   waktu           DateTime? @db.Time
   pembicara       String?
   
+  // Presensi Controls
+  isPresensiOpen  Boolean  @default(false)
+  presensiToken   String?  @unique
+
   jenisKegiatan   JenisKegiatan @relation(fields: [idJenisKegiatan], references: [id])
   idJenisKegiatan String
 
@@ -224,6 +228,8 @@ model Kehadiran {
   prodi           String?
   angkatan        Int?
   tauPmkDariMana  String?
+  noHp            String?
+  jenisKelamin    String?  @db.Char(1) // L / P
   
   anggota         Anggota? @relation(fields: [idAnggota], references: [id])
   idAnggota       String?
