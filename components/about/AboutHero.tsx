@@ -1,0 +1,70 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { Sparkles, ArrowDown } from "lucide-react";
+import Image from "next/image";
+
+export function AboutHero() {
+    return (
+        <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-background">
+            {/* Ambient Background Gradient Glows */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-primary/15 via-primary/5 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
+            
+            {/* Watermark Logo */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] select-none pointer-events-none -z-10">
+                <Image
+                    src="/logo.png"
+                    alt="PMK MIPA Watermark"
+                    width={450}
+                    height={450}
+                    className="object-contain"
+                />
+            </div>
+
+            <div className="container mx-auto px-4 max-w-4xl text-center space-y-6">
+                {/* Badge */}
+                <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent text-accent-foreground text-xs font-semibold tracking-wide uppercase border border-primary/20"
+                >
+                    <Sparkles className="w-3.5 h-3.5 text-primary" />
+                    <span>Profil & Perjalanan Kami</span>
+                </motion.div>
+
+                {/* Main Heading */}
+                <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.6 }}
+                    className="text-4xl sm:text-5xl md:text-6xl font-serif font-bold text-foreground leading-[1.15] tracking-tight"
+                >
+                    Melayani dengan Hati, <br />
+                    <span className="text-primary italic">Berkarya dalam Sains</span>
+                </motion.h1>
+
+                {/* Subtitle */}
+                <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.6 }}
+                    className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto font-light"
+                >
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+                </motion.p>
+
+                {/* Subtle Scroll Hint */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4, duration: 0.8 }}
+                    className="pt-6 flex justify-center text-muted-foreground text-xs font-medium gap-1.5 items-center"
+                >
+                    <span>Gulir ke bawah untuk mengenal kami lebih jauh</span>
+                    <ArrowDown className="w-3.5 h-3.5 animate-bounce text-primary" />
+                </motion.div>
+            </div>
+        </section>
+    );
+}

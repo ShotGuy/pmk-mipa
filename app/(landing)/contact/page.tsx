@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import { ContactForm } from "@/components/landing/ContactForm";
 import { Mail, MapPin, Phone } from "lucide-react";
+
+export const metadata: Metadata = {
+    title: "Hubungi Kami & Sekretariat",
+    description:
+        "Informasi kontak sekretariat, nomor telepon pengurus, alamat, dan formulir pesan PMK MIPA FST Universitas Nusa Cendana Kupang.",
+    alternates: {
+        canonical: "/contact",
+    },
+};
 
 export default function ContactPage() {
     return (
@@ -26,8 +36,8 @@ export default function ContactPage() {
                                     <div>
                                         <h4 className="font-bold">Alamat</h4>
                                         <p className="text-muted-foreground">
-                                            Gedung Student Center Lt. 2,<br />
-                                            Fakultas MIPA, Universitas
+                                            Sekretariat PMK MIPA (JULANOFA&apos;S KOST),<br />
+                                            Kota Kupang, Nusa Tenggara Timur
                                         </p>
                                     </div>
                                 </div>
@@ -54,14 +64,19 @@ export default function ContactPage() {
                             </div>
                         </div>
 
-                        {/* Map Placeholder */}
-                        <div className="h-[300px] bg-muted rounded-2xl overflow-hidden relative">
-                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                                <span className="flex items-center gap-2">
-                                    <MapPin className="w-6 h-6" />
-                                    Google Maps Embed Here
-                                </span>
-                            </div>
+                        {/* Google Maps Embed */}
+                        <div className="h-[350px] bg-muted rounded-2xl overflow-hidden relative border border-border shadow-md">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3799.440073477659!2d123.66391627492243!3d-10.157768309611306!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2c56837af8a46fa1%3A0x8317f1112af97e03!2sJULANOFA'S%20KOST!5e1!3m2!1sid!2sid!4v1788633372411!5m2!1sid!2sid"
+                                width="100%"
+                                height="100%"
+                                style={{ border: 0 }}
+                                allowFullScreen
+                                loading="lazy"
+                                referrerPolicy="strict-origin-when-cross-origin"
+                                className="w-full h-full"
+                                title="Peta Lokasi Sekretariat PMK MIPA"
+                            />
                         </div>
                     </div>
 

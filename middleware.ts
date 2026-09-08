@@ -11,7 +11,9 @@ export default auth((req) => {
     const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth")
     const isPublicRoute = ["/", "/login", "/register", "/about", "/activities", "/contact"].some(route => nextUrl.pathname === route || nextUrl.pathname.startsWith(route + "/"))
     const isAuthRoute = nextUrl.pathname === "/login" || nextUrl.pathname === "/register"
-    const isDashboardRoute = nextUrl.pathname.startsWith("/dashboard")
+    // Protected Routes (formerly Dashboard)
+    const protectedPaths = ["/admin", "/finance", "/reporting", "/attendance"];
+    const isProtectedRoute = protectedPaths.some(path => nextUrl.pathname.startsWith(path));
 
     // Allow API auth routes
     if (isApiAuthRoute) {
@@ -21,7 +23,13 @@ export default auth((req) => {
     // Redirect logged in users away from auth pages
     if (isAuthRoute) {
         if (isLoggedIn) {
-            return NextResponse.redirect(new URL("/dashboard", nextUrl))
+            // Redirect to their respective dashboard based on role?
+            // For now, let's redirect to /admin if admin, else /attendance (safe default)
+            // But we don't have role here easily without decoding payload?
+            // We do have req.auth from `auth` wrapper.
+            const role = req.auth?.user.role;
+            if (role === "ADMIN") return NextResponse.redirect(new URL("/admin/dashboard", nextUrl));
+            return NextResponse.redirect(new URL("/attendance", nextUrl));
         }
         return NextResponse.next()
     }
@@ -37,25 +45,36 @@ export default auth((req) => {
     }
 
     // Role based protection
-    if (isDashboardRoute && isLoggedIn) {
+    if (isProtectedRoute && isLoggedIn) {
         const role = req.auth?.user.role
 
-        // Strict checks
-        if (nextUrl.pathname.startsWith("/dashboard/finance")) {
-            if (role !== "BENDAHARA" && role !== "KETUA" && role !== "ADMIN") {
-                return NextResponse.redirect(new URL("/dashboard", nextUrl))
+        // 1. Finance Guard (Admin, Ketua, Bendahara)
+        if (nextUrl.pathname.startsWith("/finance")) {
+            if (!["ADMIN", "KETUA", "BENDAHARA"].includes(role as string)) {
+                return NextResponse.redirect(new URL("/", nextUrl))
             }
         }
 
-        if (nextUrl.pathname.startsWith("/dashboard/admin")) {
-            if (role !== "ADMIN") {
-                return NextResponse.redirect(new URL("/dashboard", nextUrl))
+        // 2. Reporting Guard (Admin, Ketua, Bendahara)
+        if (nextUrl.pathname.startsWith("/reporting")) {
+            if (!["ADMIN", "KETUA", "BENDAHARA"].includes(role as string)) {
+                return NextResponse.redirect(new URL("/", nextUrl))
             }
         }
+
+        // 3. Admin Guard (Only Admin)
+        if (nextUrl.pathname.startsWith("/admin")) {
+            if (role !== "ADMIN") {
+                return NextResponse.redirect(new URL("/", nextUrl))
+            }
+        }
+
+        // 4. Attendance is open to all BADAN PENGURUS
     }
 
     return NextResponse.next()
 })
+
 
 // Optionally, don't invoke Middleware on some paths
 export const config = {

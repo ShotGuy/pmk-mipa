@@ -4,20 +4,23 @@ import {
     LayoutDashboard,
     Wallet,
     QrCode,
-    FileSpreadsheet,
-    ShieldCheck,
-    LogOut,
-    Menu
+    // LogOut,
+    // Menu,
+    Users,
+    UserCog,
+    Network,
+    BookOpenCheck,
+    Briefcase,
+    ScrollText,
+    CalendarDays,
+    Palette,
+    Camera,
+    Receipt
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-    Sheet,
-    SheetContent,
-    SheetTrigger,
-} from "@/components/ui/sheet"
 import {
     Avatar,
     AvatarFallback,
@@ -42,81 +45,109 @@ interface NavItem {
     roles: Role[]
 }
 
-const navItems: NavItem[] = [
+export const navItems: NavItem[] = [
     {
-        title: "Overview",
-        href: "/dashboard",
+        title: "Dashboard",
+        href: "/admin/dashboard",
         icon: LayoutDashboard,
-        roles: ["ANGGOTA", "BENDAHARA", "KETUA", "ADMIN"]
-    },
-    {
-        title: "Keuangan",
-        href: "/dashboard/finance",
-        icon: Wallet,
-        roles: ["BENDAHARA", "KETUA", "ADMIN"]
-    },
-    {
-        title: "Absensi",
-        href: "/dashboard/attendance",
-        icon: QrCode,
-        roles: ["ANGGOTA", "ADMIN", "KETUA"] // Updated: User needs to scan
-    },
-    {
-        title: "Reporting",
-        href: "/dashboard/reporting",
-        icon: FileSpreadsheet,
-        roles: ["BENDAHARA", "KETUA", "ADMIN"]
-    },
-    {
-        title: "Admin",
-        href: "/dashboard/admin",
-        icon: ShieldCheck,
         roles: ["ADMIN"]
-    }
+    },
+    {
+        title: "Manajemen User",
+        href: "/admin/users",
+        icon: Users,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Data Anggota",
+        href: "/admin/anggota",
+        icon: UserCog,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Data KTB",
+        href: "/admin/ktb",
+        icon: Network,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Pengontrolan KTB",
+        href: "/admin/pengontrolan",
+        icon: BookOpenCheck,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Badan Pengurus",
+        href: "/admin/badan-pengurus",
+        icon: Briefcase,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "HPDT",
+        href: "/admin/hpdt",
+        icon: ScrollText,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Jenis Kegiatan",
+        href: "/admin/jenis-kegiatan",
+        icon: Palette,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Kegiatan",
+        href: "/admin/kegiatan",
+        icon: CalendarDays,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Gallery",
+        href: "/admin/gallery",
+        icon: Camera,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Kehadiran",
+        href: "/admin/kehadiran",
+        icon: QrCode,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Kas",
+        href: "/admin/kas",
+        icon: Wallet,
+        roles: ["ADMIN"]
+    },
+    {
+        title: "Transaksi",
+        href: "/admin/transaksi",
+        icon: Receipt,
+        roles: ["ADMIN"]
+    },
 ]
 
 export function AppSidebar({ user }: AppSidebarProps) {
     const pathname = usePathname()
-    const [open, setOpen] = useState(false)
+    // Mobile logic moved to AdminHeader, but we need setOpen for desktop NavContent if it's used there? 
+    // Actually desktop sidebar doesn't need setOpen to close anything.
+    // However, NavContent expects it. We can pass a no-op or reuse state if needed, but for desktop it stays open.
+    const [, setOpen] = useState(false)
 
     const filteredNav = navItems.filter(item => item.roles.includes(user.role))
 
     return (
-        <>
-            {/* Desktop Sidebar */}
-            <aside className="hidden md:flex flex-col w-64 border-r bg-background h-screen sticky top-0">
-                <NavContent
-                    filteredNav={filteredNav}
-                    pathname={pathname}
-                    user={user}
-                    setOpen={setOpen}
-                />
-            </aside>
-
-            {/* Mobile Sidebar */}
-            <div className="md:hidden sticky top-0 z-40 bg-background border-b px-4 h-16 flex items-center justify-between">
-                <span className="font-serif font-bold text-lg">Dashboard</span>
-                <Sheet open={open} onOpenChange={setOpen}>
-                    <SheetTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <Menu className="w-5 h-5" />
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="p-0 w-72">
-                        <NavContent
-                            filteredNav={filteredNav}
-                            pathname={pathname}
-                            user={user}
-                            setOpen={setOpen}
-                        />
-                    </SheetContent>
-                </Sheet>
-            </div>
-        </>
+        <aside className="hidden md:flex flex-col w-64 border-r bg-background h-screen sticky top-0">
+            <NavContent
+                filteredNav={filteredNav}
+                pathname={pathname}
+                user={user}
+                setOpen={setOpen} // No-op on desktop technically
+            />
+        </aside>
     )
 }
 
-function NavContent({
+export function NavContent({
     filteredNav,
     pathname,
     user,
@@ -130,12 +161,19 @@ function NavContent({
     return (
         <div className="flex flex-col h-full py-4">
             <div className="px-6 mb-8">
-                <Link href="/" className="flex items-center gap-2 font-serif font-bold text-xl text-primary">
+                <Link href="/" className="flex items-center gap-2.5 font-serif font-bold text-xl text-primary">
+                    <Image
+                        src="/logo.png"
+                        alt="Logo PMK MIPA"
+                        width={32}
+                        height={32}
+                        className="object-contain shrink-0"
+                    />
                     <span>PMK MIPA</span>
                 </Link>
             </div>
 
-            <nav className="flex-1 px-4 space-y-2">
+            <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
                 {filteredNav.map((item) => (
                     <Link
                         key={item.href}
@@ -143,7 +181,7 @@ function NavContent({
                         onClick={() => setOpen(false)}
                         className={cn(
                             "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors hover:bg-secondary/50",
-                            pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard")
+                            pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/")
                                 ? "bg-secondary text-primary"
                                 : "text-muted-foreground"
                         )}
@@ -165,13 +203,6 @@ function NavContent({
                         <p className="text-xs text-muted-foreground truncate capitalize">{user.role.toLowerCase()}</p>
                     </div>
                 </div>
-                {/* Normally we'd use a server action or specific signout flow, but for now just a button */}
-                <form action="/api/auth/signout" method="POST">
-                    <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive" type="submit">
-                        <LogOut className="w-5 h-5" />
-                        Sign Out
-                    </Button>
-                </form>
             </div>
         </div>
     )
