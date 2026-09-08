@@ -46,6 +46,9 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   manifest: "/manifest.json",
+  verification: {
+    google: "3DUU8Ld2G84JjsGHr75dQG4OGuh_rJHJ1yREGzMHwhE",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico" },
