@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = "https://pmkmipa.web.id";
+    const baseUrl = "https://www.pmkmipa.web.id";
     const lastModified = new Date();
 
     return [

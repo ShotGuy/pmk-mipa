@@ -16,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://pmkmipa.web.id"),
+  metadataBase: new URL("https://www.pmkmipa.web.id"),
   title: {
     default: "PMK MIPA Undana - Persekutuan Mahasiswa Kristen FST Undana",
     template: "%s | PMK MIPA Undana",

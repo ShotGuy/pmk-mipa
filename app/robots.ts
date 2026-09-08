@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = "https://pmkmipa.web.id";
+    const baseUrl = "https://www.pmkmipa.web.id";
 
     return {
         rules: [
