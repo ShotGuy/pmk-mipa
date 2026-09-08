@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Trash, MessageCircle, Info, Sparkles, UserCheck } from "lucide-react"
+import { format } from "date-fns"
+import { id as localeId } from "date-fns/locale"
 
 export interface KehadiranWithRelations {
     id: string
@@ -42,16 +44,8 @@ export const getColumns = ({ onDelete }: ColumnProps): ColumnDef<KehadiranWithRe
         header: "Waktu Absen",
         cell: ({ row }) => {
             const date = new Date(row.original.createdAt)
-            const timeStr = date.toLocaleTimeString("id-ID", {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-            })
-            const dateStr = date.toLocaleDateString("id-ID", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-            })
+            const timeStr = format(date, "HH:mm", { locale: localeId })
+            const dateStr = format(date, "d MMM yyyy", { locale: localeId })
             return (
                 <div className="flex flex-col">
                     <span className="font-mono font-medium text-xs text-foreground">{timeStr} WIB</span>

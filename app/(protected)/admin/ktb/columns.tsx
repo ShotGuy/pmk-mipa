@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, Users, Pencil, Trash, Sparkles } from "lucide-react"
+import { ArrowUpDown, Users } from "lucide-react"
 import { StatusKTB } from "@prisma/client"
 import Link from "next/link"
 

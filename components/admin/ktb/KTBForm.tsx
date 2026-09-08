@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
+import { useForm, Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Check, ChevronsUpDown, Loader2, Sparkles } from "lucide-react"
 import { toast } from "sonner"
@@ -77,7 +77,7 @@ export function KTBForm({ initialData, pemimpinOptions, pengurusOptions }: KTBFo
     const isEdit = !!initialData
 
     const form = useForm<KTBFormValues>({
-        resolver: zodResolver(formSchema) as any,
+        resolver: zodResolver(formSchema) as Resolver<KTBFormValues>,
         defaultValues: {
             nama: initialData?.nama || "",
             angkatan: initialData?.angkatan || new Date().getFullYear(),

@@ -1,7 +1,9 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useSyncExternalStore } from "react"
 import { useRouter } from "next/navigation"
+
+const emptySubscribe = () => () => {}
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
 import { DataTable } from "@/components/admin/DataTable"
 import { getColumns, KehadiranWithRelations } from "@/app/(protected)/admin/kehadiran/columns"
@@ -63,6 +65,8 @@ import {
     ChevronsUpDown,
     Check,
 } from "lucide-react"
+import { format } from "date-fns"
+import { id as localeId } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 
 interface KegiatanItem {
@@ -110,6 +114,11 @@ export function KehadiranClient({
     const [data, setData] = useState<KehadiranWithRelations[]>(initialData)
     const [metrics, setMetrics] = useState(initialMetrics)
     const [isSwitching, setIsSwitching] = useState(false)
+    const isMounted = useSyncExternalStore(
+        emptySubscribe,
+        () => true,
+        () => false
+    )
 
     // Combobox state
     const [openKegiatanCombobox, setOpenKegiatanCombobox] = useState(false)
@@ -250,7 +259,7 @@ export function KehadiranClient({
     }, [kegiatanList, kegiatanTab, currentMonth, currentYear])
 
     // Current month name for heading
-    const monthName = now.toLocaleDateString("id-ID", { month: "long", year: "numeric" })
+    const monthName = format(now, "MMMM yyyy", { locale: localeId })
 
     // Filtered data for DataTable
     const filteredData = useMemo(() => {
@@ -290,11 +299,7 @@ export function KehadiranClient({
 
     // Render individual item in combobox
     const renderKegiatanOption = (k: KegiatanItem) => {
-        const dateStr = new Date(k.tanggal).toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-        })
+        const dateStr = format(new Date(k.tanggal), "d MMM yyyy", { locale: localeId })
         const isSelected = k.id === selectedKegiatanId
 
         return (
@@ -344,49 +349,81 @@ export function KehadiranClient({
                             <span>Pilih Kegiatan Ibadah (Cari & Kelompokkan)</span>
                         </div>
 
-                        <Popover open={openKegiatanCombobox} onOpenChange={setOpenKegiatanCombobox}>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    aria-expanded={openKegiatanCombobox}
-                                    className="w-full h-auto min-h-[52px] p-3 justify-between bg-background hover:bg-muted/40 border text-left font-normal transition-all"
-                                    disabled={isSwitching}
-                                >
-                                    <div className="flex items-center gap-3 min-w-0 pr-2">
-                                        <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                            <CalendarDays className="w-5 h-5" />
-                                        </div>
-                                        <div className="flex flex-col min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-bold text-sm text-foreground truncate">
-                                                    {currentKegiatan?.nama || "Pilih Kegiatan..."}
-                                                </span>
-                                                {currentKegiatan?.isPresensiOpen ? (
-                                                    <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] px-1.5 py-0 shrink-0">
-                                                        Presensi Buka
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge variant="outline" className="text-muted-foreground text-[10px] px-1.5 py-0 shrink-0">
-                                                        Tertutup
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                            {currentKegiatan && (
-                                                <span className="text-xs text-muted-foreground truncate">
-                                                    {new Date(currentKegiatan.tanggal).toLocaleDateString("id-ID", {
-                                                        day: "numeric",
-                                                        month: "short",
-                                                        year: "numeric",
-                                                    })}{" "}
-                                                    • {currentKegiatan.jenisKegiatanNama} • ({currentKegiatan.totalKehadiran} hadir)
-                                                </span>
+                        {!isMounted ? (
+                            <Button
+                                variant="outline"
+                                className="w-full h-auto min-h-[52px] p-3 justify-between bg-background border text-left font-normal"
+                                disabled
+                            >
+                                <div className="flex items-center gap-3 min-w-0 pr-2">
+                                    <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                        <CalendarDays className="w-5 h-5" />
+                                    </div>
+                                    <div className="flex flex-col min-w-0">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-bold text-sm text-foreground truncate">
+                                                {currentKegiatan?.nama || "Pilih Kegiatan..."}
+                                            </span>
+                                            {currentKegiatan?.isPresensiOpen ? (
+                                                <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] px-1.5 py-0 shrink-0">
+                                                    Presensi Buka
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="outline" className="text-muted-foreground text-[10px] px-1.5 py-0 shrink-0">
+                                                    Tertutup
+                                                </Badge>
                                             )}
                                         </div>
+                                        {currentKegiatan && (
+                                            <span className="text-xs text-muted-foreground truncate">
+                                                {format(new Date(currentKegiatan.tanggal), "d MMM yyyy", { locale: localeId })}{" "}
+                                                • {currentKegiatan.jenisKegiatanNama} • ({currentKegiatan.totalKehadiran} hadir)
+                                            </span>
+                                        )}
                                     </div>
-                                    <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 ml-1" />
-                                </Button>
-                            </PopoverTrigger>
+                                </div>
+                                <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 ml-1" />
+                            </Button>
+                        ) : (
+                            <Popover open={openKegiatanCombobox} onOpenChange={setOpenKegiatanCombobox}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        aria-expanded={openKegiatanCombobox}
+                                        className="w-full h-auto min-h-[52px] p-3 justify-between bg-background hover:bg-muted/40 border text-left font-normal transition-all"
+                                        disabled={isSwitching}
+                                    >
+                                        <div className="flex items-center gap-3 min-w-0 pr-2">
+                                            <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                                <CalendarDays className="w-5 h-5" />
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-sm text-foreground truncate">
+                                                        {currentKegiatan?.nama || "Pilih Kegiatan..."}
+                                                    </span>
+                                                    {currentKegiatan?.isPresensiOpen ? (
+                                                        <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] px-1.5 py-0 shrink-0">
+                                                            Presensi Buka
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge variant="outline" className="text-muted-foreground text-[10px] px-1.5 py-0 shrink-0">
+                                                            Tertutup
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                {currentKegiatan && (
+                                                    <span className="text-xs text-muted-foreground truncate">
+                                                        {format(new Date(currentKegiatan.tanggal), "d MMM yyyy", { locale: localeId })}{" "}
+                                                        • {currentKegiatan.jenisKegiatanNama} • ({currentKegiatan.totalKehadiran} hadir)
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 ml-1" />
+                                    </Button>
+                                </PopoverTrigger>
                             <PopoverContent
                                 className="w-[--radix-popover-trigger-width] min-w-[340px] sm:min-w-[480px] p-0 shadow-lg"
                                 align="start"
@@ -466,6 +503,7 @@ export function KehadiranClient({
                                 </Command>
                             </PopoverContent>
                         </Popover>
+                    )}
                     </div>
 
                     {/* Quick Controls */}
@@ -669,7 +707,7 @@ export function KehadiranClient({
             </div>
 
             {/* Standee QR Dialog */}
-            {currentKegiatan && (
+            {openStandee && currentKegiatan && (
                 <StandeeQRDialog
                     open={openStandee}
                     onOpenChange={setOpenStandee}
@@ -678,7 +716,7 @@ export function KehadiranClient({
             )}
 
             {/* Manual Kehadiran Dialog */}
-            {currentKegiatan && (
+            {openManual && currentKegiatan && (
                 <ManualKehadiranDialog
                     open={openManual}
                     onOpenChange={setOpenManual}
@@ -690,35 +728,37 @@ export function KehadiranClient({
             )}
 
             {/* Alert Dialog Konfirmasi Hapus */}
-            <AlertDialog
-                open={Boolean(deleteId)}
-                onOpenChange={(open) => {
-                    if (!open) {
-                        setDeleteId(null)
-                        setDeleteName("")
-                    }
-                }}
-            >
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Hapus Rekaman Kehadiran?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus data presensi atas nama{" "}
-                            <strong>{deleteName}</strong>? Tindakan ini tidak dapat dibatalkan.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={handleDelete}
-                            disabled={isDeleting}
-                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                        >
-                            {isDeleting ? "Menghapus..." : "Ya, Hapus"}
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            {Boolean(deleteId) && (
+                <AlertDialog
+                    open={Boolean(deleteId)}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setDeleteId(null)
+                            setDeleteName("")
+                        }
+                    }}
+                >
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Hapus Rekaman Kehadiran?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Apakah Anda yakin ingin menghapus data presensi atas nama{" "}
+                                <strong>{deleteName}</strong>? Tindakan ini tidak dapat dibatalkan.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={handleDelete}
+                                disabled={isDeleting}
+                                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                            >
+                                {isDeleting ? "Menghapus..." : "Ya, Hapus"}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
         </div>
     )
 }

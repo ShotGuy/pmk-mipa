@@ -12,7 +12,6 @@ import {
     Trash,
     Search,
     RotateCcw,
-    Sparkles,
 } from "lucide-react"
 import { StatusKTB } from "@prisma/client"
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, FileText, Pencil, Trash, CheckCircle2, AlertCircle, Clock, GitMerge } from "lucide-react"
+import { ArrowUpDown, FileText, CheckCircle2, AlertCircle, Clock, GitMerge } from "lucide-react"
 import { StatusPengontrolan } from "@prisma/client"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"

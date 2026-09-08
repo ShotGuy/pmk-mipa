@@ -9,8 +9,6 @@ import {
     Pencil,
     ArrowLeft,
     CheckCircle2,
-    Calendar,
-    MapPin,
     Shield,
     Trash2,
     UserCheck,
@@ -19,7 +17,6 @@ import {
     ChevronsUpDown,
     Loader2,
     BookOpenCheck,
-    AlertCircle,
 } from "lucide-react"
 import { StatusKTB, StatusPengontrolan } from "@prisma/client"
 import { format } from "date-fns"

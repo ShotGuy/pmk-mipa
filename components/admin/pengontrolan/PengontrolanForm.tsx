@@ -91,7 +91,7 @@ export function PengontrolanForm({ initialData, ktbOptions, defaultKTBId }: Peng
     const isEdit = !!initialData
 
     const form = useForm<FormValues>({
-        resolver: zodResolver(formSchema) as any,
+        resolver: zodResolver(formSchema),
         defaultValues: {
             idKTB: initialData?.idKTB || defaultKTBId || "",
             tanggal: initialData?.tanggal ? new Date(initialData.tanggal) : new Date(),

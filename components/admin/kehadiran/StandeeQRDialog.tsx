@@ -1,7 +1,9 @@
 "use client"
 
-import { useRef, useState, useEffect } from "react"
+import { useRef, useState, useSyncExternalStore } from "react"
 import { useQRCode } from "next-qrcode"
+import { format } from "date-fns"
+import { id as localeId } from "date-fns/locale"
 import {
     Dialog,
     DialogContent,
@@ -29,31 +31,25 @@ interface StandeeQRDialogProps {
     }
 }
 
+const emptySubscribe = () => () => {}
+
 export function StandeeQRDialog({ open, onOpenChange, kegiatan }: StandeeQRDialogProps) {
     const { Canvas } = useQRCode()
     const [copied, setCopied] = useState(false)
-    const [publicUrl, setPublicUrl] = useState("")
     const printAreaRef = useRef<HTMLDivElement>(null)
 
-    useEffect(() => {
-        if (typeof window !== "undefined" && kegiatan.presensiToken) {
-            setPublicUrl(`${window.location.origin}/presensi/${kegiatan.presensiToken}`)
-        }
-    }, [kegiatan.presensiToken])
+    const origin = useSyncExternalStore(
+        emptySubscribe,
+        () => window.location.origin,
+        () => ""
+    )
 
-    const tanggalFormatted = new Date(kegiatan.tanggal).toLocaleDateString("id-ID", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-    })
+    const publicUrl = kegiatan.presensiToken && origin ? `${origin}/presensi/${kegiatan.presensiToken}` : ""
+
+    const tanggalFormatted = format(new Date(kegiatan.tanggal), "EEEE, d MMMM yyyy", { locale: localeId })
 
     const waktuFormatted = kegiatan.waktu
-        ? new Date(kegiatan.waktu).toLocaleTimeString("id-ID", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-        }) + " WIB"
+        ? format(new Date(kegiatan.waktu), "HH:mm", { locale: localeId }) + " WIB"
         : null
 
     const handleCopy = () => {
