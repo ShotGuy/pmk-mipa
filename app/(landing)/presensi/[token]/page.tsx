@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PresensiPageProps) {
 
     return {
         title: `Presensi: ${kegiatan.nama} | PMK MIPA`,
-        description: `Presensi mandiri kehadiran kegiatan ${kegiatan.nama} PMK MIPA Universitas Mulawarman.`,
+        description: `Presensi mandiri kehadiran kegiatan ${kegiatan.nama} PMK MIPA FST Universitas Nusa Cendana.`,
     }
 }
 

@@ -9,7 +9,7 @@ export default auth((req) => {
     const isLoggedIn = !!req.auth
 
     const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth")
-    const isPublicRoute = ["/", "/login", "/register", "/about", "/activities", "/contact"].some(route => nextUrl.pathname === route || nextUrl.pathname.startsWith(route + "/"))
+    const isPublicRoute = ["/", "/login", "/register", "/about", "/activities", "/contact", "/presensi"].some(route => nextUrl.pathname === route || nextUrl.pathname.startsWith(route + "/"))
     const isAuthRoute = nextUrl.pathname === "/login" || nextUrl.pathname === "/register"
     // Protected Routes (formerly Dashboard)
     const protectedPaths = ["/admin", "/finance", "/reporting", "/attendance"];

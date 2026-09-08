@@ -182,7 +182,7 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                             {kegiatan.nama}
                         </h1>
                         <p className="text-sm text-muted-foreground mt-1">
-                            PMK MIPA Universitas Mulawarman
+                            PMK MIPA FST Universitas Nusa Cendana
                         </p>
                     </div>
 
@@ -524,7 +524,7 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
 
                 {/* Footer Note */}
                 <div className="text-center text-xs text-muted-foreground pt-4 pb-8">
-                    &copy; {new Date().getFullYear()} Persekutuan Mahasiswa Kristen FMIPA Universitas Mulawarman
+                    &copy; {new Date().getFullYear()} Persekutuan Mahasiswa Kristen FST Universitas Nusa Cendana
                 </div>
             </div>
         </div>

@@ -118,8 +118,8 @@ export function StandeeQRDialog({ open, onOpenChange, kegiatan }: StandeeQRDialo
             `}</style>
 
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="max-w-md sm:max-w-lg p-0 overflow-hidden bg-card">
-                    <DialogHeader className="p-6 pb-2 border-b bg-muted/30">
+                <DialogContent className="max-w-md sm:max-w-lg max-h-[92vh] flex flex-col p-0 overflow-hidden bg-card">
+                    <DialogHeader className="p-5 sm:p-6 pb-3 border-b bg-muted/30 shrink-0">
                         <div className="flex items-center gap-2 text-primary">
                             <QrCode className="w-5 h-5" />
                             <span className="text-xs font-semibold uppercase tracking-wider">
@@ -132,12 +132,12 @@ export function StandeeQRDialog({ open, onOpenChange, kegiatan }: StandeeQRDialo
                         </DialogDescription>
                     </DialogHeader>
 
-                    {/* Printable Standee Card Area */}
-                    <div className="p-6 flex flex-col items-center">
+                    {/* Printable Standee Card Area with Vertical Scroll if needed */}
+                    <div className="p-4 sm:p-6 overflow-y-auto flex-1 flex flex-col items-center">
                         <div
                             id="printable-standee-card"
                             ref={printAreaRef}
-                            className="w-full max-w-sm border-2 border-primary/20 rounded-2xl p-6 text-center bg-card shadow-sm space-y-4"
+                            className="w-full max-w-sm border-2 border-primary/20 rounded-2xl p-5 sm:p-6 text-center bg-card shadow-sm space-y-4"
                         >
                             {/* Logo & Header */}
                             <div className="flex flex-col items-center gap-1.5">
@@ -145,7 +145,7 @@ export function StandeeQRDialog({ open, onOpenChange, kegiatan }: StandeeQRDialo
                                     <Church className="w-6 h-6" />
                                 </div>
                                 <div className="text-[11px] font-bold tracking-widest uppercase text-muted-foreground">
-                                    PMK MIPA UNIVERSITAS MULAWARMAN
+                                    PMK MIPA FST UNIVERSITAS NUSA CENDANA
                                 </div>
                                 <h2 className="text-lg font-bold text-foreground leading-tight">
                                     {kegiatan.nama}
@@ -166,7 +166,7 @@ export function StandeeQRDialog({ open, onOpenChange, kegiatan }: StandeeQRDialo
                             </div>
 
                             {/* Canvas QR Code */}
-                            <div className="py-2 flex flex-col items-center justify-center">
+                            <div className="py-1 flex flex-col items-center justify-center">
                                 <div className="p-3 bg-white rounded-xl border-2 border-gray-100 shadow-inner inline-block">
                                     {publicUrl ? (
                                         <Canvas
@@ -175,7 +175,7 @@ export function StandeeQRDialog({ open, onOpenChange, kegiatan }: StandeeQRDialo
                                                 errorCorrectionLevel: "H",
                                                 margin: 2,
                                                 scale: 5,
-                                                width: 220,
+                                                width: 190,
                                                 color: {
                                                     dark: "#0f172a",
                                                     light: "#ffffff",
@@ -183,7 +183,7 @@ export function StandeeQRDialog({ open, onOpenChange, kegiatan }: StandeeQRDialo
                                             }}
                                         />
                                     ) : (
-                                        <div className="w-[220px] h-[220px] flex items-center justify-center text-xs text-muted-foreground">
+                                        <div className="w-[190px] h-[190px] flex items-center justify-center text-xs text-muted-foreground">
                                             Memuat QR...
                                         </div>
                                     )}
@@ -208,8 +208,8 @@ export function StandeeQRDialog({ open, onOpenChange, kegiatan }: StandeeQRDialo
                         </div>
                     </div>
 
-                    {/* Action Buttons Toolbar */}
-                    <div className="p-4 sm:p-6 pt-2 border-t bg-muted/20 flex flex-wrap items-center justify-between gap-2 no-print">
+                    {/* Action Buttons Toolbar (Always fixed at bottom) */}
+                    <div className="p-4 sm:p-5 border-t bg-muted/20 flex flex-wrap items-center justify-between gap-2 shrink-0 no-print">
                         <Button
                             variant="outline"
                             size="sm"
