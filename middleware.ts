@@ -9,11 +9,16 @@ export default auth((req) => {
     const isLoggedIn = !!req.auth
 
     const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth")
-    const isPublicRoute = ["/", "/login", "/register", "/about", "/activities", "/contact", "/presensi"].some(route => nextUrl.pathname === route || nextUrl.pathname.startsWith(route + "/"))
+    const isPublicRoute = [
+        "/",
+        "/login",
+        "/register",
+        "/about",
+        "/activities",
+        "/contact",
+        "/presensi",
+    ].some((route) => nextUrl.pathname === route || nextUrl.pathname.startsWith(route + "/"))
     const isAuthRoute = nextUrl.pathname === "/login" || nextUrl.pathname === "/register"
-    // Protected Routes (formerly Dashboard)
-    const protectedPaths = ["/admin", "/finance", "/reporting", "/attendance"];
-    const isProtectedRoute = protectedPaths.some(path => nextUrl.pathname.startsWith(path));
 
     // Allow API auth routes
     if (isApiAuthRoute) {
@@ -23,13 +28,7 @@ export default auth((req) => {
     // Redirect logged in users away from auth pages
     if (isAuthRoute) {
         if (isLoggedIn) {
-            // Redirect to their respective dashboard based on role?
-            // For now, let's redirect to /admin if admin, else /attendance (safe default)
-            // But we don't have role here easily without decoding payload?
-            // We do have req.auth from `auth` wrapper.
-            const role = req.auth?.user.role;
-            if (role === "ADMIN") return NextResponse.redirect(new URL("/admin/dashboard", nextUrl));
-            return NextResponse.redirect(new URL("/attendance", nextUrl));
+            return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
         }
         return NextResponse.next()
     }
@@ -44,37 +43,84 @@ export default auth((req) => {
         return NextResponse.redirect(new URL(`/login?callbackUrl=${encodedCallbackUrl}`, nextUrl))
     }
 
-    // Role based protection
-    if (isProtectedRoute && isLoggedIn) {
-        const role = req.auth?.user.role
+    // Redirect legacy routes to modern admin area
+    if (nextUrl.pathname.startsWith("/finance")) {
+        return NextResponse.redirect(new URL("/admin/kas", nextUrl))
+    }
+    if (nextUrl.pathname.startsWith("/attendance")) {
+        return NextResponse.redirect(new URL("/admin/kehadiran", nextUrl))
+    }
+    if (nextUrl.pathname.startsWith("/reporting")) {
+        return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
+    }
 
-        // 1. Finance Guard (Admin, Ketua, Bendahara)
-        if (nextUrl.pathname.startsWith("/finance")) {
-            if (!["ADMIN", "KETUA", "BENDAHARA"].includes(role as string)) {
-                return NextResponse.redirect(new URL("/", nextUrl))
-            }
-        }
+    // Role-based protection for /admin routes
+    if (nextUrl.pathname.startsWith("/admin") && isLoggedIn) {
+        const role = req.auth?.user?.role as string
 
-        // 2. Reporting Guard (Admin, Ketua, Bendahara)
-        if (nextUrl.pathname.startsWith("/reporting")) {
-            if (!["ADMIN", "KETUA", "BENDAHARA"].includes(role as string)) {
-                return NextResponse.redirect(new URL("/", nextUrl))
-            }
-        }
-
-        // 3. Admin Guard (Only Admin)
-        if (nextUrl.pathname.startsWith("/admin")) {
+        // 1. User Management (Only ADMIN)
+        if (nextUrl.pathname.startsWith("/admin/users")) {
             if (role !== "ADMIN") {
-                return NextResponse.redirect(new URL("/", nextUrl))
+                return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
             }
         }
 
-        // 4. Attendance is open to all BADAN PENGURUS
+        // 2. Badan Pengurus (ADMIN, KETUA)
+        if (nextUrl.pathname.startsWith("/admin/badan-pengurus")) {
+            if (!["ADMIN", "KETUA"].includes(role)) {
+                return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
+            }
+        }
+
+        // 3. Kas & Transaksi (ADMIN, KETUA, BENDAHARA)
+        if (
+            nextUrl.pathname.startsWith("/admin/kas") ||
+            nextUrl.pathname.startsWith("/admin/transaksi")
+        ) {
+            if (!["ADMIN", "KETUA", "BENDAHARA"].includes(role)) {
+                return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
+            }
+        }
+
+        // 4. KTB & Pengontrolan (ADMIN, KETUA, KOORKTB, ANGGOTAKTB)
+        if (
+            nextUrl.pathname.startsWith("/admin/ktb") ||
+            nextUrl.pathname.startsWith("/admin/pengontrolan")
+        ) {
+            if (!["ADMIN", "KETUA", "KOORKTB", "ANGGOTAKTB"].includes(role)) {
+                return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
+            }
+        }
+
+        // 5. Kegiatan, Jenis Kegiatan, Kehadiran, Gallery (ADMIN, KETUA, KOORACARA, ANGGOTAACARA)
+        if (
+            nextUrl.pathname.startsWith("/admin/kegiatan") ||
+            nextUrl.pathname.startsWith("/admin/jenis-kegiatan") ||
+            nextUrl.pathname.startsWith("/admin/kehadiran") ||
+            nextUrl.pathname.startsWith("/admin/gallery")
+        ) {
+            if (!["ADMIN", "KETUA", "KOORACARA", "ANGGOTAACARA"].includes(role)) {
+                return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
+            }
+        }
+
+        // 6. HPDT (ADMIN, KETUA, KOORDOA, ANGGOTADOA, KOORKTB, ANGGOTAKTB)
+        if (nextUrl.pathname.startsWith("/admin/hpdt")) {
+            if (!["ADMIN", "KETUA", "KOORDOA", "ANGGOTADOA", "KOORKTB", "ANGGOTAKTB"].includes(role)) {
+                return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
+            }
+        }
+
+        // 7. Data Anggota (ADMIN, KETUA, BENDAHARA, KOORKTB, ANGGOTAKTB, KOORDOA, ANGGOTADOA)
+        if (nextUrl.pathname.startsWith("/admin/anggota")) {
+            if (!["ADMIN", "KETUA", "BENDAHARA", "KOORKTB", "ANGGOTAKTB", "KOORDOA", "ANGGOTADOA"].includes(role)) {
+                return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
+            }
+        }
     }
 
     return NextResponse.next()
 })
-
 
 // Optionally, don't invoke Middleware on some paths
 export const config = {

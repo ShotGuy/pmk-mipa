@@ -50,79 +50,97 @@ export const navItems: NavItem[] = [
         title: "Dashboard",
         href: "/admin/dashboard",
         icon: LayoutDashboard,
-        roles: ["ADMIN"]
+        roles: [
+            "ADMIN",
+            "KETUA",
+            "BENDAHARA",
+            "KOORKTB",
+            "ANGGOTAKTB",
+            "KOORACARA",
+            "ANGGOTAACARA",
+            "KOORDOA",
+            "ANGGOTADOA",
+        ],
     },
     {
         title: "Manajemen User",
         href: "/admin/users",
         icon: Users,
-        roles: ["ADMIN"]
-    },
-    {
-        title: "Data Anggota",
-        href: "/admin/anggota",
-        icon: UserCog,
-        roles: ["ADMIN"]
-    },
-    {
-        title: "Data KTB",
-        href: "/admin/ktb",
-        icon: Network,
-        roles: ["ADMIN"]
-    },
-    {
-        title: "Pengontrolan KTB",
-        href: "/admin/pengontrolan",
-        icon: BookOpenCheck,
-        roles: ["ADMIN"]
+        roles: ["ADMIN"],
     },
     {
         title: "Badan Pengurus",
         href: "/admin/badan-pengurus",
         icon: Briefcase,
-        roles: ["ADMIN"]
+        roles: ["ADMIN", "KETUA"],
+    },
+    {
+        title: "Data Anggota",
+        href: "/admin/anggota",
+        icon: UserCog,
+        roles: [
+            "ADMIN",
+            "KETUA",
+            "BENDAHARA",
+            "KOORKTB",
+            "ANGGOTAKTB",
+            "KOORDOA",
+            "ANGGOTADOA",
+        ],
+    },
+    {
+        title: "Data KTB",
+        href: "/admin/ktb",
+        icon: Network,
+        roles: ["ADMIN", "KETUA", "KOORKTB", "ANGGOTAKTB"],
+    },
+    {
+        title: "Pengontrolan KTB",
+        href: "/admin/pengontrolan",
+        icon: BookOpenCheck,
+        roles: ["ADMIN", "KETUA", "KOORKTB", "ANGGOTAKTB"],
     },
     {
         title: "HPDT",
         href: "/admin/hpdt",
         icon: ScrollText,
-        roles: ["ADMIN"]
+        roles: ["ADMIN", "KETUA", "KOORDOA", "ANGGOTADOA", "KOORKTB", "ANGGOTAKTB"],
     },
     {
         title: "Jenis Kegiatan",
         href: "/admin/jenis-kegiatan",
         icon: Palette,
-        roles: ["ADMIN"]
+        roles: ["ADMIN", "KETUA", "KOORACARA", "ANGGOTAACARA"],
     },
     {
         title: "Kegiatan",
         href: "/admin/kegiatan",
         icon: CalendarDays,
-        roles: ["ADMIN"]
-    },
-    {
-        title: "Gallery",
-        href: "/admin/gallery",
-        icon: Camera,
-        roles: ["ADMIN"]
+        roles: ["ADMIN", "KETUA", "KOORACARA", "ANGGOTAACARA"],
     },
     {
         title: "Kehadiran",
         href: "/admin/kehadiran",
         icon: QrCode,
-        roles: ["ADMIN"]
+        roles: ["ADMIN", "KETUA", "KOORACARA", "ANGGOTAACARA"],
+    },
+    {
+        title: "Gallery",
+        href: "/admin/gallery",
+        icon: Camera,
+        roles: ["ADMIN", "KETUA", "KOORACARA", "ANGGOTAACARA"],
     },
     {
         title: "Kas",
         href: "/admin/kas",
         icon: Wallet,
-        roles: ["ADMIN"]
+        roles: ["ADMIN", "KETUA", "BENDAHARA"],
     },
     {
         title: "Transaksi",
         href: "/admin/transaksi",
         icon: Receipt,
-        roles: ["ADMIN"]
+        roles: ["ADMIN", "KETUA", "BENDAHARA"],
     },
 ]
 

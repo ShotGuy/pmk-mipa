@@ -31,13 +31,8 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
         }
     });
 
-    // Default redirect
-    let redirectTo = "/attendance";
-
-    // If generic user exists and is ADMIN, redirect to admin dashboard
-    if (existingUser?.role === "ADMIN") {
-        redirectTo = "/admin/dashboard";
-    }
+    // Default redirect to admin dashboard for all roles
+    let redirectTo = "/admin/dashboard";
 
     // Attempt sign in (authorize will verify password again)
     try {

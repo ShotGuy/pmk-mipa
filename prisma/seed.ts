@@ -6,24 +6,83 @@ const prisma = new PrismaClient()
 async function main() {
     const password = await bcrypt.hash("password123", 10)
 
-    // Upsert Admin User
-    const admin = await prisma.user.upsert({
-        where: { email: "admin@pmk-mipa.com" }, // Using a dummy email for the admin
-        update: {
-            password: password,
-            role: Role.ADMIN,
-            username: "admin"
-        },
-        create: {
+    // Seed demo accounts for all roles
+    const seedUsers = [
+        {
             email: "admin@pmk-mipa.com",
             name: "Super Admin",
             username: "admin",
-            password: password,
             role: Role.ADMIN,
         },
-    })
+        {
+            email: "ketua@pmk-mipa.com",
+            name: "Ketua PMK",
+            username: "ketua",
+            role: Role.KETUA,
+        },
+        {
+            email: "bendahara@pmk-mipa.com",
+            name: "Bendahara PMK",
+            username: "bendahara",
+            role: Role.BENDAHARA,
+        },
+        {
+            email: "koorktb@pmk-mipa.com",
+            name: "Koordinator KTB",
+            username: "koorktb",
+            role: Role.KOORKTB,
+        },
+        {
+            email: "anggotaktb@pmk-mipa.com",
+            name: "Anggota Bidang KTB",
+            username: "anggotaktb",
+            role: Role.ANGGOTAKTB,
+        },
+        {
+            email: "kooracara@pmk-mipa.com",
+            name: "Koordinator Acara",
+            username: "kooracara",
+            role: Role.KOORACARA,
+        },
+        {
+            email: "anggotaacara@pmk-mipa.com",
+            name: "Anggota Bidang Acara",
+            username: "anggotaacara",
+            role: Role.ANGGOTAACARA,
+        },
+        {
+            email: "koordoa@pmk-mipa.com",
+            name: "Koordinator Doa & Pemerhati",
+            username: "koordoa",
+            role: Role.KOORDOA,
+        },
+        {
+            email: "anggotadoa@pmk-mipa.com",
+            name: "Anggota Bidang Doa",
+            username: "anggotadoa",
+            role: Role.ANGGOTADOA,
+        },
+    ]
 
-    console.log({ admin })
+    for (const u of seedUsers) {
+        const user = await prisma.user.upsert({
+            where: { email: u.email },
+            update: {
+                password,
+                role: u.role,
+                name: u.name,
+                username: u.username,
+            },
+            create: {
+                email: u.email,
+                name: u.name,
+                username: u.username,
+                password,
+                role: u.role,
+            },
+        })
+        console.log(`Seeded user: ${user.username} (${user.role})`)
+    }
 }
 
 main()
