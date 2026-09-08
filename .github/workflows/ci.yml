@@ -2,7 +2,7 @@ name: PMK MIPA CI/CD
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ "main", "develop", "feat/**" ]
   pull_request:
     branches: [ "develop" ]
 
@@ -24,7 +24,7 @@ jobs:
         node-version: '20'
         
     - name: Install Dependencies
-      run: npm install -g pnpm && pnpm install --frozen-lockfile
+      run: pnpm install --frozen-lockfile
 
     - name: Generate Prisma Client
       run: npx prisma generate

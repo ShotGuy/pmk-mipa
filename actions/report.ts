@@ -14,7 +14,11 @@ export async function getHPDTReport(startDate: Date, endDate: Date) {
                 }
             },
             include: {
-                anggota: true
+                pengurus: {
+                    include: {
+                        anggota: true
+                    }
+                }
             },
             orderBy: {
                 tanggal: 'asc'
@@ -24,7 +28,7 @@ export async function getHPDTReport(startDate: Date, endDate: Date) {
         // Flatten data for Excel
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return data.map((item: any) => ({
-            Nama: item.anggota?.nama || "Unknown",
+            Nama: item.pengurus?.anggota?.nama || "Unknown",
             Tanggal: item.tanggal.toISOString().split('T')[0],
             SaatTeduh: item.isSate ? "Ya" : "Tidak",
             Doa: item.isDoa ? "Ya" : "Tidak",

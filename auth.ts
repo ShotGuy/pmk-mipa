@@ -34,47 +34,28 @@ export const {
 } = NextAuth({
     adapter: PrismaAdapter(db),
     session: { strategy: "jwt" },
-    callbacks: {
-        async jwt({ token, user }) {
-            if (user) {
-                // Explicitly cast user to custom type to access extended fields
-                const u = user as unknown as { role: Role; idAnggota?: string };
-                token.role = u.role
-                token.idAnggota = u.idAnggota || undefined
-            }
-            return token
-        },
-        async session({ session, token }) {
-            if (token.sub && session.user) {
-                session.user.id = token.sub
-            }
-            if (token.role && session.user) {
-                // cast to Role to satisfy TS if it thinks it's optional/undefined
-                session.user.role = token.role as Role
-            }
-            if (token.idAnggota && session.user) {
-                session.user.idAnggota = token.idAnggota as string
-            }
-            return session
-        }
-    },
     ...authConfig,
     providers: [
         Credentials({
             async authorize(credentials) {
                 const z = (await import("zod")).z;
                 const LoginSchema = z.object({
-                    email: z.string().email(),
+                    identifier: z.string().min(1),
                     password: z.string().min(1)
                 });
 
                 const validatedFields = LoginSchema.safeParse(credentials);
 
                 if (validatedFields.success) {
-                    const { email, password } = validatedFields.data; // Fixed: was using validatedFields which is SafeParseResult, need .data
+                    const { identifier, password } = validatedFields.data;
 
-                    const user = await db.user.findUnique({
-                        where: { email }
+                    const user = await db.user.findFirst({
+                        where: {
+                            OR: [
+                                { email: identifier },
+                                { username: identifier }
+                            ]
+                        }
                     });
 
                     if (!user || !user.password) return null;
