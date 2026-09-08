@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import { ContactForm } from "@/components/landing/ContactForm";
 import { Mail, MapPin, Phone } from "lucide-react";
+
+export const metadata: Metadata = {
+    title: "Hubungi Kami & Sekretariat",
+    description:
+        "Informasi kontak sekretariat, nomor telepon pengurus, alamat, dan formulir pesan PMK MIPA FST Universitas Nusa Cendana Kupang.",
+    alternates: {
+        canonical: "/contact",
+    },
+};
 
 export default function ContactPage() {
     return (

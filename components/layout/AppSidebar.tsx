@@ -18,6 +18,7 @@ import {
     Receipt
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import {
@@ -160,7 +161,14 @@ export function NavContent({
     return (
         <div className="flex flex-col h-full py-4">
             <div className="px-6 mb-8">
-                <Link href="/" className="flex items-center gap-2 font-serif font-bold text-xl text-primary">
+                <Link href="/" className="flex items-center gap-2.5 font-serif font-bold text-xl text-primary">
+                    <Image
+                        src="/logo.png"
+                        alt="Logo PMK MIPA"
+                        width={32}
+                        height={32}
+                        className="object-contain shrink-0"
+                    />
                     <span>PMK MIPA</span>
                 </Link>
             </div>

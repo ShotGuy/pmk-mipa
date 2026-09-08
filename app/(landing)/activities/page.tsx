@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ActivitiesHero } from "@/components/activities/ActivitiesHero";
 import { ScheduleCard } from "@/components/landing/ScheduleCard";
 import { MinistryDivisions } from "@/components/activities/MinistryDivisions";
@@ -6,6 +7,15 @@ import { GalleryCarousel } from "@/components/landing/GalleryCarousel";
 import { ActivitiesFAQ } from "@/components/activities/ActivitiesFAQ";
 import { CallToAction } from "@/components/landing/CallToAction";
 import { Calendar } from "lucide-react";
+
+export const metadata: Metadata = {
+    title: "Kegiatan & Jadwal Ibadah",
+    description:
+        "Jadwal ibadah rutin mingguan, persekutuan doa, kelompok tumbuh bersama (KTB), dan program kerja tahunan PMK MIPA FST Universitas Nusa Cendana.",
+    alternates: {
+        canonical: "/activities",
+    },
+};
 
 export default function ActivitiesPage() {
     return (

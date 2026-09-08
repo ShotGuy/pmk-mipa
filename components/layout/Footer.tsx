@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Facebook, Instagram, Youtube, Mail, MapPin } from "lucide-react";
 
 export function Footer() {
@@ -8,10 +9,22 @@ export function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
                     {/* Column 1: Info */}
                     <div className="space-y-4">
-                        <h3 className="text-xl font-serif font-bold text-primary">PMK MIPA</h3>
-                        <p className="text-muted-foreground leading-relaxed max-w-sm">
-                            Persekutuan Mahasiswa Kristen Fakultas Matematika dan Ilmu Pengetahuan Alam.
-                            Membangun komunitas yang bertumbuh dalam iman dan kasih.
+                        <div className="flex items-center gap-3">
+                            <Image
+                                src="/logo.png"
+                                alt="Logo PMK MIPA Undana"
+                                width={44}
+                                height={44}
+                                className="object-contain shrink-0"
+                            />
+                            <div>
+                                <h3 className="text-xl font-serif font-bold text-primary leading-tight">PMK MIPA</h3>
+                                <p className="text-[11px] text-muted-foreground font-medium">FST Universitas Nusa Cendana</p>
+                            </div>
+                        </div>
+                        <p className="text-muted-foreground leading-relaxed max-w-sm text-sm">
+                            Persekutuan Mahasiswa Kristen Fakultas Sains dan Teknik Universitas Nusa Cendana Kupang.
+                            Membangun komunitas yang bertumbuh dalam iman dan kasih Kristus.
                         </p>
                         <div className="flex items-start gap-3 text-muted-foreground mt-4">
                             <MapPin className="w-5 h-5 mt-1 shrink-0 text-primary" />
