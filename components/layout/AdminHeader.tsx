@@ -10,6 +10,7 @@ import { NavContent, navItems } from "./AppSidebar"
 import { Role } from "@prisma/client"
 import { usePathname } from "next/navigation"
 import { DateTimeWidget } from "./DateTimeWidget"
+import { ThemeToggle } from "@/components/theme/ThemeToggle"
 
 interface AdminHeaderProps {
     user: {
@@ -56,8 +57,10 @@ export function AdminHeader({ user }: AdminHeaderProps) {
                 <span className="md:hidden font-serif font-bold text-lg">Dashboard</span>
             </div>
 
-            {/* Right Side: Back to Landing Page & Sign Out */}
+            {/* Right Side: Theme Toggle, Back to Landing Page & Sign Out */}
             <div className="flex items-center gap-2">
+                <ThemeToggle />
+
                 {/* Desktop: Globe Icon for Landing Page */}
                 <Button asChild variant="ghost" size="icon" className="hidden md:flex text-muted-foreground hover:text-primary" title="Back to Landing Page">
                     <Link href="/" target="_blank" rel="noopener noreferrer">

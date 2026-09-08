@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export const metadata: Metadata = {
     title: "Login Admin | PMK MIPA Undana",
@@ -11,7 +12,10 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
     return (
-        <div className="flex min-h-screen w-full flex-col items-center justify-center bg-gray-50 px-4 dark:bg-gray-900">
+        <div className="relative flex min-h-screen w-full flex-col items-center justify-center bg-background px-4">
+            <div className="absolute top-4 right-4">
+                <ThemeToggle />
+            </div>
             <div className="w-full max-w-sm space-y-5">
                 <div className="flex flex-col items-center space-y-3 text-center">
                     <Link href="/" className="transition-transform hover:scale-105">

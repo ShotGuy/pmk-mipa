@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -63,6 +64,7 @@ export function Navbar() {
               {link.name}
             </Link>
           ))}
+          <ThemeToggle />
           <Link href="/login">
             <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 transition-transform hover:-translate-y-1 shadow-lg shadow-primary/20">
               Login
@@ -70,13 +72,17 @@ export function Navbar() {
           </Link>
         </nav>
 
-        {/* Mobile Toggle */}
-        <button
-          className="md:hidden z-50 text-foreground"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
+        {/* Mobile Toggle & Theme */}
+        <div className="md:hidden flex items-center gap-2 z-50">
+          <ThemeToggle />
+          <button
+            className="text-foreground p-1"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label={isMobileMenuOpen ? "Tutup menu" : "Buka menu"}
+          >
+            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
 
         {/* Mobile Menu Overlay */}
         <AnimatePresence>
