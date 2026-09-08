@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Award, Compass, Sun, Heart, Sparkles, Calendar } from "lucide-react";
+import { Award, Sun, Heart, Sparkles, Calendar } from "lucide-react";
 
 const programs = [
     {

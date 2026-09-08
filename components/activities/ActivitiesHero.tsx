@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, CalendarDays } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import Image from "next/image";
 
 export function ActivitiesHero() {
