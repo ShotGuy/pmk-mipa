@@ -59,7 +59,7 @@ export default async function KehadiranPage({ searchParams }: KehadiranPageProps
             ? params.kegiatanId
             : kegiatanList[0].id
 
-    const [kehadiranData, metrics, anggotaOptions] = await Promise.all([
+    const [kehadiranData, metrics, rawAnggota] = await Promise.all([
         getKehadiranByKegiatan(selectedKegiatanId),
         getKehadiranMetrics(selectedKegiatanId),
         db.anggota.findMany({
@@ -68,10 +68,26 @@ export default async function KehadiranPage({ searchParams }: KehadiranPageProps
                 nama: true,
                 prodi: true,
                 angkatan: true,
+                anggotaKTB: {
+                    where: { isAktif: true, ktb: { status: "AKTIF" } },
+                    select: { id: true },
+                },
+                ktbDipimpin: {
+                    where: { status: "AKTIF" },
+                    select: { id: true },
+                },
             },
             orderBy: { nama: "asc" },
         }),
     ])
+
+    const anggotaOptions = rawAnggota.map((a) => ({
+        id: a.id,
+        nama: a.nama,
+        prodi: a.prodi,
+        angkatan: a.angkatan,
+        isAKTB: (a.anggotaKTB && a.anggotaKTB.length > 0) || (a.ktbDipimpin && a.ktbDipimpin.length > 0),
+    }))
 
     return (
         <KehadiranClient

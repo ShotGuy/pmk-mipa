@@ -30,6 +30,7 @@ interface AnggotaOption {
     nama: string
     prodi: string | null
     angkatan: number | null
+    isAKTB?: boolean
 }
 
 interface ManualKehadiranDialogProps {
@@ -236,12 +237,24 @@ export function ManualKehadiranDialog({
                                                             value={`${a.nama} ${a.prodi || ""}`}
                                                             onSelect={() => {
                                                                 setSelectedAnggotaId(a.id)
+                                                                setStatusAnggota(a.isAKTB ? "AKTB" : "APMK")
                                                                 setOpenCombobox(false)
                                                             }}
                                                             className="flex items-center justify-between py-2 text-xs"
                                                         >
                                                             <div>
-                                                                <div className="font-medium">{a.nama}</div>
+                                                                <div className="font-medium flex items-center gap-1.5">
+                                                                    <span>{a.nama}</span>
+                                                                    {a.isAKTB ? (
+                                                                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold border border-amber-500/20">
+                                                                            AKTB
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium border border-blue-500/20">
+                                                                            APMK
+                                                                        </span>
+                                                                    )}
+                                                                </div>
                                                                 <div className="text-[10px] text-muted-foreground">
                                                                     {a.prodi || "-"} {a.angkatan ? `• ${a.angkatan}` : ""}
                                                                 </div>

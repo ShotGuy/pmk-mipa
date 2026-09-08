@@ -232,6 +232,14 @@ export async function getAnggotaListForPresensi(idKegiatan: string) {
                     nama: true,
                     prodi: true,
                     angkatan: true,
+                    anggotaKTB: {
+                        where: { isAktif: true, ktb: { status: "AKTIF" } },
+                        select: { id: true },
+                    },
+                    ktbDipimpin: {
+                        where: { status: "AKTIF" },
+                        select: { id: true },
+                    },
                 },
                 orderBy: { nama: "asc" },
             }),
@@ -246,13 +254,17 @@ export async function getAnggotaListForPresensi(idKegiatan: string) {
 
         const attendedSet = new Set(alreadyAttended.map((k) => k.idAnggota))
 
-        return anggotaList.map((a) => ({
-            id: a.id,
-            nama: a.nama,
-            prodi: a.prodi || "-",
-            angkatan: a.angkatan,
-            sudahHadir: attendedSet.has(a.id),
-        }))
+        return anggotaList.map((a) => {
+            const isAKTB = (a.anggotaKTB && a.anggotaKTB.length > 0) || (a.ktbDipimpin && a.ktbDipimpin.length > 0)
+            return {
+                id: a.id,
+                nama: a.nama,
+                prodi: a.prodi || "-",
+                angkatan: a.angkatan,
+                sudahHadir: attendedSet.has(a.id),
+                isAKTB,
+            }
+        })
     } catch (error) {
         console.error("Failed to get anggota list for presensi:", error)
         return []
@@ -301,19 +313,36 @@ export async function submitPresensiAnggota(token: string, idAnggota: string) {
 
         const anggota = await db.anggota.findUnique({
             where: { id: idAnggota },
-            select: { id: true, nama: true, prodi: true, angkatan: true, noHp: true },
+            select: {
+                id: true,
+                nama: true,
+                prodi: true,
+                angkatan: true,
+                noHp: true,
+                anggotaKTB: {
+                    where: { isAktif: true, ktb: { status: "AKTIF" } },
+                    select: { id: true },
+                },
+                ktbDipimpin: {
+                    where: { status: "AKTIF" },
+                    select: { id: true },
+                },
+            },
         })
 
         if (!anggota) {
             return { success: false, message: "Data anggota tidak ditemukan di sistem." }
         }
 
+        const isAKTB = (anggota.anggotaKTB && anggota.anggotaKTB.length > 0) || (anggota.ktbDipimpin && anggota.ktbDipimpin.length > 0)
+        const status: "AKTB" | "APMK" = isAKTB ? "AKTB" : "APMK"
+
         await db.kehadiran.create({
             data: {
                 idKegiatan: kegiatan.id,
                 idAnggota: anggota.id,
                 nama: anggota.nama,
-                status: "APMK",
+                status,
                 prodi: anggota.prodi,
                 angkatan: anggota.angkatan,
                 noHp: anggota.noHp,

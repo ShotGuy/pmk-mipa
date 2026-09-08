@@ -86,6 +86,7 @@ interface AnggotaOption {
     nama: string
     prodi: string | null
     angkatan: number | null
+    isAKTB?: boolean
 }
 
 interface KehadiranClientProps {

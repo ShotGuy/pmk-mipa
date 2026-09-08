@@ -33,6 +33,7 @@ interface AnggotaItem {
     prodi: string
     angkatan: number | null
     sudahHadir: boolean
+    isAKTB: boolean
 }
 
 interface PublicPresensiClientProps {
@@ -371,8 +372,21 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                         </div>
 
                                         {selectedAnggota && (
-                                            <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 space-y-1 animate-in fade-in-50 duration-200">
-                                                <div className="text-xs text-primary font-medium">Anggota Terpilih:</div>
+                                            <div className="p-3.5 rounded-xl bg-primary/5 border border-primary/20 space-y-1.5 animate-in fade-in-50 duration-200">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <div className="text-xs text-primary font-medium">Anggota Terpilih:</div>
+                                                    <Badge
+                                                        variant="outline"
+                                                        className={cn(
+                                                            "text-[10px] font-semibold tracking-wide px-2 py-0.5",
+                                                            selectedAnggota.isAKTB
+                                                                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                                                                : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30"
+                                                        )}
+                                                    >
+                                                        {selectedAnggota.isAKTB ? "AKTB (Anggota KTB)" : "APMK (Anggota PMK)"}
+                                                    </Badge>
+                                                </div>
                                                 <div className="text-sm font-bold">{selectedAnggota.nama}</div>
                                                 <div className="text-xs text-muted-foreground">
                                                     Prodi {selectedAnggota.prodi} {selectedAnggota.angkatan ? `• Angkatan ${selectedAnggota.angkatan}` : ""}
