@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { auth } from "@/auth";
 
 const HpdtInputSchema = z.object({
     idPengurus: z.string().min(1, "Badan Pengurus wajib dipilih"),
@@ -27,6 +28,37 @@ function normalizeToDateOnly(d: Date): Date {
 
 export async function getPengurusOptionsForHPDT() {
     try {
+        const session = await auth();
+        const role = session?.user?.role;
+        const idAnggota = session?.user?.idAnggota;
+
+        // Jika ANGGOTAKTB atau KOORKTB, mereka hanya boleh mengisi HPDT untuk diri mereka sendiri
+        if ((role === "ANGGOTAKTB" || role === "KOORKTB") && idAnggota) {
+            const bp = await db.badanPengurus.findFirst({
+                where: { idAnggota, status: true },
+                include: {
+                    anggota: {
+                        select: {
+                            id: true,
+                            nama: true,
+                            prodi: true,
+                            angkatan: true,
+                        },
+                    },
+                },
+            });
+
+            if (!bp) return [];
+
+            return [{
+                value: bp.id,
+                label: `${bp.anggota?.nama || "Saya"} (${bp.jabatan})`,
+                nama: bp.anggota?.nama || "Saya",
+                jabatan: bp.jabatan,
+                prodi: bp.prodi || bp.anggota?.prodi || "",
+            }];
+        }
+
         const bpList = await db.badanPengurus.findMany({
             where: { status: true },
             include: {
@@ -36,18 +68,18 @@ export async function getPengurusOptionsForHPDT() {
                         nama: true,
                         prodi: true,
                         angkatan: true,
-                    }
-                }
+                    },
+                },
             },
-            orderBy: { jabatan: "asc" }
+            orderBy: { jabatan: "asc" },
         });
 
-        return bpList.map(bp => ({
+        return bpList.map((bp) => ({
             value: bp.id,
-            label: `${bp.anggota.nama} (${bp.jabatan})`,
-            nama: bp.anggota.nama,
+            label: `${bp.anggota?.nama || "Pengurus"} (${bp.jabatan})`,
+            nama: bp.anggota?.nama || "Pengurus",
             jabatan: bp.jabatan,
-            prodi: bp.prodi || bp.anggota.prodi || "",
+            prodi: bp.prodi || bp.anggota?.prodi || "",
         }));
     } catch (error) {
         console.error("Error fetching pengurus options for HPDT:", error);
@@ -57,16 +89,35 @@ export async function getPengurusOptionsForHPDT() {
 
 export async function getHPDTOverview(month: number, year: number) {
     try {
+        const session = await auth();
+        const role = session?.user?.role;
+        const idAnggota = session?.user?.idAnggota;
+
         const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
         const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
 
         const now = new Date();
-        const isCurrentMonth = now.getFullYear() === year && (now.getMonth() + 1) === month;
+        const isCurrentMonth = now.getFullYear() === year && now.getMonth() + 1 === month;
         const daysInMonth = new Date(year, month, 0).getDate();
         const elapsedDays = isCurrentMonth ? Math.min(now.getDate(), daysInMonth) : daysInMonth;
 
+        // Scoping per role:
+        // ANGGOTAKTB: hanya dirinya sendiri
+        // KOORKTB: dirinya sendiri dan anggota seksi KTB
+        // Role lain (ADMIN/KETUA): seluruh badan pengurus
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let bpWhere: any = { status: true };
+        if (role === "ANGGOTAKTB" && idAnggota) {
+            bpWhere = { idAnggota, status: true };
+        } else if (role === "KOORKTB") {
+            bpWhere = {
+                status: true,
+                jabatan: { in: ["KOORDINATOR_KTB", "ANGGOTA_KTB"] },
+            };
+        }
+
         const allPengurus = await db.badanPengurus.findMany({
-            where: { status: true },
+            where: bpWhere,
             include: {
                 anggota: {
                     select: {
@@ -74,36 +125,36 @@ export async function getHPDTOverview(month: number, year: number) {
                         nama: true,
                         angkatan: true,
                         prodi: true,
-                    }
+                    },
                 },
                 hpdt: {
                     where: {
                         tanggal: {
                             gte: startDate,
                             lte: endDate,
-                        }
+                        },
                     },
-                    orderBy: { tanggal: "asc" }
-                }
+                    orderBy: { tanggal: "asc" },
+                },
             },
-            orderBy: { jabatan: "asc" }
+            orderBy: { jabatan: "asc" },
         });
 
-        const pengurusStats = allPengurus.map(bp => {
+        const pengurusStats = allPengurus.map((bp) => {
             const records = bp.hpdt;
-            const totalSate = records.filter(r => r.isSate).length;
-            const totalDoa = records.filter(r => r.isDoa).length;
-            const totalKtb = records.filter(r => r.isAttendedKTB).length;
-            const totalGereja = records.filter(r => r.isGereja).length;
+            const totalSate = records.filter((r) => r.isSate).length;
+            const totalDoa = records.filter((r) => r.isDoa).length;
+            const totalKtb = records.filter((r) => r.isAttendedKTB).length;
+            const totalGereja = records.filter((r) => r.isGereja).length;
 
             const satePercentage = elapsedDays > 0 ? Math.round((totalSate / elapsedDays) * 100) : 0;
             const doaPercentage = elapsedDays > 0 ? Math.round((totalDoa / elapsedDays) * 100) : 0;
 
             return {
                 idPengurus: bp.id,
-                nama: bp.anggota.nama,
+                nama: bp.anggota?.nama || "Pengurus",
                 jabatan: bp.jabatan,
-                prodi: bp.prodi || bp.anggota.prodi || "-",
+                prodi: bp.prodi || bp.anggota?.prodi || "-",
                 totalSate,
                 totalDoa,
                 totalKtb,
@@ -116,15 +167,17 @@ export async function getHPDTOverview(month: number, year: number) {
             };
         });
 
-        // Calculate organization-wide metrics
+        // Calculate organization-wide / team-wide metrics
         const totalPengurus = pengurusStats.length;
-        const avgSatePercentage = totalPengurus > 0
-            ? Math.round(pengurusStats.reduce((acc, curr) => acc + curr.satePercentage, 0) / totalPengurus)
-            : 0;
+        const avgSatePercentage =
+            totalPengurus > 0
+                ? Math.round(pengurusStats.reduce((acc, curr) => acc + curr.satePercentage, 0) / totalPengurus)
+                : 0;
 
-        const avgDoaPercentage = totalPengurus > 0
-            ? Math.round(pengurusStats.reduce((acc, curr) => acc + curr.doaPercentage, 0) / totalPengurus)
-            : 0;
+        const avgDoaPercentage =
+            totalPengurus > 0
+                ? Math.round(pengurusStats.reduce((acc, curr) => acc + curr.doaPercentage, 0) / totalPengurus)
+                : 0;
 
         return {
             success: true,
@@ -137,7 +190,7 @@ export async function getHPDTOverview(month: number, year: number) {
                 avgDoaPercentage,
                 totalPengurus,
                 pengurusStats,
-            }
+            },
         };
     } catch (error) {
         console.error("Error getting HPDT overview:", error);
@@ -151,11 +204,41 @@ export async function getHPDTLogs(params?: {
     idPengurus?: string;
 }) {
     try {
+        const session = await auth();
+        const role = session?.user?.role;
+        const idAnggota = session?.user?.idAnggota;
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const whereClause: any = {};
 
-        if (params?.idPengurus) {
-            whereClause.idPengurus = params.idPengurus;
+        if (role === "ANGGOTAKTB" && idAnggota) {
+            const myBp = await db.badanPengurus.findFirst({
+                where: { idAnggota, status: true },
+                select: { id: true },
+            });
+            if (myBp) {
+                whereClause.idPengurus = myBp.id;
+            } else {
+                return { success: true, data: [] };
+            }
+        } else if (role === "KOORKTB") {
+            const teamBps = await db.badanPengurus.findMany({
+                where: {
+                    status: true,
+                    jabatan: { in: ["KOORDINATOR_KTB", "ANGGOTA_KTB"] },
+                },
+                select: { id: true },
+            });
+            const teamIds = teamBps.map((b) => b.id);
+            if (params?.idPengurus && params.idPengurus !== "all" && teamIds.includes(params.idPengurus)) {
+                whereClause.idPengurus = params.idPengurus;
+            } else {
+                whereClause.idPengurus = { in: teamIds };
+            }
+        } else {
+            if (params?.idPengurus && params.idPengurus !== "all") {
+                whereClause.idPengurus = params.idPengurus;
+            }
         }
 
         if (params?.startDate || params?.endDate) {
@@ -181,10 +264,10 @@ export async function getHPDTLogs(params?: {
                                 nama: true,
                                 prodi: true,
                                 angkatan: true,
-                            }
-                        }
-                    }
-                }
+                            },
+                        },
+                    },
+                },
             },
             orderBy: { tanggal: "desc" },
             take: 100, // Limit to recent 100 entries for fast render
@@ -199,6 +282,29 @@ export async function getHPDTLogs(params?: {
 
 export async function getHPDTDetailByPengurus(idPengurus: string, month: number, year: number) {
     try {
+        const session = await auth();
+        const role = session?.user?.role;
+        const idAnggota = session?.user?.idAnggota;
+
+        // Validasi akses detail jurnal
+        if (role === "ANGGOTAKTB" && idAnggota) {
+            const myBp = await db.badanPengurus.findFirst({
+                where: { idAnggota, status: true },
+                select: { id: true },
+            });
+            if (!myBp || myBp.id !== idPengurus) {
+                return { success: false, message: "Akses ditolak. Anda hanya dapat melihat jurnal HPDT Anda sendiri." };
+            }
+        } else if (role === "KOORKTB") {
+            const targetBp = await db.badanPengurus.findUnique({
+                where: { id: idPengurus },
+                select: { jabatan: true },
+            });
+            if (!targetBp || (targetBp.jabatan !== "KOORDINATOR_KTB" && targetBp.jabatan !== "ANGGOTA_KTB")) {
+                return { success: false, message: "Akses ditolak. Koordinator KTB hanya dapat memantau jurnal seksi KTB." };
+            }
+        }
+
         const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
         const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
 
@@ -208,18 +314,18 @@ export async function getHPDTDetailByPengurus(idPengurus: string, month: number,
                 tanggal: {
                     gte: startDate,
                     lte: endDate,
-                }
+                },
             },
             include: {
                 pengurus: {
                     include: {
                         anggota: {
-                            select: { nama: true }
-                        }
-                    }
-                }
+                            select: { nama: true },
+                        },
+                    },
+                },
             },
-            orderBy: { tanggal: "asc" }
+            orderBy: { tanggal: "asc" },
         });
 
         return { success: true, data: records };
@@ -237,11 +343,11 @@ export async function getHPDT(id: string) {
                 pengurus: {
                     include: {
                         anggota: {
-                            select: { nama: true, prodi: true, angkatan: true }
-                        }
-                    }
-                }
-            }
+                            select: { nama: true, prodi: true, angkatan: true },
+                        },
+                    },
+                },
+            },
         });
         return { success: true, data };
     } catch (error) {
@@ -251,12 +357,29 @@ export async function getHPDT(id: string) {
 }
 
 export async function createHPDT(values: HpdtFormValues) {
+    const session = await auth();
+    const role = session?.user?.role;
+    const idAnggota = session?.user?.idAnggota;
+
     const validated = HpdtInputSchema.safeParse(values);
     if (!validated.success) {
         return { success: false, message: "Data tidak valid" };
     }
 
-    const { idPengurus, tanggal, isSate, isDoa, isAttendedKTB, isGereja, ayatAlkitab, judulBuku } = validated.data;
+    let { idPengurus } = validated.data;
+    const { tanggal, isSate, isDoa, isAttendedKTB, isGereja, ayatAlkitab, judulBuku } = validated.data;
+
+    // Untuk ANGGOTAKTB dan KOORKTB, paksa idPengurus adalah ID pengurus pengguna itu sendiri
+    if ((role === "ANGGOTAKTB" || role === "KOORKTB") && idAnggota) {
+        const myBp = await db.badanPengurus.findFirst({
+            where: { idAnggota, status: true },
+            select: { id: true },
+        });
+        if (!myBp) {
+            return { success: false, message: "Profil Badan Pengurus Anda tidak aktif atau tidak ditemukan." };
+        }
+        idPengurus = myBp.id;
+    }
 
     // Validate future date
     const now = new Date();
@@ -272,14 +395,14 @@ export async function createHPDT(values: HpdtFormValues) {
         const existing = await db.hpdt.findFirst({
             where: {
                 idPengurus,
-                tanggal: normalizedDate
-            }
+                tanggal: normalizedDate,
+            },
         });
 
         if (existing) {
             return {
                 success: false,
-                message: "Catatan HPDT untuk pengurus ini pada tanggal tersebut sudah pernah dibuat. Silakan gunakan tombol edit."
+                message: "Catatan HPDT untuk pengurus ini pada tanggal tersebut sudah pernah dibuat. Silakan gunakan tombol edit.",
             };
         }
 
@@ -293,10 +416,11 @@ export async function createHPDT(values: HpdtFormValues) {
                 isGereja,
                 ayatAlkitab: ayatAlkitab?.trim() || null,
                 judulBuku: judulBuku?.trim() || null,
-            }
+            },
         });
 
         revalidatePath("/admin/hpdt");
+        revalidatePath("/admin/dashboard");
         return { success: true, message: "Catatan HPDT berhasil disimpan" };
     } catch (error) {
         console.error("Error creating HPDT:", error);
@@ -306,12 +430,33 @@ export async function createHPDT(values: HpdtFormValues) {
 }
 
 export async function updateHPDT(id: string, values: HpdtFormValues) {
+    const session = await auth();
+    const role = session?.user?.role;
+    const idAnggota = session?.user?.idAnggota;
+
     const validated = HpdtInputSchema.safeParse(values);
     if (!validated.success) {
         return { success: false, message: "Data tidak valid" };
     }
 
-    const { idPengurus, tanggal, isSate, isDoa, isAttendedKTB, isGereja, ayatAlkitab, judulBuku } = validated.data;
+    let { idPengurus } = validated.data;
+    const { tanggal, isSate, isDoa, isAttendedKTB, isGereja, ayatAlkitab, judulBuku } = validated.data;
+
+    // Cek kepemilikan untuk ANGGOTAKTB dan KOORKTB (keduanya hanya boleh mengedit milik sendiri)
+    if ((role === "ANGGOTAKTB" || role === "KOORKTB") && idAnggota) {
+        const myBp = await db.badanPengurus.findFirst({
+            where: { idAnggota, status: true },
+            select: { id: true },
+        });
+        const existing = await db.hpdt.findUnique({
+            where: { id },
+            select: { idPengurus: true },
+        });
+        if (!myBp || existing?.idPengurus !== myBp.id) {
+            return { success: false, message: "Anda hanya dapat memperbarui catatan HPDT milik Anda sendiri." };
+        }
+        idPengurus = myBp.id;
+    }
 
     const now = new Date();
     const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
@@ -327,14 +472,14 @@ export async function updateHPDT(id: string, values: HpdtFormValues) {
             where: {
                 idPengurus,
                 tanggal: normalizedDate,
-                NOT: { id }
-            }
+                NOT: { id },
+            },
         });
 
         if (existing) {
             return {
                 success: false,
-                message: "Sudah ada catatan HPDT lain untuk pengurus ini pada tanggal tersebut."
+                message: "Sudah ada catatan HPDT lain untuk pengurus ini pada tanggal tersebut.",
             };
         }
 
@@ -349,10 +494,11 @@ export async function updateHPDT(id: string, values: HpdtFormValues) {
                 isGereja,
                 ayatAlkitab: ayatAlkitab?.trim() || null,
                 judulBuku: judulBuku?.trim() || null,
-            }
+            },
         });
 
         revalidatePath("/admin/hpdt");
+        revalidatePath("/admin/dashboard");
         return { success: true, message: "Catatan HPDT berhasil diperbarui" };
     } catch (error) {
         console.error("Error updating HPDT:", error);
@@ -363,14 +509,35 @@ export async function updateHPDT(id: string, values: HpdtFormValues) {
 
 export async function deleteHPDT(id: string) {
     try {
+        const session = await auth();
+        const role = session?.user?.role;
+        const idAnggota = session?.user?.idAnggota;
+
+        // Cek kepemilikan untuk ANGGOTAKTB dan KOORKTB
+        if ((role === "ANGGOTAKTB" || role === "KOORKTB") && idAnggota) {
+            const myBp = await db.badanPengurus.findFirst({
+                where: { idAnggota, status: true },
+                select: { id: true },
+            });
+            const existing = await db.hpdt.findUnique({
+                where: { id },
+                select: { idPengurus: true },
+            });
+            if (!myBp || existing?.idPengurus !== myBp.id) {
+                return { success: false, message: "Anda hanya dapat menghapus catatan HPDT milik Anda sendiri." };
+            }
+        }
+
         await db.hpdt.delete({
-            where: { id }
+            where: { id },
         });
 
         revalidatePath("/admin/hpdt");
+        revalidatePath("/admin/dashboard");
         return { success: true, message: "Catatan HPDT berhasil dihapus" };
     } catch (error) {
         console.error("Error deleting HPDT:", error);
         return { success: false, message: "Gagal menghapus data HPDT" };
     }
 }
+

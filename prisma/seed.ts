@@ -83,6 +83,91 @@ async function main() {
         })
         console.log(`Seeded user: ${user.username} (${user.role})`)
     }
+
+    // Hubungkan koorktb dan anggotaktb dengan data Anggota & BadanPengurus
+    // 1. Koordinator KTB: Jonathan
+    let anggotaKoor = await prisma.anggota.findFirst({
+        where: { nama: { contains: "Jonathan", mode: "insensitive" } }
+    })
+    if (!anggotaKoor) {
+        anggotaKoor = await prisma.anggota.create({
+            data: {
+                nama: "Jonathan Siregar",
+                jenisKelamin: "L",
+                prodi: "Ilmu Komputer",
+                angkatan: 2023,
+            }
+        })
+    }
+    let bpKoor = await prisma.badanPengurus.findFirst({
+        where: { idAnggota: anggotaKoor.id, jabatan: "KOORDINATOR_KTB" }
+    })
+    if (!bpKoor) {
+        bpKoor = await prisma.badanPengurus.create({
+            data: {
+                idAnggota: anggotaKoor.id,
+                jabatan: "KOORDINATOR_KTB",
+                masaJabatan: "2025/2026",
+                status: true,
+                prodi: "Ilmu Komputer",
+            }
+        })
+    }
+    await prisma.user.update({
+        where: { email: "koorktb@pmk-mipa.com" },
+        data: { idAnggota: anggotaKoor.id, name: "Jonathan Siregar" }
+    })
+
+    // 2. Anggota KTB: Mario (Pendamping KTB)
+    let anggotaMario = await prisma.anggota.findFirst({
+        where: { nama: { contains: "Mario", mode: "insensitive" } }
+    })
+    if (!anggotaMario) {
+        anggotaMario = await prisma.anggota.create({
+            data: {
+                nama: "Mario Christian",
+                jenisKelamin: "L",
+                prodi: "Biologi",
+                angkatan: 2024,
+            }
+        })
+    }
+    let bpMario = await prisma.badanPengurus.findFirst({
+        where: { idAnggota: anggotaMario.id, jabatan: "ANGGOTA_KTB" }
+    })
+    if (!bpMario) {
+        bpMario = await prisma.badanPengurus.create({
+            data: {
+                idAnggota: anggotaMario.id,
+                jabatan: "ANGGOTA_KTB",
+                masaJabatan: "2025/2026",
+                status: true,
+                prodi: "Biologi",
+            }
+        })
+    }
+    await prisma.user.update({
+        where: { email: "anggotaktb@pmk-mipa.com" },
+        data: { idAnggota: anggotaMario.id, name: "Mario Christian" }
+    })
+
+    // 3. Pastikan ada KTB yang didampingi oleh Mario dan Jonathan untuk keperluan pengujian
+    const existingKTBs = await prisma.kTB.findMany({ take: 3 })
+    if (existingKTBs.length >= 2) {
+        // Assign KTB pertama ke Mario (anggotaktb)
+        await prisma.kTB.update({
+            where: { id: existingKTBs[0].id },
+            data: { idPengurus: bpMario.id }
+        })
+        console.log(`Assigned KTB "${existingKTBs[0].nama}" to Mario Christian (anggotaktb)`)
+
+        // Assign KTB kedua ke Jonathan (koorktb)
+        await prisma.kTB.update({
+            where: { id: existingKTBs[1].id },
+            data: { idPengurus: bpKoor.id }
+        })
+        console.log(`Assigned KTB "${existingKTBs[1].nama}" to Jonathan Siregar (koorktb)`)
+    }
 }
 
 main()

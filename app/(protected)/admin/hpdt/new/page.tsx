@@ -2,6 +2,8 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
 import { HpdtForm } from "@/components/admin/hpdt/HpdtForm"
 import { getPengurusOptionsForHPDT } from "@/actions/hpdt"
 
+export const dynamic = "force-dynamic"
+
 export default async function NewHpdtPage() {
     const pengurusOptions = await getPengurusOptionsForHPDT()
 

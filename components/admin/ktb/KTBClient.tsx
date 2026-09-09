@@ -47,9 +47,10 @@ interface KTBClientProps {
         mergerKTB: number
         totalAnggotaTerbina: number
     }
+    isReadOnly?: boolean
 }
 
-export function KTBClient({ data, metrics }: KTBClientProps) {
+export function KTBClient({ data, metrics, isReadOnly }: KTBClientProps) {
     const router = useRouter()
 
     const [searchQuery, setSearchQuery] = React.useState("")
@@ -68,27 +69,18 @@ export function KTBClient({ data, metrics }: KTBClientProps) {
     // Filtered data
     const filteredData = React.useMemo(() => {
         return data.filter((item) => {
-            if (selectedStatus !== "all" && item.status !== selectedStatus) {
-                return false
-            }
+            const matchesSearch =
+                item.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                item.pemimpin.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                item.pengurus.anggota.nama.toLowerCase().includes(searchQuery.toLowerCase())
 
-            if (selectedAngkatan !== "all" && item.angkatan.toString() !== selectedAngkatan) {
-                return false
-            }
+            const matchesStatus =
+                selectedStatus === "all" || item.status === selectedStatus
 
-            if (searchQuery.trim()) {
-                const q = searchQuery.toLowerCase()
-                const matchNama = item.nama.toLowerCase().includes(q)
-                const matchPemimpin = item.pemimpin.nama.toLowerCase().includes(q)
-                const matchPengurus = item.pengurus.anggota.nama.toLowerCase().includes(q)
-                const matchLokasi = item.terbentukDimana?.toLowerCase().includes(q)
+            const matchesAngkatan =
+                selectedAngkatan === "all" || item.angkatan.toString() === selectedAngkatan
 
-                if (!matchNama && !matchPemimpin && !matchPengurus && !matchLokasi) {
-                    return false
-                }
-            }
-
-            return true
+            return matchesSearch && matchesStatus && matchesAngkatan
         })
     }, [data, selectedStatus, selectedAngkatan, searchQuery])
 
@@ -136,29 +128,33 @@ export function KTBClient({ data, metrics }: KTBClientProps) {
                                     size="sm"
                                     className="h-8 text-xs gap-1.5 hover:bg-primary/10 hover:text-primary hover:border-primary/40"
                                     onClick={() => router.push(`/admin/ktb/${ktb.id}`)}
-                                    title="Lihat Detail & Kelola Anggota"
+                                    title="Lihat Detail & Anggota"
                                 >
                                     <Users className="h-3.5 w-3.5 text-primary" />
-                                    <span>Anggota</span>
+                                    <span>Detail</span>
                                 </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950"
-                                    onClick={() => router.push(`/admin/ktb/${ktb.id}/edit`)}
-                                    title="Edit KTB"
-                                >
-                                    <Pencil className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                                    onClick={() => setDeleteId(ktb.id)}
-                                    title="Hapus KTB"
-                                >
-                                    <Trash className="h-4 w-4" />
-                                </Button>
+                                {!isReadOnly && (
+                                    <>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950"
+                                            onClick={() => router.push(`/admin/ktb/${ktb.id}/edit`)}
+                                            title="Edit KTB"
+                                        >
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                                            onClick={() => setDeleteId(ktb.id)}
+                                            title="Hapus KTB"
+                                        >
+                                            <Trash className="h-4 w-4" />
+                                        </Button>
+                                    </>
+                                )}
                             </div>
                         )
                     },
@@ -166,7 +162,7 @@ export function KTBClient({ data, metrics }: KTBClientProps) {
             }
             return col
         })
-    }, [router])
+    }, [router, isReadOnly])
 
     return (
         <div className="space-y-6">

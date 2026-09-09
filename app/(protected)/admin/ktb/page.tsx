@@ -2,8 +2,12 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
 import { KTBClient } from "@/components/admin/ktb/KTBClient"
 import { getAllKTB, getKTBMetrics } from "@/actions/ktb"
 import { KTBWithRelations } from "./columns"
+import { auth } from "@/auth"
 
 export default async function KTBPage() {
+    const session = await auth()
+    const isReadOnly = session?.user?.role === "ANGGOTAKTB"
+
     const [ktbRes, metrics] = await Promise.all([
         getAllKTB(),
         getKTBMetrics(),
@@ -22,13 +26,13 @@ export default async function KTBPage() {
                     { label: "Dashboard", href: "/admin/dashboard" },
                     { label: "Kelompok KTB" },
                 ]}
-                addLabel="Tambah KTB Baru"
-                href="/admin/ktb/new"
+                {...(!isReadOnly ? { addLabel: "Tambah KTB Baru", href: "/admin/ktb/new" } : {})}
             />
 
             <KTBClient
                 data={data}
                 metrics={metrics}
+                isReadOnly={isReadOnly}
             />
         </div>
     )

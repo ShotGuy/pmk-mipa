@@ -90,6 +90,12 @@ export default auth((req) => {
             if (!["ADMIN", "KETUA", "KOORKTB", "ANGGOTAKTB"].includes(role)) {
                 return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
             }
+            // Khusus ANGGOTAKTB: Tidak diizinkan menambah KTB baru atau mengedit KTB
+            if (role === "ANGGOTAKTB") {
+                if (nextUrl.pathname === "/admin/ktb/new" || nextUrl.pathname.endsWith("/edit")) {
+                    return NextResponse.redirect(new URL("/admin/ktb", nextUrl))
+                }
+            }
         }
 
         // 5. Kegiatan, Jenis Kegiatan, Kehadiran, Gallery (ADMIN, KETUA, KOORACARA, ANGGOTAACARA)

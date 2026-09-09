@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { StatusPengontrolan } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { auth } from "@/auth"
 
 const PengontrolanSchema = z.object({
     idKTB: z.string().min(1, "Pilih kelompok KTB"),
@@ -17,7 +18,29 @@ export type PengontrolanFormValues = z.infer<typeof PengontrolanSchema>
 
 export async function getAllPengontrolan() {
     try {
+        const session = await auth()
+        const role = session?.user?.role
+        const idAnggota = session?.user?.idAnggota
+
+        let idPengurusFilter: string | undefined = undefined
+
+        // Jika ANGGOTAKTB, batasi hanya pada KTB yang ia dampingi
+        if (role === "ANGGOTAKTB" && idAnggota) {
+            const bp = await db.badanPengurus.findFirst({
+                where: { idAnggota, status: true },
+                select: { id: true },
+            })
+            if (bp) {
+                idPengurusFilter = bp.id
+            } else {
+                return { success: true, data: [] }
+            }
+        }
+
         const data = await db.pengontrolan.findMany({
+            where: idPengurusFilter
+                ? { ktb: { idPengurus: idPengurusFilter } }
+                : undefined,
             orderBy: [{ tanggal: "desc" }, { createdAt: "desc" }],
             include: {
                 ktb: {
@@ -100,7 +123,25 @@ export async function getPengontrolan(id: string) {
 
 export async function getKTBOptionsForPengontrolan() {
     try {
+        const session = await auth()
+        const role = session?.user?.role
+        const idAnggota = session?.user?.idAnggota
+
+        let idPengurusFilter: string | undefined = undefined
+        if (role === "ANGGOTAKTB" && idAnggota) {
+            const bp = await db.badanPengurus.findFirst({
+                where: { idAnggota, status: true },
+                select: { id: true },
+            })
+            if (bp) {
+                idPengurusFilter = bp.id
+            } else {
+                return []
+            }
+        }
+
         const ktbs = await db.kTB.findMany({
+            where: idPengurusFilter ? { idPengurus: idPengurusFilter } : undefined,
             orderBy: [{ status: "asc" }, { angkatan: "desc" }, { nama: "asc" }],
             include: {
                 pemimpin: {
@@ -133,11 +174,33 @@ export async function getKTBOptionsForPengontrolan() {
 }
 
 export async function createPengontrolan(values: PengontrolanFormValues) {
+    const session = await auth()
+    const role = session?.user?.role
+    const idAnggota = session?.user?.idAnggota
+
     const validated = PengontrolanSchema.safeParse(values)
     if (!validated.success) {
         return {
             success: false,
             message: validated.error.issues[0]?.message || "Input tidak valid",
+        }
+    }
+
+    // Validasi kepemilikan KTB untuk ANGGOTAKTB
+    if (role === "ANGGOTAKTB" && idAnggota) {
+        const bp = await db.badanPengurus.findFirst({
+            where: { idAnggota, status: true },
+            select: { id: true },
+        })
+        const targetKTB = await db.kTB.findUnique({
+            where: { id: validated.data.idKTB },
+            select: { idPengurus: true },
+        })
+        if (!bp || targetKTB?.idPengurus !== bp.id) {
+            return {
+                success: false,
+                message: "Anda hanya diizinkan mengisi pengontrolan untuk kelompok KTB yang Anda dampingi.",
+            }
         }
     }
 
@@ -209,23 +272,47 @@ export async function deletePengontrolan(id: string) {
 
 export async function getPengontrolanMetrics() {
     try {
+        const session = await auth()
+        const role = session?.user?.role
+        const idAnggota = session?.user?.idAnggota
+
+        let idPengurusFilter: string | undefined = undefined
+        if (role === "ANGGOTAKTB" && idAnggota) {
+            const bp = await db.badanPengurus.findFirst({
+                where: { idAnggota, status: true },
+                select: { id: true },
+            })
+            if (bp) {
+                idPengurusFilter = bp.id
+            } else {
+                return { total: 0, terkontrolMingguIni: 0, aktif: 0, macetAtauVakum: 0 }
+            }
+        }
+
         const now = new Date()
         const sevenDaysAgo = new Date()
         sevenDaysAgo.setDate(now.getDate() - 7)
         sevenDaysAgo.setHours(0, 0, 0, 0)
 
+        const baseWhere = idPengurusFilter ? { ktb: { idPengurus: idPengurusFilter } } : undefined
+
         const [total, terkontrolMingguIni, aktif, macetAtauVakum] = await Promise.all([
-            db.pengontrolan.count(),
+            db.pengontrolan.count({ where: baseWhere }),
             db.pengontrolan.count({
                 where: {
+                    ...baseWhere,
                     tanggal: { gte: sevenDaysAgo },
                 },
             }),
             db.pengontrolan.count({
-                where: { status: StatusPengontrolan.AKTIF },
+                where: {
+                    ...baseWhere,
+                    status: StatusPengontrolan.AKTIF,
+                },
             }),
             db.pengontrolan.count({
                 where: {
+                    ...baseWhere,
                     status: { in: [StatusPengontrolan.MACET, StatusPengontrolan.VAKUM] },
                 },
             }),

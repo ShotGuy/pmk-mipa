@@ -6,8 +6,23 @@ import {
     getPengurusOptionsForHPDT,
 } from "@/actions/hpdt"
 import { HpdtWithRelation } from "./columns"
+import { auth } from "@/auth"
+import { db } from "@/lib/db"
 
 export default async function HpdtPage() {
+    const session = await auth()
+    const role = session?.user?.role
+    const idAnggota = session?.user?.idAnggota
+
+    let currentPengurusId: string | undefined = undefined
+    if (idAnggota) {
+        const bp = await db.badanPengurus.findFirst({
+            where: { idAnggota, status: true },
+            select: { id: true },
+        })
+        currentPengurusId = bp?.id
+    }
+
     const now = new Date()
     const currentMonth = now.getMonth() + 1
     const currentYear = now.getFullYear()
@@ -54,6 +69,8 @@ export default async function HpdtPage() {
                 initialOverview={initialOverview}
                 initialLogs={initialLogs}
                 pengurusList={pengurusList}
+                currentPengurusId={currentPengurusId}
+                userRole={role}
             />
         </div>
     )

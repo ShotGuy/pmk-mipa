@@ -1,13 +1,26 @@
-import { getDashboardSummary } from "@/actions/dashboard"
+import { getDashboardSummary, getKTBDashboardData } from "@/actions/dashboard"
 import { DashboardHeader } from "@/components/admin/dashboard/DashboardHeader"
 import { DashboardMetricCards } from "@/components/admin/dashboard/DashboardMetricCards"
 import { DashboardCharts } from "@/components/admin/dashboard/DashboardCharts"
 import { DashboardDemographics } from "@/components/admin/dashboard/DashboardDemographics"
 import { DashboardWidgets } from "@/components/admin/dashboard/DashboardWidgets"
+import { KTBDashboard } from "@/components/admin/dashboard/KTBDashboard"
+import { auth } from "@/auth"
 
 export const dynamic = "force-dynamic"
 
 export default async function AdminDashboardPage() {
+    const session = await auth()
+    const role = session?.user?.role
+
+    // Render dashboard khusus Seksi KTB untuk Koordinator dan Anggota Seksi KTB
+    if (role === "KOORKTB" || role === "ANGGOTAKTB") {
+        const ktbRes = await getKTBDashboardData()
+        if (ktbRes.success && ktbRes.data) {
+            return <KTBDashboard data={ktbRes.data} />
+        }
+    }
+
     const res = await getDashboardSummary()
     const summary = res.data
 

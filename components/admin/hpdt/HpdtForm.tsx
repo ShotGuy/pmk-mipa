@@ -4,7 +4,7 @@ import * as React from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Check, ChevronsUpDown, Loader2, BookOpen, Church, HeartHandshake, SunMedium, Moon } from "lucide-react"
+import { Check, ChevronsUpDown, Loader2, BookOpen, Church, HeartHandshake, SunMedium, Moon, Lock } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
@@ -94,11 +94,13 @@ export function HpdtForm({ initialData, pengurusOptions }: HpdtFormProps) {
         return new Date().toISOString().split("T")[0]
     }, [initialData])
 
+    const initialPengurusId = initialData?.idPengurus || (pengurusOptions.length === 1 ? pengurusOptions[0].value : "")
+
     const form = useForm<FormValues>({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         resolver: zodResolver(formSchema) as any,
         defaultValues: {
-            idPengurus: initialData?.idPengurus || "",
+            idPengurus: initialPengurusId,
             tanggal: defaultDateStr,
             isSate: initialData ? initialData.isSate : false,
             isDoa: initialData ? initialData.isDoa : false,
@@ -106,14 +108,17 @@ export function HpdtForm({ initialData, pengurusOptions }: HpdtFormProps) {
             isGereja: initialData ? initialData.isGereja : false,
             ayatAlkitab: initialData?.ayatAlkitab || "",
             judulBuku: initialData?.judulBuku || "",
-        }
+        },
     })
+
+    const isSingleOption = pengurusOptions.length === 1
 
     const onSubmit = (values: FormValues) => {
         startTransition(async () => {
             try {
                 const payload = {
                     ...values,
+                    idPengurus: isSingleOption ? pengurusOptions[0].value : values.idPengurus,
                     tanggal: new Date(values.tanggal),
                 }
 
@@ -155,61 +160,76 @@ export function HpdtForm({ initialData, pengurusOptions }: HpdtFormProps) {
                                 <FormLabel>
                                     Pilih Pengurus <span className="text-red-500">*</span>
                                 </FormLabel>
-                                <Popover open={openPengurus} onOpenChange={setOpenPengurus}>
-                                    <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                                variant="outline"
-                                                role="combobox"
-                                                aria-expanded={openPengurus}
-                                                className={cn(
-                                                    "w-full justify-between font-normal",
-                                                    !field.value && "text-muted-foreground"
-                                                )}
-                                                disabled={isPending}
-                                            >
-                                                {field.value
-                                                    ? pengurusOptions.find((opt) => opt.value === field.value)?.label
-                                                    : "Cari & pilih pengurus..."}
-                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                            </Button>
-                                        </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-[380px] p-0" align="start">
-                                        <Command>
-                                            <CommandInput placeholder="Ketik nama pengurus..." />
-                                            <CommandList>
-                                                <CommandEmpty>Pengurus tidak ditemukan.</CommandEmpty>
-                                                <CommandGroup heading="Daftar Badan Pengurus">
-                                                    {pengurusOptions.map((opt) => (
-                                                        <CommandItem
-                                                            key={opt.value}
-                                                            value={opt.label}
-                                                            onSelect={() => {
-                                                                form.setValue("idPengurus", opt.value)
-                                                                setOpenPengurus(false)
-                                                            }}
-                                                        >
-                                                            <Check
-                                                                className={cn(
-                                                                    "mr-2 h-4 w-4",
-                                                                    opt.value === field.value ? "opacity-100" : "opacity-0"
-                                                                )}
-                                                            />
-                                                            <div className="flex flex-col">
-                                                                <span className="font-medium">{opt.nama}</span>
-                                                                <span className="text-xs text-muted-foreground">
-                                                                    {opt.jabatan} {opt.prodi ? `• ${opt.prodi}` : ""}
-                                                                </span>
-                                                            </div>
-                                                        </CommandItem>
-                                                    ))}
-                                                </CommandGroup>
-                                            </CommandList>
-                                        </Command>
-                                    </PopoverContent>
-                                </Popover>
-                                <FormDescription>Pengurus yang mencatatkan HPDT.</FormDescription>
+                                {isSingleOption ? (
+                                    <div className="space-y-1.5">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="w-full justify-between font-normal bg-muted/40 cursor-default hover:bg-muted/40"
+                                        >
+                                            <span className="font-medium text-foreground truncate">{pengurusOptions[0].label}</span>
+                                            <Lock className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
+                                        </Button>
+                                        <FormDescription className="text-xs text-muted-foreground">
+                                            Terkunci otomatis atas nama Anda sendiri.
+                                        </FormDescription>
+                                    </div>
+                                ) : (
+                                    <Popover open={openPengurus} onOpenChange={setOpenPengurus}>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    variant="outline"
+                                                    role="combobox"
+                                                    aria-expanded={openPengurus}
+                                                    className={cn(
+                                                        "w-full justify-between font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                    disabled={isPending}
+                                                >
+                                                    {field.value
+                                                        ? pengurusOptions.find((opt) => opt.value === field.value)?.label
+                                                        : "Cari & pilih pengurus..."}
+                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[380px] p-0" align="start">
+                                            <Command>
+                                                <CommandInput placeholder="Ketik nama pengurus..." />
+                                                <CommandList>
+                                                    <CommandEmpty>Pengurus tidak ditemukan.</CommandEmpty>
+                                                    <CommandGroup heading="Daftar Badan Pengurus">
+                                                        {pengurusOptions.map((opt) => (
+                                                            <CommandItem
+                                                                key={opt.value}
+                                                                value={opt.label}
+                                                                onSelect={() => {
+                                                                    form.setValue("idPengurus", opt.value)
+                                                                    setOpenPengurus(false)
+                                                                }}
+                                                            >
+                                                                <Check
+                                                                    className={cn(
+                                                                        "mr-2 h-4 w-4",
+                                                                        opt.value === field.value ? "opacity-100" : "opacity-0"
+                                                                    )}
+                                                                />
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-medium">{opt.nama}</span>
+                                                                    <span className="text-xs text-muted-foreground">
+                                                                        {opt.jabatan} • {opt.prodi || "-"}
+                                                                    </span>
+                                                                </div>
+                                                            </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                )}
                                 <FormMessage />
                             </FormItem>
                         )}

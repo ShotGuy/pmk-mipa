@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
 import { KTBDetailClient } from "@/components/admin/ktb/KTBDetailClient"
 import { getKTB } from "@/actions/ktb"
+import { auth } from "@/auth"
 
 interface KTBDetailPageProps {
     params: Promise<{
@@ -10,6 +11,9 @@ interface KTBDetailPageProps {
 }
 
 export default async function KTBDetailPage({ params }: KTBDetailPageProps) {
+    const session = await auth()
+    const isReadOnly = session?.user?.role === "ANGGOTAKTB"
+
     const { id } = await params
     const res = await getKTB(id)
 
@@ -31,7 +35,7 @@ export default async function KTBDetailPage({ params }: KTBDetailPageProps) {
                 ]}
             />
 
-            <KTBDetailClient ktb={ktb} />
+            <KTBDetailClient ktb={ktb} isReadOnly={isReadOnly} />
         </div>
     )
 }

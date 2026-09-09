@@ -117,6 +117,7 @@ interface KTBDetailClientProps {
         anggotaKTB: MemberItem[]
         pengontrolan?: PengontrolanItem[]
     }
+    isReadOnly?: boolean
 }
 
 interface CandidateItem {
@@ -125,7 +126,7 @@ interface CandidateItem {
     subtitle: string
 }
 
-export function KTBDetailClient({ ktb }: KTBDetailClientProps) {
+export function KTBDetailClient({ ktb, isReadOnly }: KTBDetailClientProps) {
     const router = useRouter()
 
     // Dialog Tambah Anggota
@@ -266,15 +267,17 @@ export function KTBDetailClient({ ktb }: KTBDetailClientProps) {
                         <BookOpenCheck className="w-4 h-4" />
                         <span>Catat Pengontrolan</span>
                     </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2 h-9 text-xs"
-                        onClick={() => router.push(`/admin/ktb/${ktb.id}/edit`)}
-                    >
-                        <Pencil className="w-3.5 h-3.5" />
-                        <span>Edit Informasi KTB</span>
-                    </Button>
+                    {!isReadOnly && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2 h-9 text-xs"
+                            onClick={() => router.push(`/admin/ktb/${ktb.id}/edit`)}
+                        >
+                            <Pencil className="w-3.5 h-3.5" />
+                            <span>Edit Informasi KTB</span>
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -334,14 +337,16 @@ export function KTBDetailClient({ ktb }: KTBDetailClientProps) {
                         </CardDescription>
                     </div>
 
-                    <Button
-                        size="sm"
-                        className="gap-2 h-9 text-xs"
-                        onClick={handleOpenAddModal}
-                    >
-                        <UserPlus className="w-4 h-4" />
-                        <span>Tambah Anggota</span>
-                    </Button>
+                    {!isReadOnly && (
+                        <Button
+                            size="sm"
+                            className="gap-2 h-9 text-xs"
+                            onClick={handleOpenAddModal}
+                        >
+                            <UserPlus className="w-4 h-4" />
+                            <span>Tambah Anggota</span>
+                        </Button>
+                    )}
                 </CardHeader>
 
                 <CardContent className="p-0">
@@ -353,25 +358,27 @@ export function KTBDetailClient({ ktb }: KTBDetailClientProps) {
                                 <TableHead>Prodi / Angkatan</TableHead>
                                 <TableHead>Status di KTB Ini</TableHead>
                                 <TableHead>Terdaftar Sejak</TableHead>
-                                <TableHead className="text-right">Aksi</TableHead>
+                                {!isReadOnly && <TableHead className="text-right">Aksi</TableHead>}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {ktb.anggotaKTB.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground text-sm">
+                                    <TableCell colSpan={isReadOnly ? 5 : 6} className="h-32 text-center text-muted-foreground text-sm">
                                         Belum ada anggota yang terdaftar di kelompok KTB ini.
-                                        <div className="mt-2">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="text-xs gap-1.5"
-                                                onClick={handleOpenAddModal}
-                                            >
-                                                <UserPlus className="w-3.5 h-3.5 text-primary" />
-                                                Tambah Anggota Pertama
-                                            </Button>
-                                        </div>
+                                        {!isReadOnly && (
+                                            <div className="mt-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="text-xs gap-1.5"
+                                                    onClick={handleOpenAddModal}
+                                                >
+                                                    <UserPlus className="w-3.5 h-3.5 text-primary" />
+                                                    Tambah Anggota Pertama
+                                                </Button>
+                                            </div>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -415,44 +422,46 @@ export function KTBDetailClient({ ktb }: KTBDetailClientProps) {
                                         <TableCell className="text-xs text-muted-foreground">
                                             {format(new Date(item.createdAt), "dd MMM yyyy", { locale: localeId })}
                                         </TableCell>
-                                        <TableCell className="text-right">
-                                            <div className="flex items-center justify-end gap-1.5">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className={cn(
-                                                        "h-8 text-xs gap-1",
-                                                        item.isAktif
-                                                            ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950"
-                                                            : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950"
-                                                    )}
-                                                    onClick={() => handleToggleStatus(item.id, item.isAktif)}
-                                                    title={item.isAktif ? "Tandai sebagai riwayat (misal: merger/pindah)" : "Aktifkan kembali keanggotaan"}
-                                                >
-                                                    {item.isAktif ? (
-                                                        <>
-                                                            <UserMinus className="w-3.5 h-3.5" />
-                                                            <span>Nonaktifkan</span>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <UserCheck className="w-3.5 h-3.5" />
-                                                            <span>Aktifkan</span>
-                                                        </>
-                                                    )}
-                                                </Button>
+                                        {!isReadOnly && (
+                                            <TableCell className="text-right">
+                                                <div className="flex items-center justify-end gap-1.5">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className={cn(
+                                                            "h-8 text-xs gap-1",
+                                                            item.isAktif
+                                                                ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950"
+                                                                : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950"
+                                                        )}
+                                                        onClick={() => handleToggleStatus(item.id, item.isAktif)}
+                                                        title={item.isAktif ? "Tandai sebagai riwayat (misal: merger/pindah)" : "Aktifkan kembali keanggotaan"}
+                                                    >
+                                                        {item.isAktif ? (
+                                                            <>
+                                                                <UserMinus className="w-3.5 h-3.5" />
+                                                                <span>Nonaktifkan</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <UserCheck className="w-3.5 h-3.5" />
+                                                                <span>Aktifkan</span>
+                                                            </>
+                                                        )}
+                                                    </Button>
 
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                                                    onClick={() => setDeleteMemberId(item.id)}
-                                                    title="Hapus dari Kelompok KTB"
-                                                >
-                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                                                        onClick={() => setDeleteMemberId(item.id)}
+                                                        title="Hapus dari Kelompok KTB"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 ))
                             )}

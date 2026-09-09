@@ -114,12 +114,16 @@ interface HpdtClientProps {
         nama: string
         jabatan: string
     }>
+    currentPengurusId?: string
+    userRole?: string
 }
 
 export function HpdtClient({
     initialOverview,
     initialLogs,
     pengurusList,
+    currentPengurusId,
+    userRole,
 }: HpdtClientProps) {
     const router = useRouter()
 
@@ -245,33 +249,44 @@ export function HpdtClient({
             if (col.id === "actions") {
                 return {
                     ...col,
-                    cell: ({ row }: { row: { original: HpdtWithRelation } }) => (
-                        <div className="flex items-center gap-1.5">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950"
-                                onClick={() => router.push(`/admin/hpdt/${row.original.id}`)}
-                                title="Edit"
-                            >
-                                <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                                onClick={() => setDeleteId(row.original.id)}
-                                title="Hapus"
-                            >
-                                <Trash className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    ),
+                    cell: ({ row }: { row: { original: HpdtWithRelation } }) => {
+                        const canModify =
+                            userRole === "ADMIN" ||
+                            userRole === "KETUA" ||
+                            (currentPengurusId && row.original.idPengurus === currentPengurusId)
+
+                        if (!canModify) {
+                            return null
+                        }
+
+                        return (
+                            <div className="flex items-center gap-1.5">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950"
+                                    onClick={() => router.push(`/admin/hpdt/${row.original.id}`)}
+                                    title="Edit"
+                                >
+                                    <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                                    onClick={() => setDeleteId(row.original.id)}
+                                    title="Hapus"
+                                >
+                                    <Trash className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        )
+                    },
                 }
             }
             return col
         })
-    }, [router])
+    }, [router, currentPengurusId, userRole])
 
     // Years available in dropdown (current year - 2 to current year + 1)
     const currentYear = new Date().getFullYear()
@@ -551,25 +566,34 @@ export function HpdtClient({
                 {/* TAB 2: LOG HARIAN & RIWAYAT */}
                 <TabsContent value="logs" className="space-y-6 mt-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border bg-card/60 backdrop-blur-sm shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <span className="text-sm font-medium text-muted-foreground">Filter Pengurus:</span>
-                            <Select
-                                value={filterPengurusId}
-                                onValueChange={setFilterPengurusId}
-                            >
-                                <SelectTrigger className="w-[220px]">
-                                    <SelectValue placeholder="Pilih pengurus" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Semua Pengurus</SelectItem>
-                                    {pengurusList.map((p) => (
-                                        <SelectItem key={p.value} value={p.value}>
-                                            {p.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        {pengurusList.length > 1 ? (
+                            <div className="flex items-center gap-3">
+                                <span className="text-sm font-medium text-muted-foreground">Filter Pengurus:</span>
+                                <Select
+                                    value={filterPengurusId}
+                                    onValueChange={setFilterPengurusId}
+                                >
+                                    <SelectTrigger className="w-[220px]">
+                                        <SelectValue placeholder="Pilih pengurus" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Semua Pengurus</SelectItem>
+                                        {pengurusList.map((p) => (
+                                            <SelectItem key={p.value} value={p.value}>
+                                                {p.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">Pengurus:</span>
+                                <Badge variant="secondary" className="font-medium text-xs px-2.5 py-1">
+                                    {pengurusList[0]?.nama || "Saya"}
+                                </Badge>
+                            </div>
+                        )}
                         <div className="text-xs text-muted-foreground">
                             Menampilkan <strong className="text-foreground">{filteredLogs.length}</strong> entri log terkini
                         </div>
