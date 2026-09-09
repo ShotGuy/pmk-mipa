@@ -82,6 +82,18 @@ export const columns: ColumnDef<Anggota>[] = [
         header: "No HP",
     },
     {
+        id: "bulanLahir",
+        accessorFn: (row) => {
+            if (!row.tanggalLahir) return null
+            const month = new Date(row.tanggalLahir).getMonth() + 1
+            return String(month)
+        },
+        enableHiding: true,
+        filterFn: (row, id, value) => {
+            return value.includes(row.getValue(id))
+        },
+    },
+    {
         id: "actions",
         header: "Actions",
         cell: () => {

@@ -5,6 +5,7 @@ import {
     getBendaharaDashboardData,
     getSekretarisDashboardData,
     getAcaraDashboardData,
+    getDoaDashboardData,
 } from "@/actions/dashboard"
 import { DashboardHeader } from "@/components/admin/dashboard/DashboardHeader"
 import { DashboardMetricCards } from "@/components/admin/dashboard/DashboardMetricCards"
@@ -16,6 +17,7 @@ import { KetuaDashboard } from "@/components/admin/dashboard/KetuaDashboard"
 import { BendaharaDashboard } from "@/components/admin/dashboard/BendaharaDashboard"
 import { SekretarisDashboard } from "@/components/admin/dashboard/SekretarisDashboard"
 import { AcaraDashboard } from "@/components/admin/dashboard/AcaraDashboard"
+import { DoaDashboard } from "@/components/admin/dashboard/DoaDashboard"
 import { auth } from "@/auth"
 
 export const dynamic = "force-dynamic"
@@ -61,6 +63,14 @@ export default async function AdminDashboardPage() {
         const acaraRes = await getAcaraDashboardData()
         if (acaraRes.success && acaraRes.data) {
             return <AcaraDashboard data={acaraRes.data} />
+        }
+    }
+
+    // Render dashboard khusus Seksi Doa & Pemerhati untuk Koordinator dan Anggota Seksi Doa
+    if (role === "KOORDOA" || role === "ANGGOTADOA") {
+        const doaRes = await getDoaDashboardData()
+        if (doaRes.success && doaRes.data) {
+            return <DoaDashboard data={doaRes.data} />
         }
     }
 
