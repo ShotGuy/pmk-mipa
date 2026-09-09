@@ -1765,3 +1765,344 @@ export async function getSekretarisDashboardData(): Promise<{
     }
 }
 
+export interface AcaraDashboardData {
+    greeting: string
+    userName: string
+    roleLabel: string
+    isKoordinator: boolean
+    currentDateFormatted: string
+    todayHpdt: {
+        isFilled: boolean
+        isSate: boolean
+        isDoa: boolean
+        isAttendedKTB: boolean
+        isGereja: boolean
+        ayatAlkitab: string | null
+        judulBuku: string | null
+        sateCount: number
+        doaCount: number
+        ktbCount: number
+        gerejaCount: number
+        elapsedDays: number
+        satePercentage: number
+        doaPercentage: number
+    }
+    metrics: {
+        totalAnggota: number
+        totalKegiatan: number
+        avgKehadiran: number
+        totalKehadiranAll: number
+        totalPengunjungLuar: number
+        persenPartisipasiRataRata: number
+    }
+    prodiDistribution: Array<{
+        prodi: string
+        count: number
+        percentage: number
+    }>
+    angkatanDistribution: Array<{
+        angkatan: string
+        count: number
+    }>
+    ageDemographics: Array<{
+        bracket: string
+        count: number
+        percentage: number
+    }>
+    upcomingKegiatan: {
+        id: string
+        nama: string
+        tanggal: Date
+        tanggalFormatted: string
+        waktuFormatted: string | null
+        lokasi: string | null
+        pembicara: string | null
+        isPresensiOpen: boolean
+        presensiToken: string | null
+        jenisKegiatanNama: string
+    } | null
+    recentKegiatanAttendance: Array<{
+        id: string
+        nama: string
+        tanggalFormatted: string
+        totalHadir: number
+        anggotaHadir: number
+        pengunjungHadir: number
+        persentaseDariTotalAnggota: number
+    }>
+}
+
+export async function getAcaraDashboardData(): Promise<{
+    success: boolean
+    data?: AcaraDashboardData
+    message?: string
+}> {
+    try {
+        const session = await auth()
+        const idAnggota = session?.user?.idAnggota
+        const role = session?.user?.role
+        const isKoordinator = role === "KOORACARA"
+        const roleLabel = isKoordinator ? "Koordinator Seksi Acara" : "Anggota Seksi Acara"
+
+        const now = new Date()
+        const currentHour = now.getHours()
+        let timeGreeting = "Selamat Datang"
+        if (currentHour >= 4 && currentHour < 11) timeGreeting = "Selamat Pagi"
+        else if (currentHour >= 11 && currentHour < 15) timeGreeting = "Selamat Siang"
+        else if (currentHour >= 15 && currentHour < 18) timeGreeting = "Selamat Sore"
+        else timeGreeting = "Selamat Malam"
+
+        const userBp = idAnggota
+            ? await db.badanPengurus.findFirst({
+                  where: { idAnggota, status: true },
+                  include: {
+                      anggota: { select: { nama: true } },
+                  },
+              })
+            : null
+
+        const fullName = userBp?.anggota?.nama || session?.user?.name || roleLabel
+        const firstName = fullName.split(" ")[0]
+
+        const startCurrentMonth = startOfMonth(now)
+        const endCurrentMonth = endOfMonth(now)
+        const todayNormalized = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0))
+
+        // Personal HPDT
+        const todayHpdtRecord = userBp
+            ? await db.hpdt.findFirst({
+                  where: {
+                      idPengurus: userBp.id,
+                      tanggal: todayNormalized,
+                  },
+              })
+            : null
+
+        const personalMonthlyRecords = userBp
+            ? await db.hpdt.findMany({
+                  where: {
+                      idPengurus: userBp.id,
+                      tanggal: { gte: startCurrentMonth, lte: endCurrentMonth },
+                  },
+              })
+            : []
+
+        const sateCount = personalMonthlyRecords.filter((r) => r.isSate).length
+        const doaCount = personalMonthlyRecords.filter((r) => r.isDoa).length
+        const ktbCount = personalMonthlyRecords.filter((r) => r.isAttendedKTB).length
+        const gerejaCount = personalMonthlyRecords.filter((r) => r.isGereja).length
+        const elapsedDays = Math.min(now.getDate(), endCurrentMonth.getDate())
+        const satePercentage = elapsedDays > 0 ? Math.round((sateCount / elapsedDays) * 100) : 0
+        const doaPercentage = elapsedDays > 0 ? Math.round((doaCount / elapsedDays) * 100) : 0
+
+        // Macro metrics
+        const [totalAnggota, allKegiatan, allAnggota] = await Promise.all([
+            db.anggota.count(),
+            db.kegiatan.findMany({
+                orderBy: { tanggal: "desc" },
+                include: {
+                    jenisKegiatan: { select: { nama: true } },
+                    kehadiran: {
+                        select: {
+                            status: true,
+                        },
+                    },
+                },
+            }),
+            db.anggota.findMany({
+                select: {
+                    prodi: true,
+                    angkatan: true,
+                    tanggalLahir: true,
+                },
+            }),
+        ])
+
+        const totalKegiatan = allKegiatan.length
+        let totalKehadiranAll = 0
+        let totalPengunjungLuar = 0
+
+        for (const k of allKegiatan) {
+            totalKehadiranAll += k.kehadiran.length
+            totalPengunjungLuar += k.kehadiran.filter((kh) => kh.status === "NON_APMK").length
+        }
+
+        const avgKehadiran = totalKegiatan > 0 ? Math.round(totalKehadiranAll / totalKegiatan) : 0
+        const persenPartisipasiRataRata =
+            totalAnggota > 0 ? Math.round((avgKehadiran / totalAnggota) * 100) : 0
+
+        // Upcoming / Active Kegiatan
+        const activeKegiatan = allKegiatan.find((k) => k.isPresensiOpen)
+        const nextKegiatan = allKegiatan
+            .slice()
+            .reverse()
+            .find((k) => new Date(k.tanggal) >= todayNormalized)
+
+        const targetKegiatan = activeKegiatan || nextKegiatan || allKegiatan[0] || null
+
+        const upcomingKegiatan: AcaraDashboardData["upcomingKegiatan"] = targetKegiatan
+            ? {
+                  id: targetKegiatan.id,
+                  nama: targetKegiatan.nama,
+                  tanggal: targetKegiatan.tanggal,
+                  tanggalFormatted: format(new Date(targetKegiatan.tanggal), "EEEE, d MMMM yyyy", {
+                      locale: localeId,
+                  }),
+                  waktuFormatted: targetKegiatan.waktu
+                      ? format(new Date(targetKegiatan.waktu), "HH:mm 'WITA'")
+                      : null,
+                  lokasi: targetKegiatan.lokasi,
+                  pembicara: targetKegiatan.pembicara,
+                  isPresensiOpen: targetKegiatan.isPresensiOpen,
+                  presensiToken: targetKegiatan.presensiToken,
+                  jenisKegiatanNama: targetKegiatan.jenisKegiatan.nama,
+              }
+            : null
+
+        // 5 recent kegiatan attendance
+        const recentKegiatanAttendance = allKegiatan.slice(0, 5).map((k) => {
+            const tot = k.kehadiran.length
+            const anggotaHadir = k.kehadiran.filter((kh) => kh.status === "APMK" || kh.status === "AKTB").length
+            const pengunjungHadir = k.kehadiran.filter((kh) => kh.status === "NON_APMK").length
+            const persentaseDariTotalAnggota =
+                totalAnggota > 0 ? Math.round((anggotaHadir / totalAnggota) * 100) : 0
+
+            return {
+                id: k.id,
+                nama: k.nama,
+                tanggalFormatted: format(new Date(k.tanggal), "d MMM", { locale: localeId }),
+                totalHadir: tot,
+                anggotaHadir,
+                pengunjungHadir,
+                persentaseDariTotalAnggota,
+            }
+        })
+
+        // Demographics: Prodi
+        const prodiMap = new Map<string, number>()
+        for (const a of allAnggota) {
+            const p = a.prodi || "Lainnya"
+            prodiMap.set(p, (prodiMap.get(p) || 0) + 1)
+        }
+        const prodiDistribution = Array.from(prodiMap.entries())
+            .map(([prodi, count]) => ({
+                prodi,
+                count,
+                percentage: totalAnggota > 0 ? Math.round((count / totalAnggota) * 100) : 0,
+            }))
+            .sort((a, b) => b.count - a.count)
+
+        // Demographics: Angkatan
+        const angkatanMap = new Map<string, number>()
+        for (const a of allAnggota) {
+            const angk = a.angkatan ? String(a.angkatan) : "Tidak Tercatat"
+            angkatanMap.set(angk, (angkatanMap.get(angk) || 0) + 1)
+        }
+        const angkatanDistribution = Array.from(angkatanMap.entries())
+            .map(([angkatan, count]) => ({
+                angkatan,
+                count,
+            }))
+            .sort((a, b) => b.angkatan.localeCompare(a.angkatan))
+
+        // Demographics: Age from tanggalLahir
+        const ageCounts = {
+            under19: 0,
+            range19to21: 0,
+            range22to24: 0,
+            above24: 0,
+            unfilled: 0,
+        }
+
+        const currentYear = now.getFullYear()
+        for (const a of allAnggota) {
+            if (!a.tanggalLahir) {
+                ageCounts.unfilled++
+            } else {
+                const birthDate = new Date(a.tanggalLahir)
+                let age = currentYear - birthDate.getFullYear()
+                const m = now.getMonth() - birthDate.getMonth()
+                if (m < 0 || (m === 0 && now.getDate() < birthDate.getDate())) {
+                    age--
+                }
+
+                if (age < 19) ageCounts.under19++
+                else if (age >= 19 && age <= 21) ageCounts.range19to21++
+                else if (age >= 22 && age <= 24) ageCounts.range22to24++
+                else ageCounts.above24++
+            }
+        }
+
+        const ageDemographics = [
+            {
+                bracket: "< 19 Tahun",
+                count: ageCounts.under19,
+                percentage: totalAnggota > 0 ? Math.round((ageCounts.under19 / totalAnggota) * 100) : 0,
+            },
+            {
+                bracket: "19 - 21 Tahun",
+                count: ageCounts.range19to21,
+                percentage: totalAnggota > 0 ? Math.round((ageCounts.range19to21 / totalAnggota) * 100) : 0,
+            },
+            {
+                bracket: "22 - 24 Tahun",
+                count: ageCounts.range22to24,
+                percentage: totalAnggota > 0 ? Math.round((ageCounts.range22to24 / totalAnggota) * 100) : 0,
+            },
+            {
+                bracket: "> 24 Tahun",
+                count: ageCounts.above24,
+                percentage: totalAnggota > 0 ? Math.round((ageCounts.above24 / totalAnggota) * 100) : 0,
+            },
+            {
+                bracket: "Belum Diisi",
+                count: ageCounts.unfilled,
+                percentage: totalAnggota > 0 ? Math.round((ageCounts.unfilled / totalAnggota) * 100) : 0,
+            },
+        ]
+
+        return {
+            success: true,
+            data: {
+                greeting: `${timeGreeting}, ${firstName}`,
+                userName: fullName,
+                roleLabel,
+                isKoordinator,
+                currentDateFormatted: format(now, "EEEE, d MMMM yyyy", { locale: localeId }),
+                todayHpdt: {
+                    isFilled: !!todayHpdtRecord,
+                    isSate: todayHpdtRecord?.isSate || false,
+                    isDoa: todayHpdtRecord?.isDoa || false,
+                    isAttendedKTB: todayHpdtRecord?.isAttendedKTB || false,
+                    isGereja: todayHpdtRecord?.isGereja || false,
+                    ayatAlkitab: todayHpdtRecord?.ayatAlkitab || null,
+                    judulBuku: todayHpdtRecord?.judulBuku || null,
+                    sateCount,
+                    doaCount,
+                    ktbCount,
+                    gerejaCount,
+                    elapsedDays,
+                    satePercentage,
+                    doaPercentage,
+                },
+                metrics: {
+                    totalAnggota,
+                    totalKegiatan,
+                    avgKehadiran,
+                    totalKehadiranAll,
+                    totalPengunjungLuar,
+                    persenPartisipasiRataRata,
+                },
+                prodiDistribution,
+                angkatanDistribution,
+                ageDemographics,
+                upcomingKegiatan,
+                recentKegiatanAttendance,
+            },
+        }
+    } catch (error) {
+        console.error("Error getAcaraDashboardData:", error)
+        return { success: false, message: "Gagal memuat dashboard Seksi Acara" }
+    }
+}
+

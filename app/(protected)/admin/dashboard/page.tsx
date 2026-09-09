@@ -4,6 +4,7 @@ import {
     getKetuaDashboardData,
     getBendaharaDashboardData,
     getSekretarisDashboardData,
+    getAcaraDashboardData,
 } from "@/actions/dashboard"
 import { DashboardHeader } from "@/components/admin/dashboard/DashboardHeader"
 import { DashboardMetricCards } from "@/components/admin/dashboard/DashboardMetricCards"
@@ -14,6 +15,7 @@ import { KTBDashboard } from "@/components/admin/dashboard/KTBDashboard"
 import { KetuaDashboard } from "@/components/admin/dashboard/KetuaDashboard"
 import { BendaharaDashboard } from "@/components/admin/dashboard/BendaharaDashboard"
 import { SekretarisDashboard } from "@/components/admin/dashboard/SekretarisDashboard"
+import { AcaraDashboard } from "@/components/admin/dashboard/AcaraDashboard"
 import { auth } from "@/auth"
 
 export const dynamic = "force-dynamic"
@@ -51,6 +53,14 @@ export default async function AdminDashboardPage() {
         const ktbRes = await getKTBDashboardData()
         if (ktbRes.success && ktbRes.data) {
             return <KTBDashboard data={ktbRes.data} />
+        }
+    }
+
+    // Render dashboard khusus Seksi Acara untuk Koordinator dan Anggota Seksi Acara
+    if (role === "KOORACARA" || role === "ANGGOTAACARA") {
+        const acaraRes = await getAcaraDashboardData()
+        if (acaraRes.success && acaraRes.data) {
+            return <AcaraDashboard data={acaraRes.data} />
         }
     }
 

@@ -104,7 +104,7 @@ export const getKTBOptions = async () => {
 export const createAnggota = async (values: z.infer<typeof AnggotaSchema>) => {
     const session = await auth();
     const role = session?.user?.role;
-    if (role === "KETUA" || role === "BENDAHARA") {
+    if (["KETUA", "BENDAHARA", "KOORACARA", "ANGGOTAACARA"].includes(role || "")) {
         return { success: false, message: "Akses ditolak: role Anda hanya memiliki izin membaca (read-only) pada data anggota." };
     }
 
@@ -146,7 +146,7 @@ export const createAnggota = async (values: z.infer<typeof AnggotaSchema>) => {
 export const updateAnggota = async (id: string, values: z.infer<typeof AnggotaSchema>) => {
     const session = await auth();
     const role = session?.user?.role;
-    if (role === "KETUA" || role === "BENDAHARA") {
+    if (["KETUA", "BENDAHARA", "KOORACARA", "ANGGOTAACARA"].includes(role || "")) {
         return { success: false, message: "Akses ditolak: role Anda hanya memiliki izin membaca (read-only) pada data anggota." };
     }
 
@@ -225,7 +225,7 @@ export const updateAnggota = async (id: string, values: z.infer<typeof AnggotaSc
 export const deleteAnggota = async (id: string) => {
     const session = await auth();
     const role = session?.user?.role;
-    if (role === "KETUA" || role === "BENDAHARA") {
+    if (["KETUA", "BENDAHARA", "KOORACARA", "ANGGOTAACARA"].includes(role || "")) {
         return { success: false, message: "Akses ditolak: role Anda hanya memiliki izin membaca (read-only) pada data anggota." };
     }
 
@@ -291,7 +291,7 @@ export async function importAnggotaBulk(
     try {
         const session = await auth();
         const role = session?.user?.role;
-        if (role === "KETUA" || role === "BENDAHARA") {
+        if (["KETUA", "BENDAHARA", "KOORACARA", "ANGGOTAACARA"].includes(role || "")) {
             return {
                 success: false,
                 message: "Akses ditolak: role Anda hanya memiliki izin membaca (read-only) pada data anggota.",

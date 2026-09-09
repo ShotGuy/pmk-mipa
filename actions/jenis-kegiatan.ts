@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { auth } from "@/auth"
 
 // Schema Validation
 const JenisKegiatanSchema = z.object({
@@ -10,6 +11,12 @@ const JenisKegiatanSchema = z.object({
 })
 
 export async function createJenisKegiatan(data: z.infer<typeof JenisKegiatanSchema>) {
+    const session = await auth()
+    const role = session?.user?.role
+    if (!["ADMIN", "SEKRETARIS", "KOORACARA", "ANGGOTAACARA"].includes(role || "")) {
+        return { success: false, message: "Akses ditolak: role Anda tidak memiliki wewenang untuk mengelola jenis kegiatan." }
+    }
+
     try {
         const validated = JenisKegiatanSchema.parse(data)
 
@@ -27,6 +34,12 @@ export async function createJenisKegiatan(data: z.infer<typeof JenisKegiatanSche
 }
 
 export async function updateJenisKegiatan(id: string, data: z.infer<typeof JenisKegiatanSchema>) {
+    const session = await auth()
+    const role = session?.user?.role
+    if (!["ADMIN", "SEKRETARIS", "KOORACARA", "ANGGOTAACARA"].includes(role || "")) {
+        return { success: false, message: "Akses ditolak: role Anda tidak memiliki wewenang untuk mengelola jenis kegiatan." }
+    }
+
     try {
         const validated = JenisKegiatanSchema.parse(data)
 
@@ -44,6 +57,12 @@ export async function updateJenisKegiatan(id: string, data: z.infer<typeof Jenis
 }
 
 export async function deleteJenisKegiatan(id: string) {
+    const session = await auth()
+    const role = session?.user?.role
+    if (!["ADMIN", "SEKRETARIS", "KOORACARA", "ANGGOTAACARA"].includes(role || "")) {
+        return { success: false, message: "Akses ditolak: role Anda tidak memiliki wewenang untuk mengelola jenis kegiatan." }
+    }
+
     try {
         // Check usage first? Or typically Prisma throws specific error if FK constraint.
         await db.jenisKegiatan.delete({

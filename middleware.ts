@@ -127,20 +127,20 @@ export default auth((req) => {
             }
         }
 
-        // 6. HPDT (ADMIN, KETUA, SEKRETARIS, BENDAHARA, KOORDOA, ANGGOTADOA, KOORKTB, ANGGOTAKTB)
+        // 6. HPDT (ADMIN, KETUA, SEKRETARIS, BENDAHARA, KOORDOA, ANGGOTADOA, KOORKTB, ANGGOTAKTB, KOORACARA, ANGGOTAACARA)
         if (nextUrl.pathname.startsWith("/admin/hpdt")) {
-            if (!["ADMIN", "KETUA", "SEKRETARIS", "BENDAHARA", "KOORDOA", "ANGGOTADOA", "KOORKTB", "ANGGOTAKTB"].includes(role)) {
+            if (!["ADMIN", "KETUA", "SEKRETARIS", "BENDAHARA", "KOORDOA", "ANGGOTADOA", "KOORKTB", "ANGGOTAKTB", "KOORACARA", "ANGGOTAACARA"].includes(role)) {
                 return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
             }
         }
 
-        // 7. Data Anggota (ADMIN, KETUA, SEKRETARIS, BENDAHARA, KOORKTB, ANGGOTAKTB, KOORDOA, ANGGOTADOA)
+        // 7. Data Anggota (ADMIN, KETUA, SEKRETARIS, BENDAHARA, KOORKTB, ANGGOTAKTB, KOORDOA, ANGGOTADOA, KOORACARA, ANGGOTAACARA)
         if (nextUrl.pathname.startsWith("/admin/anggota")) {
-            if (!["ADMIN", "KETUA", "SEKRETARIS", "BENDAHARA", "KOORKTB", "ANGGOTAKTB", "KOORDOA", "ANGGOTADOA"].includes(role)) {
+            if (!["ADMIN", "KETUA", "SEKRETARIS", "BENDAHARA", "KOORKTB", "ANGGOTAKTB", "KOORDOA", "ANGGOTADOA", "KOORACARA", "ANGGOTAACARA"].includes(role)) {
                 return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
             }
-            // KETUA dan BENDAHARA read-only di Data Anggota (tidak boleh buka form /new atau edit)
-            if (["KETUA", "BENDAHARA"].includes(role)) {
+            // KETUA, BENDAHARA, KOORACARA, ANGGOTAACARA read-only di Data Anggota (tidak boleh buka form /new atau edit)
+            if (["KETUA", "BENDAHARA", "KOORACARA", "ANGGOTAACARA"].includes(role)) {
                 if (nextUrl.pathname === "/admin/anggota/new" || /^\/admin\/anggota\/[^/]+$/.test(nextUrl.pathname)) {
                     return NextResponse.redirect(new URL("/admin/anggota", nextUrl))
                 }

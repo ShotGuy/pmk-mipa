@@ -88,6 +88,8 @@ export const navItems: NavItem[] = [
             "ANGGOTAKTB",
             "KOORDOA",
             "ANGGOTADOA",
+            "KOORACARA",
+            "ANGGOTAACARA",
         ],
     },
     {
@@ -115,6 +117,8 @@ export const navItems: NavItem[] = [
             "ANGGOTADOA",
             "KOORKTB",
             "ANGGOTAKTB",
+            "KOORACARA",
+            "ANGGOTAACARA",
         ],
     },
     {

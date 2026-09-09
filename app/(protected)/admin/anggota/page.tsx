@@ -7,7 +7,7 @@ import { auth } from "@/auth"
 export default async function AnggotaPage() {
     const session = await auth()
     const role = session?.user?.role
-    const isReadOnly = role === "KETUA" || role === "BENDAHARA"
+    const isReadOnly = role === "KETUA" || role === "BENDAHARA" || role === "KOORACARA" || role === "ANGGOTAACARA"
 
     const anggotaResponse = await getAllAnggota()
     const filterOptions = await getAnggotaFilterOptions()
