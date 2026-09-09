@@ -29,9 +29,9 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
         if (error instanceof AuthError) {
             switch (error.type) {
                 case "CredentialsSignin":
-                    return { error: "Invalid credentials!" };
+                    return { error: "Email/Username atau password salah!" };
                 default:
-                    return { error: "Something went wrong!" };
+                    return { error: "Gagal masuk. Periksa kembali akun Anda." };
             }
         }
         throw error;

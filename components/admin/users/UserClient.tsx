@@ -20,6 +20,7 @@ export function UserClient({ data }: UserClientProps) {
                     options: [
                         { label: "Admin", value: "ADMIN" },
                         { label: "Ketua", value: "KETUA" },
+                        { label: "Sekretaris", value: "SEKRETARIS" },
                         { label: "Bendahara", value: "BENDAHARA" },
                         { label: "Koor KTB", value: "KOORKTB" },
                         { label: "Anggota KTB", value: "ANGGOTAKTB" },

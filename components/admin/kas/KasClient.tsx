@@ -47,6 +47,7 @@ interface KasClientProps {
         totalPengeluaranAll: number
         totalAkunKas: number
     }
+    isReadOnly?: boolean
 }
 
 function formatRupiah(amount: number): string {
@@ -58,7 +59,7 @@ function formatRupiah(amount: number): string {
     }).format(amount)
 }
 
-export function KasClient({ data, metrics }: KasClientProps) {
+export function KasClient({ data, metrics, isReadOnly = false }: KasClientProps) {
     const router = useRouter()
     const [isModalOpen, setIsModalOpen] = React.useState(false)
     const [selectedItem, setSelectedItem] = React.useState<KasWithBalance | null>(null)
@@ -85,6 +86,9 @@ export function KasClient({ data, metrics }: KasClientProps) {
     }
 
     const clientColumns = React.useMemo(() => {
+        if (isReadOnly) {
+            return columns.filter((col) => col.id !== "actions")
+        }
         return columns.map((col) => {
             if (col.id === "actions") {
                 return {
@@ -118,7 +122,7 @@ export function KasClient({ data, metrics }: KasClientProps) {
             }
             return col
         })
-    }, [])
+    }, [isReadOnly])
 
     return (
         <div className="space-y-6">
@@ -129,11 +133,15 @@ export function KasClient({ data, metrics }: KasClientProps) {
                     { label: "Dashboard", href: "/admin/dashboard" },
                     { label: "Kas" },
                 ]}
-                addLabel="Tambah Kas"
-                onAdd={() => {
-                    setSelectedItem(null)
-                    setIsModalOpen(true)
-                }}
+                {...(!isReadOnly
+                    ? {
+                          addLabel: "Tambah Kas",
+                          onAdd: () => {
+                              setSelectedItem(null)
+                              setIsModalOpen(true)
+                          },
+                      }
+                    : {})}
             />
 
             {/* KPI Summary Cards */}

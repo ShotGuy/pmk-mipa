@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseIndonesianTTL } from "@/lib/date-parser";
+import { auth } from "@/auth";
 
 const AnggotaSchema = z.object({
     nama: z.string().min(1, "Nama wajib diisi"),
@@ -101,6 +102,12 @@ export const getKTBOptions = async () => {
 };
 
 export const createAnggota = async (values: z.infer<typeof AnggotaSchema>) => {
+    const session = await auth();
+    const role = session?.user?.role;
+    if (role === "KETUA" || role === "BENDAHARA") {
+        return { success: false, message: "Akses ditolak: role Anda hanya memiliki izin membaca (read-only) pada data anggota." };
+    }
+
     const validatedFields = AnggotaSchema.safeParse(values);
 
     if (!validatedFields.success) {
@@ -137,6 +144,12 @@ export const createAnggota = async (values: z.infer<typeof AnggotaSchema>) => {
 };
 
 export const updateAnggota = async (id: string, values: z.infer<typeof AnggotaSchema>) => {
+    const session = await auth();
+    const role = session?.user?.role;
+    if (role === "KETUA" || role === "BENDAHARA") {
+        return { success: false, message: "Akses ditolak: role Anda hanya memiliki izin membaca (read-only) pada data anggota." };
+    }
+
     const validatedFields = AnggotaSchema.safeParse(values);
 
     if (!validatedFields.success) {
@@ -210,6 +223,12 @@ export const updateAnggota = async (id: string, values: z.infer<typeof AnggotaSc
 };
 
 export const deleteAnggota = async (id: string) => {
+    const session = await auth();
+    const role = session?.user?.role;
+    if (role === "KETUA" || role === "BENDAHARA") {
+        return { success: false, message: "Akses ditolak: role Anda hanya memiliki izin membaca (read-only) pada data anggota." };
+    }
+
     try {
         await db.anggota.delete({
             where: { id }
@@ -270,6 +289,19 @@ export async function importAnggotaBulk(
     options: ImportAnggotaOptions = { skipDuplicates: true }
 ): Promise<ImportAnggotaResult> {
     try {
+        const session = await auth();
+        const role = session?.user?.role;
+        if (role === "KETUA" || role === "BENDAHARA") {
+            return {
+                success: false,
+                message: "Akses ditolak: role Anda hanya memiliki izin membaca (read-only) pada data anggota.",
+                totalProcessed: 0,
+                insertedCount: 0,
+                skippedCount: 0,
+                duplicateCount: 0,
+            };
+        }
+
         if (!rows || rows.length === 0) {
             return {
                 success: false,

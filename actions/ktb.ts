@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { StatusKTB } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { auth } from "@/auth"
 
 const KTBSchema = z.object({
     nama: z.string().min(1, "Nama KTB wajib diisi"),
@@ -165,6 +166,11 @@ export async function getPengurusOptionsForKTB() {
 }
 
 export async function createKTB(values: KTBFormValues) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Akses ditolak: Ketua hanya memiliki hak akses read-only." }
+    }
+
     const validated = KTBSchema.safeParse(values)
     if (!validated.success) {
         return {
@@ -194,6 +200,11 @@ export async function createKTB(values: KTBFormValues) {
 }
 
 export async function updateKTB(id: string, values: KTBFormValues) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Akses ditolak: Ketua hanya memiliki hak akses read-only." }
+    }
+
     const validated = KTBSchema.safeParse(values)
     if (!validated.success) {
         return {
@@ -225,6 +236,11 @@ export async function updateKTB(id: string, values: KTBFormValues) {
 }
 
 export async function deleteKTB(id: string) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Akses ditolak: Ketua hanya memiliki hak akses read-only." }
+    }
+
     try {
         // Cek riwayat pengontrolan
         const pengontrolanCount = await db.pengontrolan.count({
@@ -300,6 +316,11 @@ export async function getAvailableAnggotaForKTB(idKTB: string) {
 }
 
 export async function addAnggotaToKTB(idKTB: string, idAnggota: string) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Akses ditolak: Ketua hanya memiliki hak akses read-only." }
+    }
+
     try {
         // Nonaktifkan keanggotaan aktif sebelumnya di KTB lain jika ada
         await db.kTBAnggota.updateMany({
@@ -340,6 +361,11 @@ export async function addAnggotaToKTB(idKTB: string, idAnggota: string) {
 }
 
 export async function toggleStatusAnggotaKTB(idKTBAnggota: string, isAktif: boolean) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Akses ditolak: Ketua hanya memiliki hak akses read-only." }
+    }
+
     try {
         const item = await db.kTBAnggota.update({
             where: { id: idKTBAnggota },

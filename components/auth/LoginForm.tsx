@@ -39,7 +39,14 @@ export function LoginForm() {
                         toast.error(data.error);
                     }
                 })
-                .catch(() => toast.error("Something went wrong"));
+                .catch((error: unknown) => {
+                    // Next.js redirect melemparkan exception internal NEXT_REDIRECT yang bukan merupakan error sebenarnya
+                    const err = error as { message?: string; digest?: string };
+                    if (err?.message === "NEXT_REDIRECT" || err?.digest?.startsWith("NEXT_REDIRECT")) {
+                        return;
+                    }
+                    toast.error("Terjadi kesalahan sistem. Silakan coba beberapa saat lagi.");
+                });
         });
     };
 

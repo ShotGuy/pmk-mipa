@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { CalendarPlus, CalendarX } from "lucide-react"
+import { auth } from "@/auth"
 
 interface KehadiranPageProps {
     searchParams: Promise<{
@@ -19,6 +20,9 @@ interface KehadiranPageProps {
 }
 
 export default async function KehadiranPage({ searchParams }: KehadiranPageProps) {
+    const session = await auth()
+    const isReadOnly = session?.user?.role === "KETUA"
+
     const params = await searchParams
     const kegiatanList = await getKegiatanListForKehadiran()
 
@@ -96,6 +100,7 @@ export default async function KehadiranPage({ searchParams }: KehadiranPageProps
             initialData={kehadiranData as KehadiranWithRelations[]}
             initialMetrics={metrics}
             anggotaOptions={anggotaOptions}
+            isReadOnly={isReadOnly}
         />
     )
 }

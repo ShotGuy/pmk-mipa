@@ -189,6 +189,7 @@ export function UserForm({ initialData, eligibleAnggotaOptions }: UserFormProps)
                                     <SelectContent>
                                         <SelectItem value="ADMIN">Super Admin</SelectItem>
                                         <SelectItem value="KETUA">Ketua (BP)</SelectItem>
+                                        <SelectItem value="SEKRETARIS">Sekretaris (BP)</SelectItem>
                                         <SelectItem value="BENDAHARA">Bendahara (BP)</SelectItem>
                                         <SelectItem value="KOORKTB">Koord. KTB</SelectItem>
                                         <SelectItem value="ANGGOTAKTB">Anggota KTB</SelectItem>

@@ -52,6 +52,7 @@ export interface KasAccountItem {
 interface TransaksiClientProps {
     data: TransaksiWithKas[]
     kasAccounts: KasAccountItem[]
+    isReadOnly?: boolean
 }
 
 function formatRupiah(amount: number): string {
@@ -63,7 +64,7 @@ function formatRupiah(amount: number): string {
     }).format(amount)
 }
 
-export function TransaksiClient({ data, kasAccounts }: TransaksiClientProps) {
+export function TransaksiClient({ data, kasAccounts, isReadOnly = false }: TransaksiClientProps) {
     const router = useRouter()
 
     // Filter States
@@ -174,6 +175,9 @@ export function TransaksiClient({ data, kasAccounts }: TransaksiClientProps) {
     }
 
     const clientColumns = React.useMemo(() => {
+        if (isReadOnly) {
+            return columns.filter((col) => col.id !== "actions")
+        }
         return columns.map((col) => {
             if (col.id === "actions") {
                 return {
@@ -204,7 +208,7 @@ export function TransaksiClient({ data, kasAccounts }: TransaksiClientProps) {
             }
             return col
         })
-    }, [router])
+    }, [router, isReadOnly])
 
     return (
         <div className="space-y-6">

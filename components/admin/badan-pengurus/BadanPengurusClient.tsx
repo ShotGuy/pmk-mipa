@@ -24,9 +24,10 @@ import { JABATAN_LABELS } from "./BadanPengurusForm"
 interface BadanPengurusClientProps {
     data: BadanPengurusWithRelation[]
     periodeOptions: { label: string; value: string }[]
+    isReadOnly?: boolean
 }
 
-export function BadanPengurusClient({ data, periodeOptions }: BadanPengurusClientProps) {
+export function BadanPengurusClient({ data, periodeOptions, isReadOnly = false }: BadanPengurusClientProps) {
     const router = useRouter()
     const [deleteId, setDeleteId] = useState<string | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
@@ -76,36 +77,38 @@ export function BadanPengurusClient({ data, periodeOptions }: BadanPengurusClien
     }
 
     // Enhance columns with functional Edit & Delete handlers
-    const clientColumns = columns.map(col => {
-        if (col.id === "actions") {
-            return {
-                ...col,
-                cell: ({ row }: { row: { original: BadanPengurusWithRelation } }) => (
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                            onClick={() => router.push(`/admin/badan-pengurus/${row.original.id}`)}
-                            title="Edit"
-                        >
-                            <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={() => setDeleteId(row.original.id)}
-                            title="Hapus"
-                        >
-                            <Trash className="h-4 w-4" />
-                        </Button>
-                    </div>
-                )
+    const clientColumns = isReadOnly
+        ? columns.filter(col => col.id !== "actions")
+        : columns.map(col => {
+            if (col.id === "actions") {
+                return {
+                    ...col,
+                    cell: ({ row }: { row: { original: BadanPengurusWithRelation } }) => (
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                onClick={() => router.push(`/admin/badan-pengurus/${row.original.id}`)}
+                                title="Edit"
+                            >
+                                <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                onClick={() => setDeleteId(row.original.id)}
+                                title="Hapus"
+                            >
+                                <Trash className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )
+                }
             }
-        }
-        return col
-    })
+            return col
+        })
 
     return (
         <>

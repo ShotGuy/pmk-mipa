@@ -252,7 +252,6 @@ export function HpdtClient({
                     cell: ({ row }: { row: { original: HpdtWithRelation } }) => {
                         const canModify =
                             userRole === "ADMIN" ||
-                            userRole === "KETUA" ||
                             (currentPengurusId && row.original.idPengurus === currentPengurusId)
 
                         if (!canModify) {

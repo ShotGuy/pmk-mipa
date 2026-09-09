@@ -25,9 +25,10 @@ interface AnggotaClientProps {
     filterOptions: {
         prodi: string[]
     }
+    isReadOnly?: boolean
 }
 
-export function AnggotaClient({ data, filterOptions }: AnggotaClientProps) {
+export function AnggotaClient({ data, filterOptions, isReadOnly }: AnggotaClientProps) {
     const router = useRouter()
     const [deleteId, setDeleteId] = useState<string | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
@@ -80,8 +81,10 @@ export function AnggotaClient({ data, filterOptions }: AnggotaClientProps) {
         }
     }
 
-    // Enhance columns with Delete Action
-    const clientColumns = columns.map(col => {
+    // Enhance columns with Delete Action (Hide actions column if isReadOnly)
+    const clientColumns = isReadOnly
+        ? columns.filter(col => col.id !== "actions")
+        : columns.map(col => {
         if (col.id === "actions") {
             return {
                 ...col,

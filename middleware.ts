@@ -70,6 +70,9 @@ export default auth((req) => {
             if (!["ADMIN", "KETUA"].includes(role)) {
                 return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
             }
+            if (role === "KETUA" && (nextUrl.pathname.endsWith("/new") || nextUrl.pathname.endsWith("/edit"))) {
+                return NextResponse.redirect(new URL("/admin/badan-pengurus", nextUrl))
+            }
         }
 
         // 3. Kas & Transaksi (ADMIN, KETUA, BENDAHARA)
@@ -79,6 +82,11 @@ export default auth((req) => {
         ) {
             if (!["ADMIN", "KETUA", "BENDAHARA"].includes(role)) {
                 return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
+            }
+            // Ketua read-only di kas & transaksi
+            if (role === "KETUA" && (nextUrl.pathname.endsWith("/new") || nextUrl.pathname.endsWith("/edit"))) {
+                const redirectPath = nextUrl.pathname.startsWith("/admin/kas") ? "/admin/kas" : "/admin/transaksi"
+                return NextResponse.redirect(new URL(redirectPath, nextUrl))
             }
         }
 
@@ -90,6 +98,11 @@ export default auth((req) => {
             if (!["ADMIN", "KETUA", "KOORKTB", "ANGGOTAKTB"].includes(role)) {
                 return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
             }
+            // Ketua read-only di KTB & Pengontrolan
+            if (role === "KETUA" && (nextUrl.pathname.endsWith("/new") || nextUrl.pathname.endsWith("/edit"))) {
+                const redirectPath = nextUrl.pathname.startsWith("/admin/ktb") ? "/admin/ktb" : "/admin/pengontrolan"
+                return NextResponse.redirect(new URL(redirectPath, nextUrl))
+            }
             // Khusus ANGGOTAKTB: Tidak diizinkan menambah KTB baru atau mengedit KTB
             if (role === "ANGGOTAKTB") {
                 if (nextUrl.pathname === "/admin/ktb/new" || nextUrl.pathname.endsWith("/edit")) {
@@ -98,29 +111,39 @@ export default auth((req) => {
             }
         }
 
-        // 5. Kegiatan, Jenis Kegiatan, Kehadiran, Gallery (ADMIN, KETUA, KOORACARA, ANGGOTAACARA)
+        // 5. Kegiatan, Jenis Kegiatan, Kehadiran, Gallery (ADMIN, KETUA, SEKRETARIS, KOORACARA, ANGGOTAACARA)
         if (
             nextUrl.pathname.startsWith("/admin/kegiatan") ||
             nextUrl.pathname.startsWith("/admin/jenis-kegiatan") ||
             nextUrl.pathname.startsWith("/admin/kehadiran") ||
             nextUrl.pathname.startsWith("/admin/gallery")
         ) {
-            if (!["ADMIN", "KETUA", "KOORACARA", "ANGGOTAACARA"].includes(role)) {
+            if (!["ADMIN", "KETUA", "SEKRETARIS", "KOORACARA", "ANGGOTAACARA"].includes(role)) {
                 return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
+            }
+            // Ketua read-only di Kegiatan
+            if (role === "KETUA" && (nextUrl.pathname.endsWith("/new") || nextUrl.pathname.endsWith("/edit"))) {
+                return NextResponse.redirect(new URL("/admin/kegiatan", nextUrl))
             }
         }
 
-        // 6. HPDT (ADMIN, KETUA, KOORDOA, ANGGOTADOA, KOORKTB, ANGGOTAKTB)
+        // 6. HPDT (ADMIN, KETUA, SEKRETARIS, BENDAHARA, KOORDOA, ANGGOTADOA, KOORKTB, ANGGOTAKTB)
         if (nextUrl.pathname.startsWith("/admin/hpdt")) {
-            if (!["ADMIN", "KETUA", "KOORDOA", "ANGGOTADOA", "KOORKTB", "ANGGOTAKTB"].includes(role)) {
+            if (!["ADMIN", "KETUA", "SEKRETARIS", "BENDAHARA", "KOORDOA", "ANGGOTADOA", "KOORKTB", "ANGGOTAKTB"].includes(role)) {
                 return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
             }
         }
 
-        // 7. Data Anggota (ADMIN, KETUA, BENDAHARA, KOORKTB, ANGGOTAKTB, KOORDOA, ANGGOTADOA)
+        // 7. Data Anggota (ADMIN, KETUA, SEKRETARIS, BENDAHARA, KOORKTB, ANGGOTAKTB, KOORDOA, ANGGOTADOA)
         if (nextUrl.pathname.startsWith("/admin/anggota")) {
-            if (!["ADMIN", "KETUA", "BENDAHARA", "KOORKTB", "ANGGOTAKTB", "KOORDOA", "ANGGOTADOA"].includes(role)) {
+            if (!["ADMIN", "KETUA", "SEKRETARIS", "BENDAHARA", "KOORKTB", "ANGGOTAKTB", "KOORDOA", "ANGGOTADOA"].includes(role)) {
                 return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
+            }
+            // KETUA dan BENDAHARA read-only di Data Anggota (tidak boleh buka form /new atau edit)
+            if (["KETUA", "BENDAHARA"].includes(role)) {
+                if (nextUrl.pathname === "/admin/anggota/new" || /^\/admin\/anggota\/[^/]+$/.test(nextUrl.pathname)) {
+                    return NextResponse.redirect(new URL("/admin/anggota", nextUrl))
+                }
             }
         }
     }

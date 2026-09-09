@@ -6,7 +6,7 @@ import { auth } from "@/auth"
 
 export default async function KTBPage() {
     const session = await auth()
-    const isReadOnly = session?.user?.role === "ANGGOTAKTB"
+    const isReadOnly = session?.user?.role === "ANGGOTAKTB" || session?.user?.role === "KETUA"
 
     const [ktbRes, metrics] = await Promise.all([
         getAllKTB(),

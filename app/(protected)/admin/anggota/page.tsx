@@ -2,8 +2,13 @@ import { AnggotaClient } from "@/components/admin/anggota/AnggotaClient"
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
 import { ImportAnggotaModal } from "@/components/admin/anggota/ImportAnggotaModal"
 import { getAllAnggota, getAnggotaFilterOptions } from "@/actions/anggota"
+import { auth } from "@/auth"
 
 export default async function AnggotaPage() {
+    const session = await auth()
+    const role = session?.user?.role
+    const isReadOnly = role === "KETUA" || role === "BENDAHARA"
+
     const anggotaResponse = await getAllAnggota()
     const filterOptions = await getAnggotaFilterOptions()
 
@@ -18,13 +23,12 @@ export default async function AnggotaPage() {
                     { label: "Dashboard", href: "/admin/dashboard" },
                     { label: "Data Anggota" }
                 ]}
-                addLabel="Tambah Anggota"
-                href="/admin/anggota/new"
+                {...(!isReadOnly ? { addLabel: "Tambah Anggota", href: "/admin/anggota/new" } : {})}
             >
-                <ImportAnggotaModal />
+                {!isReadOnly && <ImportAnggotaModal />}
             </AdminPageHeader>
 
-            <AnggotaClient data={anggotaData} filterOptions={filterOptions} />
+            <AnggotaClient data={anggotaData} filterOptions={filterOptions} isReadOnly={isReadOnly} />
         </div>
     )
 }

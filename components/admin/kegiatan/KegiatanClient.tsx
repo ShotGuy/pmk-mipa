@@ -23,9 +23,10 @@ import { deleteKegiatan } from "@/actions/kegiatan"
 interface KegiatanClientProps {
     data: KegiatanWithRelation[]
     jenisOptions: { label: string; value: string }[]
+    isReadOnly?: boolean
 }
 
-export function KegiatanClient({ data, jenisOptions }: KegiatanClientProps) {
+export function KegiatanClient({ data, jenisOptions, isReadOnly = false }: KegiatanClientProps) {
     const router = useRouter()
     const [deleteId, setDeleteId] = React.useState<string | null>(null)
     const [isDeleting, setIsDeleting] = React.useState(false)
@@ -63,6 +64,9 @@ export function KegiatanClient({ data, jenisOptions }: KegiatanClientProps) {
 
     // Enhance columns with functional Edit & Delete handlers
     const clientColumns = React.useMemo(() => {
+        if (isReadOnly) {
+            return columns.filter((col) => col.id !== "actions")
+        }
         return columns.map((col) => {
             if (col.id === "actions") {
                 return {
@@ -93,7 +97,7 @@ export function KegiatanClient({ data, jenisOptions }: KegiatanClientProps) {
             }
             return col
         })
-    }, [router])
+    }, [router, isReadOnly])
 
     return (
         <>

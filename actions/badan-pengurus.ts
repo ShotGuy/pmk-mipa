@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { Jabatan } from "@prisma/client";
+import { auth } from "@/auth";
 
 const JABATAN_ENUM = [
     "KETUA",
@@ -96,6 +97,11 @@ export async function getBadanPengurus(id: string) {
 }
 
 export async function createBadanPengurus(values: BadanPengurusFormValues) {
+    const session = await auth();
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." };
+    }
+
     const validatedFields = BadanPengurusSchema.safeParse(values);
 
     if (!validatedFields.success) {
@@ -127,6 +133,11 @@ export async function createBadanPengurus(values: BadanPengurusFormValues) {
 }
 
 export async function updateBadanPengurus(id: string, values: BadanPengurusFormValues) {
+    const session = await auth();
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." };
+    }
+
     const validatedFields = BadanPengurusSchema.safeParse(values);
 
     if (!validatedFields.success) {
@@ -159,6 +170,11 @@ export async function updateBadanPengurus(id: string, values: BadanPengurusFormV
 }
 
 export async function deleteBadanPengurus(id: string) {
+    const session = await auth();
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." };
+    }
+
     try {
         const ktbCount = await db.kTB.count({
             where: { idPengurus: id }

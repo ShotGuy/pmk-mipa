@@ -2,8 +2,12 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
 import { KegiatanClient } from "@/components/admin/kegiatan/KegiatanClient"
 import { getAllKegiatan, getJenisKegiatanOptions } from "@/actions/kegiatan"
 import { KegiatanWithRelation } from "./columns"
+import { auth } from "@/auth"
 
 export default async function KegiatanPage() {
+    const session = await auth()
+    const isReadOnly = session?.user?.role === "KETUA"
+
     const [kegiatanRes, jenisList] = await Promise.all([
         getAllKegiatan(),
         getJenisKegiatanOptions(),
@@ -28,11 +32,10 @@ export default async function KegiatanPage() {
                     { label: "Dashboard", href: "/admin/dashboard" },
                     { label: "Kegiatan" },
                 ]}
-                addLabel="Tambah Kegiatan"
-                href="/admin/kegiatan/new"
+                {...(!isReadOnly ? { addLabel: "Tambah Kegiatan", href: "/admin/kegiatan/new" } : {})}
             />
 
-            <KegiatanClient data={data} jenisOptions={jenisOptions} />
+            <KegiatanClient data={data} jenisOptions={jenisOptions} isReadOnly={isReadOnly} />
         </div>
     )
 }

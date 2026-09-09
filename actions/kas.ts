@@ -4,6 +4,8 @@ import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
+import { auth } from "@/auth"
+
 const KasSchema = z.object({
     nama: z.string().min(1, "Nama kas wajib diisi"),
     saldo: z.coerce.number().min(0, "Saldo tidak boleh negatif"),
@@ -84,6 +86,11 @@ export async function getKasWithBalance() {
 }
 
 export async function createKas(data: z.infer<typeof KasSchema>) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    }
+
     try {
         const validated = KasSchema.parse(data)
 
@@ -102,6 +109,11 @@ export async function createKas(data: z.infer<typeof KasSchema>) {
 }
 
 export async function updateKas(id: string, data: z.infer<typeof KasSchema>) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    }
+
     try {
         const validated = KasSchema.parse(data)
 
@@ -121,6 +133,11 @@ export async function updateKas(id: string, data: z.infer<typeof KasSchema>) {
 }
 
 export async function deleteKas(id: string) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    }
+
     try {
         // Proteksi jika kas masih memiliki riwayat transaksi
         const transaksiCount = await db.transaksi.count({

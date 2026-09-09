@@ -178,6 +178,13 @@ export async function createPengontrolan(values: PengontrolanFormValues) {
     const role = session?.user?.role
     const idAnggota = session?.user?.idAnggota
 
+    if (role === "KETUA") {
+        return {
+            success: false,
+            message: "Ketua hanya memiliki hak akses membaca (read-only).",
+        }
+    }
+
     const validated = PengontrolanSchema.safeParse(values)
     if (!validated.success) {
         return {
@@ -225,6 +232,16 @@ export async function createPengontrolan(values: PengontrolanFormValues) {
 }
 
 export async function updatePengontrolan(id: string, values: PengontrolanFormValues) {
+    const session = await auth()
+    const role = session?.user?.role
+
+    if (role === "KETUA") {
+        return {
+            success: false,
+            message: "Ketua hanya memiliki hak akses membaca (read-only).",
+        }
+    }
+
     const validated = PengontrolanSchema.safeParse(values)
     if (!validated.success) {
         return {
@@ -255,6 +272,16 @@ export async function updatePengontrolan(id: string, values: PengontrolanFormVal
 }
 
 export async function deletePengontrolan(id: string) {
+    const session = await auth()
+    const role = session?.user?.role
+
+    if (role === "KETUA") {
+        return {
+            success: false,
+            message: "Ketua hanya memiliki hak akses membaca (read-only).",
+        }
+    }
+
     try {
         const item = await db.pengontrolan.delete({
             where: { id },

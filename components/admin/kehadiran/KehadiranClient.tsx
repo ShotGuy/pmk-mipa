@@ -101,6 +101,7 @@ interface KehadiranClientProps {
         persentaseHadir: number
     }
     anggotaOptions: AnggotaOption[]
+    isReadOnly?: boolean
 }
 
 export function KehadiranClient({
@@ -109,6 +110,7 @@ export function KehadiranClient({
     initialData,
     initialMetrics,
     anggotaOptions,
+    isReadOnly = false,
 }: KehadiranClientProps) {
     const router = useRouter()
     const [selectedKegiatanId, setSelectedKegiatanId] = useState<string>(initialKegiatanId)
@@ -288,13 +290,17 @@ export function KehadiranClient({
     }, [data, statusFilter, searchQuery])
 
     const columns = useMemo(() => {
-        return getColumns({
+        const rawCols = getColumns({
             onDelete: (id, nama) => {
                 setDeleteId(id)
                 setDeleteName(nama)
             },
         })
-    }, [])
+        if (isReadOnly) {
+            return rawCols.filter((col) => col.id !== "actions")
+        }
+        return rawCols
+    }, [isReadOnly])
 
     const hasActiveFilters = statusFilter !== "ALL" || searchQuery.trim().length > 0
 
@@ -511,27 +517,29 @@ export function KehadiranClient({
                     {currentKegiatan && (
                         <div className="flex flex-wrap items-center gap-2 pt-2 lg:pt-0">
                             {/* Toggle Presensi */}
-                            <Button
-                                variant={isPresensiOpen ? "outline" : "default"}
-                                onClick={handleTogglePresensi}
-                                className={
-                                    isPresensiOpen
-                                        ? "h-11 gap-1.5 border-amber-300 text-amber-700 hover:bg-amber-50 hover:text-amber-800"
-                                        : "h-11 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
-                                }
-                            >
-                                {isPresensiOpen ? (
-                                    <>
-                                        <Lock className="w-4 h-4" />
-                                        <span>Tutup Presensi</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Unlock className="w-4 h-4" />
-                                        <span>Buka Presensi</span>
-                                    </>
-                                )}
-                            </Button>
+                            {!isReadOnly && (
+                                <Button
+                                    variant={isPresensiOpen ? "outline" : "default"}
+                                    onClick={handleTogglePresensi}
+                                    className={
+                                        isPresensiOpen
+                                            ? "h-11 gap-1.5 border-amber-300 text-amber-700 hover:bg-amber-50 hover:text-amber-800"
+                                            : "h-11 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                                    }
+                                >
+                                    {isPresensiOpen ? (
+                                        <>
+                                            <Lock className="w-4 h-4" />
+                                            <span>Tutup Presensi</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Unlock className="w-4 h-4" />
+                                            <span>Buka Presensi</span>
+                                        </>
+                                    )}
+                                </Button>
+                            )}
 
                             {/* Standee QR Button */}
                             <Button
@@ -544,14 +552,16 @@ export function KehadiranClient({
                             </Button>
 
                             {/* Manual Entry Button */}
-                            <Button
-                                variant="secondary"
-                                onClick={() => setOpenManual(true)}
-                                className="h-11 gap-1.5"
-                            >
-                                <UserPlus className="w-4 h-4" />
-                                <span>Input Manual</span>
-                            </Button>
+                            {!isReadOnly && (
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => setOpenManual(true)}
+                                    className="h-11 gap-1.5"
+                                >
+                                    <UserPlus className="w-4 h-4" />
+                                    <span>Input Manual</span>
+                                </Button>
+                            )}
                         </div>
                     )}
                 </div>

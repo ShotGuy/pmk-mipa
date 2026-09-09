@@ -6,10 +6,14 @@ import {
     getKTBOptionsForPengontrolan,
 } from "@/actions/pengontrolan"
 import { PengontrolanWithRelations } from "./columns"
+import { auth } from "@/auth"
 
 export const dynamic = "force-dynamic"
 
 export default async function PengontrolanPage() {
+    const session = await auth()
+    const isReadOnly = session?.user?.role === "KETUA"
+
     const [pengontrolanRes, metrics, ktbOptions] = await Promise.all([
         getAllPengontrolan(),
         getPengontrolanMetrics(),
@@ -29,14 +33,14 @@ export default async function PengontrolanPage() {
                     { label: "Dashboard", href: "/admin/dashboard" },
                     { label: "Pengontrolan KTB" },
                 ]}
-                addLabel="Catat Pengontrolan"
-                href="/admin/pengontrolan/new"
+                {...(!isReadOnly ? { addLabel: "Catat Pengontrolan", href: "/admin/pengontrolan/new" } : {})}
             />
 
             <PengontrolanClient
                 data={data}
                 metrics={metrics}
                 ktbOptions={ktbOptions}
+                isReadOnly={isReadOnly}
             />
         </div>
     )

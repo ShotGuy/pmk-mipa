@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import crypto from "crypto"
+import { auth } from "@/auth"
 
 // Helper function to generate unique alphanumeric token
 function generateToken(): string {
@@ -146,6 +147,11 @@ export async function getKehadiranMetrics(idKegiatan: string) {
  * Toggle Buka/Tutup Presensi dan pastikan token unik terbentuk
  */
 export async function togglePresensiKegiatan(idKegiatan: string, forceStatus?: boolean) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    }
+
     try {
         const kegiatan = await db.kegiatan.findUnique({
             where: { id: idKegiatan },
@@ -442,6 +448,11 @@ export async function submitPresensiPengunjung(token: string, rawValues: Pengunj
  * Input manual kehadiran oleh Badan Pengurus melalui Admin Dashboard
  */
 export async function createManualKehadiran(rawValues: ManualKehadiranValues) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    }
+
     try {
         const validated = ManualKehadiranSchema.safeParse(rawValues)
         if (!validated.success) {
@@ -517,6 +528,11 @@ export async function createManualKehadiran(rawValues: ManualKehadiranValues) {
  * Menghapus data rekaman kehadiran
  */
 export async function deleteKehadiran(id: string) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    }
+
     try {
         await db.kehadiran.delete({
             where: { id },

@@ -32,8 +32,8 @@ export async function getPengurusOptionsForHPDT() {
         const role = session?.user?.role;
         const idAnggota = session?.user?.idAnggota;
 
-        // Jika ANGGOTAKTB atau KOORKTB, mereka hanya boleh mengisi HPDT untuk diri mereka sendiri
-        if ((role === "ANGGOTAKTB" || role === "KOORKTB") && idAnggota) {
+        // Jika bukan ADMIN (yaitu KETUA, BENDAHARA, SEKRETARIS, KOORKTB, ANGGOTAKTB), hanya boleh mengisi HPDT untuk diri sendiri
+        if (role !== "ADMIN" && idAnggota) {
             const bp = await db.badanPengurus.findFirst({
                 where: { idAnggota, status: true },
                 include: {
@@ -104,7 +104,9 @@ export async function getHPDTOverview(month: number, year: number) {
         // Scoping per role:
         // ANGGOTAKTB: hanya dirinya sendiri
         // KOORKTB: dirinya sendiri dan anggota seksi KTB
-        // Role lain (ADMIN/KETUA): seluruh badan pengurus
+        // BENDAHARA: dirinya sendiri dan Seksi Doa & Pemerhati
+        // SEKRETARIS: dirinya sendiri dan Seksi Acara
+        // KETUA / ADMIN: seluruh badan pengurus
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let bpWhere: any = { status: true };
         if (role === "ANGGOTAKTB" && idAnggota) {
@@ -113,6 +115,22 @@ export async function getHPDTOverview(month: number, year: number) {
             bpWhere = {
                 status: true,
                 jabatan: { in: ["KOORDINATOR_KTB", "ANGGOTA_KTB"] },
+            };
+        } else if (role === "BENDAHARA" && idAnggota) {
+            bpWhere = {
+                status: true,
+                OR: [
+                    { idAnggota },
+                    { jabatan: { in: ["KOORDINATOR_DOA_DAN_PEMERHATI", "ANGGOTA_DOA_DAN_PEMERHATI"] } },
+                ],
+            };
+        } else if (role === "SEKRETARIS" && idAnggota) {
+            bpWhere = {
+                status: true,
+                OR: [
+                    { idAnggota },
+                    { jabatan: { in: ["KOORDINATOR_ACARA", "ANGGOTA_ACARA"] } },
+                ],
             };
         }
 
@@ -235,6 +253,40 @@ export async function getHPDTLogs(params?: {
             } else {
                 whereClause.idPengurus = { in: teamIds };
             }
+        } else if (role === "BENDAHARA" && idAnggota) {
+            const teamBps = await db.badanPengurus.findMany({
+                where: {
+                    status: true,
+                    OR: [
+                        { idAnggota },
+                        { jabatan: { in: ["KOORDINATOR_DOA_DAN_PEMERHATI", "ANGGOTA_DOA_DAN_PEMERHATI"] } },
+                    ],
+                },
+                select: { id: true },
+            });
+            const teamIds = teamBps.map((b) => b.id);
+            if (params?.idPengurus && params.idPengurus !== "all" && teamIds.includes(params.idPengurus)) {
+                whereClause.idPengurus = params.idPengurus;
+            } else {
+                whereClause.idPengurus = { in: teamIds };
+            }
+        } else if (role === "SEKRETARIS" && idAnggota) {
+            const teamBps = await db.badanPengurus.findMany({
+                where: {
+                    status: true,
+                    OR: [
+                        { idAnggota },
+                        { jabatan: { in: ["KOORDINATOR_ACARA", "ANGGOTA_ACARA"] } },
+                    ],
+                },
+                select: { id: true },
+            });
+            const teamIds = teamBps.map((b) => b.id);
+            if (params?.idPengurus && params.idPengurus !== "all" && teamIds.includes(params.idPengurus)) {
+                whereClause.idPengurus = params.idPengurus;
+            } else {
+                whereClause.idPengurus = { in: teamIds };
+            }
         } else {
             if (params?.idPengurus && params.idPengurus !== "all") {
                 whereClause.idPengurus = params.idPengurus;
@@ -303,6 +355,34 @@ export async function getHPDTDetailByPengurus(idPengurus: string, month: number,
             if (!targetBp || (targetBp.jabatan !== "KOORDINATOR_KTB" && targetBp.jabatan !== "ANGGOTA_KTB")) {
                 return { success: false, message: "Akses ditolak. Koordinator KTB hanya dapat memantau jurnal seksi KTB." };
             }
+        } else if (role === "BENDAHARA" && idAnggota) {
+            const myBp = await db.badanPengurus.findFirst({
+                where: { idAnggota, status: true },
+                select: { id: true },
+            });
+            const targetBp = await db.badanPengurus.findUnique({
+                where: { id: idPengurus },
+                select: { jabatan: true },
+            });
+            const isOwn = myBp && myBp.id === idPengurus;
+            const isSeksiDoa = targetBp && (targetBp.jabatan === "KOORDINATOR_DOA_DAN_PEMERHATI" || targetBp.jabatan === "ANGGOTA_DOA_DAN_PEMERHATI");
+            if (!isOwn && !isSeksiDoa) {
+                return { success: false, message: "Akses ditolak. Bendahara hanya dapat memantau jurnal sendiri dan Seksi Doa & Pemerhati." };
+            }
+        } else if (role === "SEKRETARIS" && idAnggota) {
+            const myBp = await db.badanPengurus.findFirst({
+                where: { idAnggota, status: true },
+                select: { id: true },
+            });
+            const targetBp = await db.badanPengurus.findUnique({
+                where: { id: idPengurus },
+                select: { jabatan: true },
+            });
+            const isOwn = myBp && myBp.id === idPengurus;
+            const isSeksiAcara = targetBp && (targetBp.jabatan === "KOORDINATOR_ACARA" || targetBp.jabatan === "ANGGOTA_ACARA");
+            if (!isOwn && !isSeksiAcara) {
+                return { success: false, message: "Akses ditolak. Sekretaris hanya dapat memantau jurnal sendiri dan Seksi Acara." };
+            }
         }
 
         const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
@@ -369,8 +449,8 @@ export async function createHPDT(values: HpdtFormValues) {
     let { idPengurus } = validated.data;
     const { tanggal, isSate, isDoa, isAttendedKTB, isGereja, ayatAlkitab, judulBuku } = validated.data;
 
-    // Untuk ANGGOTAKTB dan KOORKTB, paksa idPengurus adalah ID pengurus pengguna itu sendiri
-    if ((role === "ANGGOTAKTB" || role === "KOORKTB") && idAnggota) {
+    // Untuk seluruh role non-ADMIN (KETUA, BENDAHARA, SEKRETARIS, KOORKTB, ANGGOTAKTB), paksa idPengurus adalah ID pengurus pengguna itu sendiri
+    if (role !== "ADMIN" && idAnggota) {
         const myBp = await db.badanPengurus.findFirst({
             where: { idAnggota, status: true },
             select: { id: true },
@@ -442,8 +522,8 @@ export async function updateHPDT(id: string, values: HpdtFormValues) {
     let { idPengurus } = validated.data;
     const { tanggal, isSate, isDoa, isAttendedKTB, isGereja, ayatAlkitab, judulBuku } = validated.data;
 
-    // Cek kepemilikan untuk ANGGOTAKTB dan KOORKTB (keduanya hanya boleh mengedit milik sendiri)
-    if ((role === "ANGGOTAKTB" || role === "KOORKTB") && idAnggota) {
+    // Cek kepemilikan untuk seluruh role non-ADMIN (hanya boleh mengedit milik sendiri)
+    if (role !== "ADMIN" && idAnggota) {
         const myBp = await db.badanPengurus.findFirst({
             where: { idAnggota, status: true },
             select: { id: true },
@@ -513,8 +593,8 @@ export async function deleteHPDT(id: string) {
         const role = session?.user?.role;
         const idAnggota = session?.user?.idAnggota;
 
-        // Cek kepemilikan untuk ANGGOTAKTB dan KOORKTB
-        if ((role === "ANGGOTAKTB" || role === "KOORKTB") && idAnggota) {
+        // Cek kepemilikan untuk seluruh role non-ADMIN
+        if (role !== "ADMIN" && idAnggota) {
             const myBp = await db.badanPengurus.findFirst({
                 where: { idAnggota, status: true },
                 select: { id: true },

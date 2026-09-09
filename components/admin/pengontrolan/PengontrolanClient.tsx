@@ -53,9 +53,10 @@ interface PengontrolanClientProps {
         value: string
         label: string
     }[]
+    isReadOnly?: boolean
 }
 
-export function PengontrolanClient({ data, metrics, ktbOptions }: PengontrolanClientProps) {
+export function PengontrolanClient({ data, metrics, ktbOptions, isReadOnly = false }: PengontrolanClientProps) {
     const router = useRouter()
 
     const [selectedKTBId, setSelectedKTBId] = React.useState<string>("all")
@@ -144,6 +145,9 @@ export function PengontrolanClient({ data, metrics, ktbOptions }: PengontrolanCl
     }
 
     const clientColumns = React.useMemo(() => {
+        if (isReadOnly) {
+            return columns.filter((col) => col.id !== "actions")
+        }
         return columns.map((col) => {
             if (col.id === "actions") {
                 return {
@@ -177,7 +181,7 @@ export function PengontrolanClient({ data, metrics, ktbOptions }: PengontrolanCl
             }
             return col
         })
-    }, [router])
+    }, [router, isReadOnly])
 
     return (
         <div className="space-y-6">

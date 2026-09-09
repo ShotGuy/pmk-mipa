@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { auth } from "@/auth"
 
 const KegiatanInputSchema = z.object({
     nama: z.string().min(1, "Nama kegiatan wajib diisi"),
@@ -83,6 +84,11 @@ export async function getKegiatan(id: string) {
 }
 
 export async function createKegiatan(values: KegiatanFormValues) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    }
+
     const validated = KegiatanInputSchema.safeParse(values)
     if (!validated.success) {
         return { success: false, message: "Data tidak valid" }
@@ -112,6 +118,11 @@ export async function createKegiatan(values: KegiatanFormValues) {
 }
 
 export async function updateKegiatan(id: string, values: KegiatanFormValues) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    }
+
     const validated = KegiatanInputSchema.safeParse(values)
     if (!validated.success) {
         return { success: false, message: "Data tidak valid" }
@@ -142,6 +153,11 @@ export async function updateKegiatan(id: string, values: KegiatanFormValues) {
 }
 
 export async function deleteKegiatan(id: string) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    }
+
     try {
         // Protect from deleting if kehadiran or gallery exists
         const [kehadiranCount, galleryCount] = await Promise.all([

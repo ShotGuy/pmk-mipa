@@ -5,8 +5,12 @@ import {
     getKasOptionsForTransaksi,
 } from "@/actions/transaksi"
 import { TransaksiWithKas } from "./columns"
+import { auth } from "@/auth"
 
 export default async function TransaksiPage() {
+    const session = await auth()
+    const isReadOnly = session?.user?.role === "KETUA"
+
     const [transaksiRes, kasOptions] = await Promise.all([
         getAllTransaksi(),
         getKasOptionsForTransaksi(),
@@ -26,13 +30,13 @@ export default async function TransaksiPage() {
                     { label: "Dashboard", href: "/admin/dashboard" },
                     { label: "Transaksi" },
                 ]}
-                addLabel="Catat Transaksi"
-                href="/admin/transaksi/new"
+                {...(!isReadOnly ? { addLabel: "Catat Transaksi", href: "/admin/transaksi/new" } : {})}
             />
 
             <TransaksiClient
                 data={data}
                 kasAccounts={kasOptions}
+                isReadOnly={isReadOnly}
             />
         </div>
     )

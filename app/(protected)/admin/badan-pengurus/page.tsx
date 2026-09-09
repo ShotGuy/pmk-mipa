@@ -2,8 +2,12 @@ import { db } from "@/lib/db";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { BadanPengurusClient } from "@/components/admin/badan-pengurus/BadanPengurusClient";
 import { getAllBadanPengurus } from "@/actions/badan-pengurus";
+import { auth } from "@/auth";
 
 export default async function BadanPengurusPage() {
+    const session = await auth();
+    const isReadOnly = session?.user?.role === "KETUA";
+
     const res = await getAllBadanPengurus();
     const data = res.success && res.data ? res.data : [];
 
@@ -25,13 +29,13 @@ export default async function BadanPengurusPage() {
                     { label: "Dashboard", href: "/admin/dashboard" },
                     { label: "Badan Pengurus" }
                 ]}
-                addLabel="Tambah Pengurus"
-                href="/admin/badan-pengurus/new"
+                {...(!isReadOnly ? { addLabel: "Tambah Pengurus", href: "/admin/badan-pengurus/new" } : {})}
             />
 
             <BadanPengurusClient
                 data={data}
                 periodeOptions={periodeOptions}
+                isReadOnly={isReadOnly}
             />
         </div>
     );

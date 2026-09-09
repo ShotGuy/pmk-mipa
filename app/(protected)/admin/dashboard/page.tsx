@@ -1,10 +1,19 @@
-import { getDashboardSummary, getKTBDashboardData } from "@/actions/dashboard"
+import {
+    getDashboardSummary,
+    getKTBDashboardData,
+    getKetuaDashboardData,
+    getBendaharaDashboardData,
+    getSekretarisDashboardData,
+} from "@/actions/dashboard"
 import { DashboardHeader } from "@/components/admin/dashboard/DashboardHeader"
 import { DashboardMetricCards } from "@/components/admin/dashboard/DashboardMetricCards"
 import { DashboardCharts } from "@/components/admin/dashboard/DashboardCharts"
 import { DashboardDemographics } from "@/components/admin/dashboard/DashboardDemographics"
 import { DashboardWidgets } from "@/components/admin/dashboard/DashboardWidgets"
 import { KTBDashboard } from "@/components/admin/dashboard/KTBDashboard"
+import { KetuaDashboard } from "@/components/admin/dashboard/KetuaDashboard"
+import { BendaharaDashboard } from "@/components/admin/dashboard/BendaharaDashboard"
+import { SekretarisDashboard } from "@/components/admin/dashboard/SekretarisDashboard"
 import { auth } from "@/auth"
 
 export const dynamic = "force-dynamic"
@@ -12,6 +21,30 @@ export const dynamic = "force-dynamic"
 export default async function AdminDashboardPage() {
     const session = await auth()
     const role = session?.user?.role
+
+    // Render dashboard khusus Ketua
+    if (role === "KETUA") {
+        const ketuaRes = await getKetuaDashboardData()
+        if (ketuaRes.success && ketuaRes.data) {
+            return <KetuaDashboard data={ketuaRes.data} />
+        }
+    }
+
+    // Render dashboard khusus Bendahara
+    if (role === "BENDAHARA") {
+        const bendaharaRes = await getBendaharaDashboardData()
+        if (bendaharaRes.success && bendaharaRes.data) {
+            return <BendaharaDashboard data={bendaharaRes.data} />
+        }
+    }
+
+    // Render dashboard khusus Sekretaris
+    if (role === "SEKRETARIS") {
+        const sekretarisRes = await getSekretarisDashboardData()
+        if (sekretarisRes.success && sekretarisRes.data) {
+            return <SekretarisDashboard data={sekretarisRes.data} />
+        }
+    }
 
     // Render dashboard khusus Seksi KTB untuk Koordinator dan Anggota Seksi KTB
     if (role === "KOORKTB" || role === "ANGGOTAKTB") {

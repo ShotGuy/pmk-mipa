@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { auth } from "@/auth"
 
 const TransaksiInputSchema = z.object({
     idKas: z.string().min(1, "Akun kas wajib dipilih"),
@@ -154,6 +155,11 @@ export async function getTransaksiMetrics() {
 }
 
 export async function createTransaksi(values: TransaksiFormValues) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    }
+
     const validated = TransaksiInputSchema.safeParse(values)
     if (!validated.success) {
         return { success: false, message: "Data transaksi tidak valid" }
@@ -187,6 +193,11 @@ export async function createTransaksi(values: TransaksiFormValues) {
 }
 
 export async function updateTransaksi(id: string, values: TransaksiFormValues) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    }
+
     const validated = TransaksiInputSchema.safeParse(values)
     if (!validated.success) {
         return { success: false, message: "Data transaksi tidak valid" }
@@ -220,6 +231,11 @@ export async function updateTransaksi(id: string, values: TransaksiFormValues) {
 }
 
 export async function deleteTransaksi(id: string) {
+    const session = await auth()
+    if (session?.user?.role === "KETUA") {
+        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    }
+
     try {
         await db.transaksi.delete({
             where: { id },
