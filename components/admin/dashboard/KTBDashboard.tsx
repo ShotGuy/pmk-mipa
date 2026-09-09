@@ -4,10 +4,8 @@ import * as React from "react"
 import Link from "next/link"
 import { toast } from "sonner"
 import {
-    Sparkles,
     CheckCircle2,
     Clock,
-    AlertCircle,
     ArrowUpRight,
     BookOpen,
     Users,
@@ -20,7 +18,6 @@ import {
     Sun,
     Loader2,
     Check,
-    HelpCircle,
     TrendingUp,
 } from "lucide-react"
 

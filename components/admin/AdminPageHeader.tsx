@@ -23,9 +23,10 @@ interface AdminPageHeaderProps {
     href?: string;
     addLabel?: string;
     isBack?: boolean;
+    children?: React.ReactNode;
 }
 
-export function AdminPageHeader({ title, description, breadcrumbs, onAdd, href, addLabel, isBack }: AdminPageHeaderProps) {
+export function AdminPageHeader({ title, description, breadcrumbs, onAdd, href, addLabel, isBack, children }: AdminPageHeaderProps) {
     return (
         <div className="flex flex-col gap-4">
             {breadcrumbs && breadcrumbs.length > 0 && (
@@ -55,7 +56,8 @@ export function AdminPageHeader({ title, description, breadcrumbs, onAdd, href, 
                 {description && <p className="text-muted-foreground">{description}</p>}
             </div>
 
-            <div className="self-end">
+            <div className="self-end flex items-center gap-2.5 flex-wrap">
+                {children}
                 {href ? (
                     <Link href={href}>
                         <Button variant={isBack ? "outline" : "default"}>

@@ -1,12 +1,12 @@
 import { AnggotaClient } from "@/components/admin/anggota/AnggotaClient"
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
-import { getAllAnggota, getAnggotaFilterOptions } from "@/actions/anggota" // Import getAnggotaFilterOptions
+import { ImportAnggotaModal } from "@/components/admin/anggota/ImportAnggotaModal"
+import { getAllAnggota, getAnggotaFilterOptions } from "@/actions/anggota"
 
 export default async function AnggotaPage() {
     const anggotaResponse = await getAllAnggota()
     const filterOptions = await getAnggotaFilterOptions()
 
-    // Handle the response, default to empty array if failed
     const anggotaData = (anggotaResponse.success && anggotaResponse.data) ? anggotaResponse.data : []
 
     return (
@@ -20,7 +20,9 @@ export default async function AnggotaPage() {
                 ]}
                 addLabel="Tambah Anggota"
                 href="/admin/anggota/new"
-            />
+            >
+                <ImportAnggotaModal />
+            </AdminPageHeader>
 
             <AnggotaClient data={anggotaData} filterOptions={filterOptions} />
         </div>

@@ -9,10 +9,6 @@ const LoginSchema = z.object({
     password: z.string().min(1)
 });
 
-import { db } from "@/lib/db";
-
-// ... (imports)
-
 export const login = async (values: z.infer<typeof LoginSchema>) => {
     const validatedFields = LoginSchema.safeParse(values);
 
@@ -22,24 +18,12 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
 
     const { identifier, password } = validatedFields.data;
 
-    const existingUser = await db.user.findFirst({
-        where: {
-            OR: [
-                { email: identifier },
-                { username: identifier }
-            ]
-        }
-    });
-
-    // Default redirect to admin dashboard for all roles
-    let redirectTo = "/admin/dashboard";
-
-    // Attempt sign in (authorize will verify password again)
+    // Attempt sign in (authorize will verify credentials)
     try {
         await signIn("credentials", {
             identifier,
             password,
-            redirectTo,
+            redirectTo: "/admin/dashboard",
         });
     } catch (error) {
         if (error instanceof AuthError) {

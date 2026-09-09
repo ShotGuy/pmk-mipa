@@ -1,9 +1,9 @@
 "use server"
 
 import { db } from "@/lib/db";
-// import { Anggota } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { parseIndonesianTTL } from "@/lib/date-parser";
 
 const AnggotaSchema = z.object({
     nama: z.string().min(1, "Nama wajib diisi"),
@@ -241,3 +241,174 @@ export const getAnggotaFilterOptions = async () => {
         return { prodi: [] };
     }
 };
+
+export interface RawAnggotaRow {
+    nama: string;
+    jenisKelamin?: string | null;
+    prodi?: string | null;
+    angkatan?: number | string | null;
+    noHp?: string | null;
+    tanggalLahir?: string | Date | null;
+}
+
+export interface ImportAnggotaOptions {
+    skipDuplicates?: boolean;
+}
+
+export interface ImportAnggotaResult {
+    success: boolean;
+    message: string;
+    totalProcessed: number;
+    insertedCount: number;
+    skippedCount: number;
+    duplicateCount: number;
+    errors?: string[];
+}
+
+export async function importAnggotaBulk(
+    rows: RawAnggotaRow[],
+    options: ImportAnggotaOptions = { skipDuplicates: true }
+): Promise<ImportAnggotaResult> {
+    try {
+        if (!rows || rows.length === 0) {
+            return {
+                success: false,
+                message: "Tidak ada data yang diproses.",
+                totalProcessed: 0,
+                insertedCount: 0,
+                skippedCount: 0,
+                duplicateCount: 0,
+            };
+        }
+
+        // Ambil data anggota eksisting untuk proteksi duplikasi jika opsi skipDuplicates aktif
+        let existingKeySet = new Set<string>();
+        if (options.skipDuplicates) {
+            const existingAnggota = await db.anggota.findMany({
+                select: { nama: true, angkatan: true },
+            });
+            existingKeySet = new Set(
+                existingAnggota.map(
+                    (a) => `${a.nama.trim().toLowerCase()}_${a.angkatan ?? 0}`
+                )
+            );
+        }
+
+        const seenInFileKeySet = new Set<string>();
+        const validRowsToInsert: Array<{
+            nama: string;
+            jenisKelamin: string;
+            prodi: string | null;
+            angkatan: number | null;
+            noHp: string | null;
+            tanggalLahir: Date | null;
+        }> = [];
+
+        let skippedCount = 0;
+        let duplicateCount = 0;
+
+        for (const row of rows) {
+            // 1. Validasi Nama
+            const rawNama = row.nama ? String(row.nama).trim() : "";
+            if (!rawNama) {
+                skippedCount++;
+                continue;
+            }
+
+            // 2. Normalisasi Jenis Kelamin (L/P)
+            let jk = "L";
+            if (row.jenisKelamin) {
+                const strJk = String(row.jenisKelamin).trim().toUpperCase();
+                if (strJk.startsWith("P") || strJk.startsWith("W")) {
+                    jk = "P";
+                } else if (strJk.startsWith("L")) {
+                    jk = "L";
+                }
+            }
+
+            // 3. Normalisasi Prodi
+            const prodi = row.prodi ? String(row.prodi).trim() : null;
+
+            // 4. Normalisasi Angkatan
+            let angkatan: number | null = null;
+            if (row.angkatan !== undefined && row.angkatan !== null && row.angkatan !== "") {
+                if (typeof row.angkatan === "number" && !isNaN(row.angkatan)) {
+                    angkatan = Math.round(row.angkatan);
+                } else {
+                    const digits = String(row.angkatan).replace(/\D/g, "");
+                    if (digits) {
+                        const parsedNum = parseInt(digits, 10);
+                        if (parsedNum >= 1990 && parsedNum <= 2050) {
+                            angkatan = parsedNum;
+                        } else if (parsedNum < 100) {
+                            angkatan = 2000 + parsedNum;
+                        }
+                    }
+                }
+            }
+
+            // 5. Normalisasi No HP
+            const noHp = row.noHp ? String(row.noHp).trim() : null;
+
+            // 6. Normalisasi Tanggal Lahir / TTL (Opsional)
+            const parsedTTL = parseIndonesianTTL(row.tanggalLahir);
+            const tanggalLahir: Date | null = parsedTTL.date;
+
+            // 7. Cek Duplikasi (Database & Dalam File yang Sama)
+            const deduplicationKey = `${rawNama.toLowerCase()}_${angkatan ?? 0}`;
+            if (options.skipDuplicates) {
+                if (existingKeySet.has(deduplicationKey) || seenInFileKeySet.has(deduplicationKey)) {
+                    duplicateCount++;
+                    continue;
+                }
+            }
+
+            seenInFileKeySet.add(deduplicationKey);
+            validRowsToInsert.push({
+                nama: rawNama,
+                jenisKelamin: jk,
+                prodi: prodi || null,
+                angkatan,
+                noHp: noHp || null,
+                tanggalLahir,
+            });
+        }
+
+        // 8. Batch Insert menggunakan createMany (Chunk per 500 baris)
+        const CHUNK_SIZE = 500;
+        let insertedCount = 0;
+
+        for (let i = 0; i < validRowsToInsert.length; i += CHUNK_SIZE) {
+            const chunk = validRowsToInsert.slice(i, i + CHUNK_SIZE);
+            const result = await db.anggota.createMany({
+                data: chunk,
+                skipDuplicates: true,
+            });
+            insertedCount += result.count;
+        }
+
+        revalidatePath("/admin/anggota");
+        revalidatePath("/admin/dashboard");
+
+        return {
+            success: true,
+            message: `Berhasil mengimpor ${insertedCount} data anggota baru.`,
+            totalProcessed: rows.length,
+            insertedCount,
+            skippedCount,
+            duplicateCount,
+        };
+    } catch (error) {
+        console.error("Error importAnggotaBulk:", error);
+        return {
+            success: false,
+            message: "Gagal memproses import data anggota ke database.",
+            totalProcessed: rows.length,
+            insertedCount: 0,
+            skippedCount: 0,
+            duplicateCount: 0,
+            errors: [error instanceof Error ? error.message : "Terjadi kesalahan server"],
+        };
+    }
+}
+
