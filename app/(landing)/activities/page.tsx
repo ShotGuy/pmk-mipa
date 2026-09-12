@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { ActivitiesHero } from "@/components/activities/ActivitiesHero";
 import { ScheduleCard } from "@/components/landing/ScheduleCard";
-import { MinistryDivisions } from "@/components/activities/MinistryDivisions";
 import { AnnualPrograms } from "@/components/activities/AnnualPrograms";
 import { GalleryCarousel } from "@/components/landing/GalleryCarousel";
 import { ActivitiesFAQ } from "@/components/activities/ActivitiesFAQ";

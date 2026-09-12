@@ -47,69 +47,69 @@
   Foreground: Deep Ink/Charcoal (HSL 20 10% 15% -> #2b2826)
 */
 
-:root {
-  --background: 40 33% 96%;
-  --foreground: 20 10% 15%;
-
-  --card: 40 20% 98%;
-  --card-foreground: 20 10% 15%;
-
-  --popover: 40 20% 98%;
-  --popover-foreground: 20 10% 15%;
-
-  --primary: 45 100% 51%;
-  --primary-foreground: 20 10% 15%; /* Dark text for contrast on amber */
-
-  --secondary: 20 10% 15%;
-  --secondary-foreground: 40 33% 96%;
-
-  --muted: 40 10% 90%;
-  --muted-foreground: 20 5% 45%;
-
-  --accent: 45 100% 51%;
-  --accent-foreground: 20 10% 15%;
-
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-
-  --border: 20 10% 15%;
-  --input: 20 10% 15%;
-  --ring: 20 10% 15%;
-
-  --radius: 0; /* Neo-brutalist / sharp edges */
-}
-
-.dark {
-  --background: 24 12% 9%;
-  --foreground: 40 33% 96%;
-
-  --card: 24 10% 14%;
-  --card-foreground: 40 33% 96%;
-
-  --popover: 24 10% 14%;
-  --popover-foreground: 40 33% 96%;
-
-  --primary: 45 100% 51%;
-  --primary-foreground: 20 10% 15%;
-
-  --secondary: 40 33% 96%;
-  --secondary-foreground: 24 12% 9%;
-
-  --muted: 24 10% 18%;
-  --muted-foreground: 40 10% 65%;
-
-  --accent: 45 100% 51%;
-  --accent-foreground: 20 10% 15%;
-
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-
-  --border: 40 20% 70%;
-  --input: 40 20% 70%;
-  --ring: 45 100% 51%;
-}
-
 @layer base {
+  :root {
+    --background: 40 33% 96%;
+    --foreground: 20 10% 15%;
+
+    --card: 40 20% 98%;
+    --card-foreground: 20 10% 15%;
+
+    --popover: 40 20% 98%;
+    --popover-foreground: 20 10% 15%;
+
+    --primary: 45 100% 51%;
+    --primary-foreground: 20 10% 15%; /* Dark text for contrast on amber */
+
+    --secondary: 20 10% 15%;
+    --secondary-foreground: 40 33% 96%;
+
+    --muted: 40 10% 90%;
+    --muted-foreground: 20 5% 45%;
+
+    --accent: 45 100% 51%;
+    --accent-foreground: 20 10% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 20 10% 15%;
+    --input: 20 10% 15%;
+    --ring: 20 10% 15%;
+
+    --radius: 0; /* Neo-brutalist / sharp edges */
+  }
+
+  .dark {
+    --background: 24 12% 9%;
+    --foreground: 40 33% 96%;
+
+    --card: 24 10% 14%;
+    --card-foreground: 40 33% 96%;
+
+    --popover: 24 10% 14%;
+    --popover-foreground: 40 33% 96%;
+
+    --primary: 45 100% 51%;
+    --primary-foreground: 20 10% 15%;
+
+    --secondary: 40 33% 96%;
+    --secondary-foreground: 24 12% 9%;
+
+    --muted: 24 10% 18%;
+    --muted-foreground: 40 10% 65%;
+
+    --accent: 45 100% 51%;
+    --accent-foreground: 20 10% 15%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 40 20% 70%;
+    --input: 40 20% 70%;
+    --ring: 45 100% 51%;
+  }
+
   * {
     @apply border-border;
   }

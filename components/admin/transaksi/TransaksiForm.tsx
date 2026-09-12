@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useRouter } from "next/navigation"
@@ -100,9 +100,9 @@ export function TransaksiForm({ initialData, kasOptions }: TransaksiFormProps) {
         },
     })
 
-    const watchedIdKas = form.watch("idKas")
-    const watchedJenis = form.watch("jenisTransaksi")
-    const watchedNominal = form.watch("nominal")
+    const watchedIdKas = useWatch({ control: form.control, name: "idKas" })
+    const watchedJenis = useWatch({ control: form.control, name: "jenisTransaksi" })
+    const watchedNominal = useWatch({ control: form.control, name: "nominal" })
 
     const selectedKas = kasOptions.find((k) => k.value === watchedIdKas)
     const isExceedingBalance =

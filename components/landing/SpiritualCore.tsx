@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { BookOpen, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 export function SpiritualCore() {
     return (
@@ -43,7 +43,7 @@ export function SpiritualCore() {
                         </div>
 
                         <p className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif text-foreground leading-[1.3] font-bold">
-                            "Kamu telah menerima Kristus Yesus, Tuhan kita. Karena itu hendaklah hidupmu <span className="text-primary italic font-light">tetap di dalam Dia</span>."
+                            &ldquo;Kamu telah menerima Kristus Yesus, Tuhan kita. Karena itu hendaklah hidupmu <span className="text-primary italic font-light">tetap di dalam Dia</span>.&rdquo;
                         </p>
 
                         <footer className="pt-8 flex flex-col items-center gap-4">
