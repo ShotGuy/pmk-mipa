@@ -139,6 +139,13 @@ export async function getHPDTOverview(month: number, year: number) {
                     { jabatan: { in: ["KOORDINATOR_ACARA", "ANGGOTA_ACARA"] } },
                 ],
             };
+        } else if (role === "ANGGOTADOA" && idAnggota) {
+            bpWhere = { idAnggota, status: true };
+        } else if (role === "KOORDOA") {
+            bpWhere = {
+                status: true,
+                jabatan: { in: ["KOORDINATOR_DOA_DAN_PEMERHATI", "ANGGOTA_DOA_DAN_PEMERHATI"] },
+            };
         }
 
         const allPengurus = await db.badanPengurus.findMany({
@@ -236,7 +243,7 @@ export async function getHPDTLogs(params?: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const whereClause: any = {};
 
-        if ((role === "ANGGOTAKTB" || role === "ANGGOTAACARA") && idAnggota) {
+        if ((role === "ANGGOTAKTB" || role === "ANGGOTAACARA" || role === "ANGGOTADOA") && idAnggota) {
             const myBp = await db.badanPengurus.findFirst({
                 where: { idAnggota, status: true },
                 select: { id: true },
@@ -245,6 +252,20 @@ export async function getHPDTLogs(params?: {
                 whereClause.idPengurus = myBp.id;
             } else {
                 return { success: true, data: [] };
+            }
+        } else if (role === "KOORDOA") {
+            const teamBps = await db.badanPengurus.findMany({
+                where: {
+                    status: true,
+                    jabatan: { in: ["KOORDINATOR_DOA_DAN_PEMERHATI", "ANGGOTA_DOA_DAN_PEMERHATI"] },
+                },
+                select: { id: true },
+            });
+            const teamIds = teamBps.map((b) => b.id);
+            if (params?.idPengurus && params.idPengurus !== "all" && teamIds.includes(params.idPengurus)) {
+                whereClause.idPengurus = params.idPengurus;
+            } else {
+                whereClause.idPengurus = { in: teamIds };
             }
         } else if (role === "KOORACARA") {
             const teamBps = await db.badanPengurus.findMany({
@@ -360,13 +381,21 @@ export async function getHPDTDetailByPengurus(idPengurus: string, month: number,
         const idAnggota = session?.user?.idAnggota;
 
         // Validasi akses detail jurnal
-        if ((role === "ANGGOTAKTB" || role === "ANGGOTAACARA") && idAnggota) {
+        if ((role === "ANGGOTAKTB" || role === "ANGGOTAACARA" || role === "ANGGOTADOA") && idAnggota) {
             const myBp = await db.badanPengurus.findFirst({
                 where: { idAnggota, status: true },
                 select: { id: true },
             });
             if (!myBp || myBp.id !== idPengurus) {
                 return { success: false, message: "Akses ditolak. Anda hanya dapat melihat jurnal HPDT Anda sendiri." };
+            }
+        } else if (role === "KOORDOA") {
+            const targetBp = await db.badanPengurus.findUnique({
+                where: { id: idPengurus },
+                select: { jabatan: true },
+            });
+            if (!targetBp || (targetBp.jabatan !== "KOORDINATOR_DOA_DAN_PEMERHATI" && targetBp.jabatan !== "ANGGOTA_DOA_DAN_PEMERHATI")) {
+                return { success: false, message: "Akses ditolak. Koordinator Doa hanya dapat memantau jurnal seksi Doa & Pemerhati." };
             }
         } else if (role === "KOORACARA") {
             const targetBp = await db.badanPengurus.findUnique({

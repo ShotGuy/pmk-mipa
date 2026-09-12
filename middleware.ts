@@ -65,9 +65,9 @@ export default auth((req) => {
             }
         }
 
-        // 2. Badan Pengurus (ADMIN, KETUA)
+        // 2. Badan Pengurus (ADMIN, KETUA, KOORDOA, ANGGOTADOA)
         if (nextUrl.pathname.startsWith("/admin/badan-pengurus")) {
-            if (!["ADMIN", "KETUA"].includes(role)) {
+            if (!["ADMIN", "KETUA", "KOORDOA", "ANGGOTADOA"].includes(role)) {
                 return NextResponse.redirect(new URL("/admin/dashboard", nextUrl))
             }
             if (role === "KETUA" && (nextUrl.pathname.endsWith("/new") || nextUrl.pathname.endsWith("/edit"))) {

@@ -73,7 +73,7 @@ export const navItems: NavItem[] = [
         title: "Badan Pengurus",
         href: "/admin/badan-pengurus",
         icon: Briefcase,
-        roles: ["ADMIN", "KETUA"],
+        roles: ["ADMIN", "KETUA", "KOORDOA", "ANGGOTADOA"],
     },
     {
         title: "Data Anggota",

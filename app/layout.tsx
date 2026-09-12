@@ -103,16 +103,16 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "EducationalOrganization",
-      "@id": "https://pmkmipa.web.id/#organization",
+      "@id": "https://www.pmkmipa.web.id/#organization",
       name: "PMK MIPA FST Universitas Nusa Cendana",
-      alternateName: ["PMK MIPA Undana", "Persekutuan Mahasiswa Kristen MIPA Undana"],
-      url: "https://pmkmipa.web.id",
+      alternateName: ["PMK MIPA Undana", "Persekutuan Mahasiswa Kristen MIPA Undana", "PMK MIPA FST Undana"],
+      url: "https://www.pmkmipa.web.id",
       logo: {
         "@type": "ImageObject",
-        url: "https://pmkmipa.web.id/logo.png",
+        url: "https://www.pmkmipa.web.id/logo.png",
         caption: "Logo PMK MIPA Undana",
       },
-      image: "https://pmkmipa.web.id/og-image.png",
+      image: "https://www.pmkmipa.web.id/og-image.png",
       description:
         "Persekutuan Mahasiswa Kristen Fakultas Sains dan Teknik Universitas Nusa Cendana Kupang.",
       address: {
@@ -124,18 +124,60 @@ const jsonLd = {
       parentOrganization: {
         "@type": "CollegeOrUniversity",
         name: "Universitas Nusa Cendana",
+        url: "https://undana.ac.id",
       },
+      sameAs: [
+        "https://www.instagram.com/pmkmipa",
+        "https://www.tiktok.com/@pmkmipa",
+        "https://wa.me/6281351097910",
+      ],
     },
     {
       "@type": "WebSite",
-      "@id": "https://pmkmipa.web.id/#website",
-      url: "https://pmkmipa.web.id",
+      "@id": "https://www.pmkmipa.web.id/#website",
+      url: "https://www.pmkmipa.web.id",
       name: "PMK MIPA Undana",
       description: "Persekutuan Mahasiswa Kristen FST Universitas Nusa Cendana",
       publisher: {
-        "@id": "https://pmkmipa.web.id/#organization",
+        "@id": "https://www.pmkmipa.web.id/#organization",
       },
       inLanguage: "id-ID",
+    },
+    {
+      "@type": "ItemList",
+      "@id": "https://www.pmkmipa.web.id/#navigation",
+      name: "Navigasi Utama PMK MIPA Undana",
+      description: "Daftar navigasi utama website resmi PMK MIPA FST Universitas Nusa Cendana",
+      itemListElement: [
+        {
+          "@type": "SiteNavigationElement",
+          position: 1,
+          name: "Beranda",
+          description: "Halaman utama Persekutuan Mahasiswa Kristen MIPA Undana",
+          url: "https://www.pmkmipa.web.id",
+        },
+        {
+          "@type": "SiteNavigationElement",
+          position: 2,
+          name: "Tentang Kami",
+          description: "Profil, visi misi, sejarah, dan struktur Badan Pengurus PMK MIPA",
+          url: "https://www.pmkmipa.web.id/about",
+        },
+        {
+          "@type": "SiteNavigationElement",
+          position: 3,
+          name: "Kegiatan & Jadwal Ibadah",
+          description: "Jadwal ibadah raya mingguan, persekutuan doa, KTB, dan agenda tahunan",
+          url: "https://www.pmkmipa.web.id/activities",
+        },
+        {
+          "@type": "SiteNavigationElement",
+          position: 4,
+          name: "Hubungi Kami",
+          description: "Informasi kontak, sekretariat, lokasi, dan formulir pesan PMK MIPA",
+          url: "https://www.pmkmipa.web.id/contact",
+        },
+      ],
     },
   ],
 };

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/landing/ContactForm";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 import { Mail, MapPin, Phone } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -14,6 +15,12 @@ export const metadata: Metadata = {
 export default function ContactPage() {
     return (
         <div className="pt-32 pb-20 min-h-screen bg-background">
+            <BreadcrumbJsonLd
+                items={[
+                    { name: "Beranda", url: "https://www.pmkmipa.web.id" },
+                    { name: "Hubungi Kami", url: "https://www.pmkmipa.web.id/contact" },
+                ]}
+            />
             <div className="container mx-auto px-6 max-w-6xl">
                 <div className="text-center mb-16 space-y-6">
                     <h1 className="text-5xl md:text-7xl font-serif font-bold text-foreground leading-[1.1]">Hubungi <span className="italic font-light">Kami</span></h1>
