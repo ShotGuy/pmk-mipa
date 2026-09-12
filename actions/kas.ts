@@ -3,8 +3,8 @@
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
-
-import { auth } from "@/auth"
+import { Role } from "@prisma/client"
+import { requireRole } from "@/lib/rbac"
 
 const KasSchema = z.object({
     nama: z.string().min(1, "Nama kas wajib diisi"),
@@ -12,6 +12,22 @@ const KasSchema = z.object({
 })
 
 export async function getKasWithBalance() {
+    const authCheck = await requireRole([Role.ADMIN, Role.KETUA, Role.BENDAHARA])
+    if (!authCheck.success) {
+        return {
+            success: false,
+            message: authCheck.message,
+            data: [],
+            metrics: {
+                totalSaldoTerkini: 0,
+                totalSaldoAwal: 0,
+                totalPemasukanAll: 0,
+                totalPengeluaranAll: 0,
+                totalAkunKas: 0,
+            },
+        }
+    }
+
     try {
         const kasList = await db.kas.findMany({
             orderBy: { nama: "asc" },
@@ -86,9 +102,9 @@ export async function getKasWithBalance() {
 }
 
 export async function createKas(data: z.infer<typeof KasSchema>) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    const authCheck = await requireRole([Role.ADMIN, Role.BENDAHARA])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     try {
@@ -109,9 +125,9 @@ export async function createKas(data: z.infer<typeof KasSchema>) {
 }
 
 export async function updateKas(id: string, data: z.infer<typeof KasSchema>) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    const authCheck = await requireRole([Role.ADMIN, Role.BENDAHARA])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     try {
@@ -133,9 +149,9 @@ export async function updateKas(id: string, data: z.infer<typeof KasSchema>) {
 }
 
 export async function deleteKas(id: string) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    const authCheck = await requireRole([Role.ADMIN, Role.BENDAHARA])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     try {

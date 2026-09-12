@@ -33,7 +33,24 @@ export const {
     signOut,
 } = NextAuth({
     adapter: PrismaAdapter(db),
-    session: { strategy: "jwt" },
+    session: {
+        strategy: "jwt",
+        maxAge: 24 * 60 * 60, // 24 jam (86400 detik)
+    },
+    cookies: {
+        sessionToken: {
+            name:
+                process.env.NODE_ENV === "production"
+                    ? "__Secure-authjs.session-token"
+                    : "authjs.session-token",
+            options: {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                secure: process.env.NODE_ENV === "production",
+            },
+        },
+    },
     ...authConfig,
     providers: [
         Credentials({

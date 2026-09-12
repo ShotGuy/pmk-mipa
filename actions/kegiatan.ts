@@ -3,7 +3,8 @@
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
-import { auth } from "@/auth"
+import { requireRole } from "@/lib/rbac"
+import { Role } from "@prisma/client"
 
 const KegiatanInputSchema = z.object({
     nama: z.string().min(1, "Nama kegiatan wajib diisi"),
@@ -45,7 +46,28 @@ export async function getJenisKegiatanOptions() {
     }
 }
 
+
+const KEGIATAN_READ_ROLES = [
+    Role.ADMIN,
+    Role.KETUA,
+    Role.SEKRETARIS,
+    Role.KOORACARA,
+    Role.ANGGOTAACARA,
+]
+
+const KEGIATAN_MUTATION_ROLES = [
+    Role.ADMIN,
+    Role.SEKRETARIS,
+    Role.KOORACARA,
+    Role.ANGGOTAACARA,
+]
+
 export async function getAllKegiatan() {
+    const authCheck = await requireRole(KEGIATAN_READ_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message, data: [] }
+    }
+
     try {
         const data = await db.kegiatan.findMany({
             orderBy: { tanggal: "desc" },
@@ -66,6 +88,11 @@ export async function getAllKegiatan() {
 }
 
 export async function getKegiatan(id: string) {
+    const authCheck = await requireRole(KEGIATAN_READ_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
+
     try {
         const data = await db.kegiatan.findUnique({
             where: { id },
@@ -84,9 +111,9 @@ export async function getKegiatan(id: string) {
 }
 
 export async function createKegiatan(values: KegiatanFormValues) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    const authCheck = await requireRole(KEGIATAN_MUTATION_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     const validated = KegiatanInputSchema.safeParse(values)
@@ -118,9 +145,9 @@ export async function createKegiatan(values: KegiatanFormValues) {
 }
 
 export async function updateKegiatan(id: string, values: KegiatanFormValues) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    const authCheck = await requireRole(KEGIATAN_MUTATION_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     const validated = KegiatanInputSchema.safeParse(values)
@@ -153,9 +180,9 @@ export async function updateKegiatan(id: string, values: KegiatanFormValues) {
 }
 
 export async function deleteKegiatan(id: string) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    const authCheck = await requireRole(KEGIATAN_MUTATION_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     try {

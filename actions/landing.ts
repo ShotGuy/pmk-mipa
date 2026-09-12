@@ -1,6 +1,9 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { rateLimit } from "@/lib/rate-limit";
+import { sanitizeString } from "@/lib/sanitize";
+import { z } from "zod";
 
 export interface UpcomingEventItem {
     id: string;
@@ -182,3 +185,44 @@ export async function getGalleryHighlightsForHome(): Promise<GalleryHighlightIte
         return DEFAULT_GALLERY_HIGHLIGHTS;
     }
 }
+
+
+const ContactMessageSchema = z.object({
+    name: z.string().min(2, "Nama minimal 2 karakter").max(100, "Nama maksimal 100 karakter"),
+    major: z.string().min(2, "Jurusan minimal 2 karakter").max(100, "Jurusan maksimal 100 karakter"),
+    email: z.string().email("Format email tidak valid").max(100),
+    message: z.string().min(10, "Pesan minimal 10 karakter").max(2000, "Pesan maksimal 2000 karakter"),
+});
+
+export async function submitContactMessage(rawData: z.infer<typeof ContactMessageSchema>) {
+    const validated = ContactMessageSchema.safeParse(rawData);
+    if (!validated.success) {
+        return { success: false, message: validated.error.issues[0]?.message || "Input tidak valid" };
+    }
+
+    const { name, major, email, message } = validated.data;
+    const cleanEmail = sanitizeString(email).toLowerCase();
+
+    // Rate limit per email: max 3 messages per 10 minutes
+    const limitKey = `contact:${cleanEmail}`;
+    const limitResult = rateLimit(limitKey, { maxAttempts: 3, windowMs: 10 * 60 * 1000 });
+    if (!limitResult.success) {
+        return {
+            success: false,
+            message: `Terlalu banyak pesan yang dikirim dari email ini. Silakan coba kembali dalam ${Math.ceil(limitResult.resetInSeconds / 60)} menit.`,
+        };
+    }
+
+    const cleanName = sanitizeString(name);
+    const cleanMajor = sanitizeString(major);
+    const cleanMessage = sanitizeString(message);
+
+    // Log contact submission
+    console.log(`[Contact Form] Dari: ${cleanName} (${cleanMajor}, ${cleanEmail}) - Pesan: ${cleanMessage}`);
+
+    return {
+        success: true,
+        message: "Puji Tuhan! Pesan Anda berhasil dikirim ke pengurus PMK MIPA. Kami akan segera menghubungi Anda.",
+    };
+}
+

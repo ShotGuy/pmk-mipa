@@ -1,10 +1,14 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { StatusKTB } from "@prisma/client"
+import { StatusKTB, Role } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
-import { auth } from "@/auth"
+import { requireRole } from "@/lib/rbac"
+
+const KTB_READ_ROLES = [Role.ADMIN, Role.KETUA, Role.KOORKTB, Role.ANGGOTAKTB]
+const KTB_MANAGE_ROLES = [Role.ADMIN, Role.KOORKTB]
+const KTB_MEMBER_ROLES = [Role.ADMIN, Role.KOORKTB, Role.ANGGOTAKTB]
 
 const KTBSchema = z.object({
     nama: z.string().min(1, "Nama KTB wajib diisi"),
@@ -18,6 +22,10 @@ const KTBSchema = z.object({
 export type KTBFormValues = z.infer<typeof KTBSchema>
 
 export async function getAllKTB() {
+    const authCheck = await requireRole(KTB_READ_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message, data: [] }
+    }
     try {
         const data = await db.kTB.findMany({
             orderBy: [{ status: "asc" }, { angkatan: "desc" }, { createdAt: "desc" }],
@@ -65,6 +73,11 @@ export async function getAllKTB() {
 }
 
 export async function getKTB(id: string) {
+    const authCheck = await requireRole(KTB_READ_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
+
     try {
         const data = await db.kTB.findUnique({
             where: { id },
@@ -166,9 +179,9 @@ export async function getPengurusOptionsForKTB() {
 }
 
 export async function createKTB(values: KTBFormValues) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Akses ditolak: Ketua hanya memiliki hak akses read-only." }
+    const authCheck = await requireRole(KTB_MANAGE_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     const validated = KTBSchema.safeParse(values)
@@ -200,9 +213,9 @@ export async function createKTB(values: KTBFormValues) {
 }
 
 export async function updateKTB(id: string, values: KTBFormValues) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Akses ditolak: Ketua hanya memiliki hak akses read-only." }
+    const authCheck = await requireRole(KTB_MANAGE_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     const validated = KTBSchema.safeParse(values)
@@ -236,9 +249,9 @@ export async function updateKTB(id: string, values: KTBFormValues) {
 }
 
 export async function deleteKTB(id: string) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Akses ditolak: Ketua hanya memiliki hak akses read-only." }
+    const authCheck = await requireRole(KTB_MANAGE_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     try {
@@ -316,9 +329,9 @@ export async function getAvailableAnggotaForKTB(idKTB: string) {
 }
 
 export async function addAnggotaToKTB(idKTB: string, idAnggota: string) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Akses ditolak: Ketua hanya memiliki hak akses read-only." }
+    const authCheck = await requireRole(KTB_MEMBER_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     try {
@@ -361,9 +374,9 @@ export async function addAnggotaToKTB(idKTB: string, idAnggota: string) {
 }
 
 export async function toggleStatusAnggotaKTB(idKTBAnggota: string, isAktif: boolean) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Akses ditolak: Ketua hanya memiliki hak akses read-only." }
+    const authCheck = await requireRole(KTB_MEMBER_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     try {
@@ -387,6 +400,11 @@ export async function toggleStatusAnggotaKTB(idKTBAnggota: string, isAktif: bool
 }
 
 export async function removeAnggotaFromKTB(idKTBAnggota: string) {
+    const authCheck = await requireRole(KTB_MEMBER_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
+
     try {
         const item = await db.kTBAnggota.delete({
             where: { id: idKTBAnggota },
@@ -404,6 +422,16 @@ export async function removeAnggotaFromKTB(idKTBAnggota: string) {
 }
 
 export async function getKTBMetrics() {
+    const authCheck = await requireRole(KTB_READ_ROLES)
+    if (!authCheck.success) {
+        return {
+            totalKTB: 0,
+            aktifKTB: 0,
+            mergerKTB: 0,
+            totalAnggotaTerbina: 0,
+        }
+    }
+
     try {
         const [totalKTB, aktifKTB, mergerKTB, totalAnggotaTerbina] = await Promise.all([
             db.kTB.count(),

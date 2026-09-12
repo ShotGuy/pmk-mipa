@@ -1,10 +1,13 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { StatusPengontrolan } from "@prisma/client"
+import { StatusPengontrolan, Role } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
-import { auth } from "@/auth"
+import { requireRole } from "@/lib/rbac"
+
+const PENGONTROLAN_READ_ROLES = [Role.ADMIN, Role.KETUA, Role.KOORKTB, Role.ANGGOTAKTB]
+const PENGONTROLAN_MUTATION_ROLES = [Role.ADMIN, Role.KOORKTB, Role.ANGGOTAKTB]
 
 const PengontrolanSchema = z.object({
     idKTB: z.string().min(1, "Pilih kelompok KTB"),
@@ -17,15 +20,23 @@ const PengontrolanSchema = z.object({
 export type PengontrolanFormValues = z.infer<typeof PengontrolanSchema>
 
 export async function getAllPengontrolan() {
+    const authCheck = await requireRole(PENGONTROLAN_READ_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message, data: [] }
+    }
+
     try {
-        const session = await auth()
-        const role = session?.user?.role
-        const idAnggota = session?.user?.idAnggota
+        const { user } = authCheck
+        const role = user.role
+        const idAnggota = user.idAnggota
 
         let idPengurusFilter: string | undefined = undefined
 
-        // Jika ANGGOTAKTB, batasi hanya pada KTB yang ia dampingi
-        if (role === "ANGGOTAKTB" && idAnggota) {
+        // Jika ANGGOTAKTB, batasi hanya pada KTB yang ia dampingi (Fail-closed)
+        if (role === Role.ANGGOTAKTB) {
+            if (!idAnggota) {
+                return { success: true, data: [] }
+            }
             const bp = await db.badanPengurus.findFirst({
                 where: { idAnggota, status: true },
                 select: { id: true },
@@ -81,6 +92,15 @@ export async function getAllPengontrolan() {
 }
 
 export async function getPengontrolan(id: string) {
+    const authCheck = await requireRole(PENGONTROLAN_READ_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
+
+    const { user } = authCheck
+    const role = user.role
+    const idAnggota = user.idAnggota
+
     try {
         const data = await db.pengontrolan.findUnique({
             where: { id },
@@ -114,6 +134,21 @@ export async function getPengontrolan(id: string) {
         })
 
         if (!data) return { success: false, message: "Data pengontrolan tidak ditemukan" }
+
+        // Fail-closed ownership check jika pemanggil adalah ANGGOTAKTB
+        if (role === Role.ANGGOTAKTB) {
+            if (!idAnggota) {
+                return { success: false, message: "Akses ditolak: Profil Anda belum terhubung." }
+            }
+            const bp = await db.badanPengurus.findFirst({
+                where: { idAnggota, status: true },
+                select: { id: true },
+            })
+            if (!bp || data.ktb?.pengurus?.id !== bp.id) {
+                return { success: false, message: "Akses ditolak: Anda hanya dapat mengakses riwayat pengontrolan KTB yang Anda dampingi." }
+            }
+        }
+
         return { success: true, data }
     } catch (error) {
         console.error("Error getPengontrolan:", error)
@@ -122,13 +157,19 @@ export async function getPengontrolan(id: string) {
 }
 
 export async function getKTBOptionsForPengontrolan() {
+    const authCheck = await requireRole(PENGONTROLAN_READ_ROLES)
+    if (!authCheck.success) {
+        return []
+    }
+
     try {
-        const session = await auth()
-        const role = session?.user?.role
-        const idAnggota = session?.user?.idAnggota
+        const { user } = authCheck
+        const role = user.role
+        const idAnggota = user.idAnggota
 
         let idPengurusFilter: string | undefined = undefined
-        if (role === "ANGGOTAKTB" && idAnggota) {
+        if (role === Role.ANGGOTAKTB) {
+            if (!idAnggota) return []
             const bp = await db.badanPengurus.findFirst({
                 where: { idAnggota, status: true },
                 select: { id: true },
@@ -174,16 +215,14 @@ export async function getKTBOptionsForPengontrolan() {
 }
 
 export async function createPengontrolan(values: PengontrolanFormValues) {
-    const session = await auth()
-    const role = session?.user?.role
-    const idAnggota = session?.user?.idAnggota
-
-    if (role === "KETUA") {
-        return {
-            success: false,
-            message: "Ketua hanya memiliki hak akses membaca (read-only).",
-        }
+    const authCheck = await requireRole(PENGONTROLAN_MUTATION_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
+
+    const { user } = authCheck
+    const role = user.role
+    const idAnggota = user.idAnggota
 
     const validated = PengontrolanSchema.safeParse(values)
     if (!validated.success) {
@@ -193,8 +232,14 @@ export async function createPengontrolan(values: PengontrolanFormValues) {
         }
     }
 
-    // Validasi kepemilikan KTB untuk ANGGOTAKTB
-    if (role === "ANGGOTAKTB" && idAnggota) {
+    // Validasi kepemilikan KTB untuk ANGGOTAKTB (Fail-closed)
+    if (role === Role.ANGGOTAKTB) {
+        if (!idAnggota) {
+            return {
+                success: false,
+                message: "Akses ditolak: Akun Anda tidak terhubung dengan data profil Anggota.",
+            }
+        }
         const bp = await db.badanPengurus.findFirst({
             where: { idAnggota, status: true },
             select: { id: true },
@@ -232,21 +277,47 @@ export async function createPengontrolan(values: PengontrolanFormValues) {
 }
 
 export async function updatePengontrolan(id: string, values: PengontrolanFormValues) {
-    const session = await auth()
-    const role = session?.user?.role
-
-    if (role === "KETUA") {
-        return {
-            success: false,
-            message: "Ketua hanya memiliki hak akses membaca (read-only).",
-        }
+    const authCheck = await requireRole(PENGONTROLAN_MUTATION_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
+
+    const { user } = authCheck
+    const role = user.role
+    const idAnggota = user.idAnggota
 
     const validated = PengontrolanSchema.safeParse(values)
     if (!validated.success) {
         return {
             success: false,
             message: validated.error.issues[0]?.message || "Input tidak valid",
+        }
+    }
+
+    // Ownership check for ANGGOTAKTB (Fail-closed)
+    if (role === Role.ANGGOTAKTB) {
+        if (!idAnggota) {
+            return {
+                success: false,
+                message: "Akses ditolak: Akun Anda tidak terhubung dengan data profil Anggota.",
+            }
+        }
+        const existing = await db.pengontrolan.findUnique({
+            where: { id },
+            include: { ktb: { select: { idPengurus: true } } },
+        })
+        if (!existing) {
+            return { success: false, message: "Data pengontrolan tidak ditemukan" }
+        }
+        const bp = await db.badanPengurus.findFirst({
+            where: { idAnggota, status: true },
+            select: { id: true },
+        })
+        if (!bp || existing.ktb.idPengurus !== bp.id) {
+            return {
+                success: false,
+                message: "Akses ditolak: Anda hanya dapat memperbarui pengontrolan untuk KTB yang Anda dampingi.",
+            }
         }
     }
 
@@ -272,13 +343,39 @@ export async function updatePengontrolan(id: string, values: PengontrolanFormVal
 }
 
 export async function deletePengontrolan(id: string) {
-    const session = await auth()
-    const role = session?.user?.role
+    const authCheck = await requireRole(PENGONTROLAN_MUTATION_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
 
-    if (role === "KETUA") {
-        return {
-            success: false,
-            message: "Ketua hanya memiliki hak akses membaca (read-only).",
+    const { user } = authCheck
+    const role = user.role
+    const idAnggota = user.idAnggota
+
+    // Ownership check for ANGGOTAKTB (Fail-closed)
+    if (role === Role.ANGGOTAKTB) {
+        if (!idAnggota) {
+            return {
+                success: false,
+                message: "Akses ditolak: Akun Anda tidak terhubung dengan data profil Anggota.",
+            }
+        }
+        const existing = await db.pengontrolan.findUnique({
+            where: { id },
+            include: { ktb: { select: { idPengurus: true } } },
+        })
+        if (!existing) {
+            return { success: false, message: "Data pengontrolan tidak ditemukan" }
+        }
+        const bp = await db.badanPengurus.findFirst({
+            where: { idAnggota, status: true },
+            select: { id: true },
+        })
+        if (!bp || existing.ktb.idPengurus !== bp.id) {
+            return {
+                success: false,
+                message: "Akses ditolak: Anda hanya dapat menghapus catatan pengontrolan untuk KTB yang Anda dampingi.",
+            }
         }
     }
 
@@ -298,13 +395,26 @@ export async function deletePengontrolan(id: string) {
 }
 
 export async function getPengontrolanMetrics() {
+    const authCheck = await requireRole(PENGONTROLAN_READ_ROLES)
+    if (!authCheck.success) {
+        return {
+            total: 0,
+            terkontrolMingguIni: 0,
+            aktif: 0,
+            macetAtauVakum: 0,
+        }
+    }
+
     try {
-        const session = await auth()
-        const role = session?.user?.role
-        const idAnggota = session?.user?.idAnggota
+        const { user } = authCheck
+        const role = user.role
+        const idAnggota = user.idAnggota
 
         let idPengurusFilter: string | undefined = undefined
-        if (role === "ANGGOTAKTB" && idAnggota) {
+        if (role === Role.ANGGOTAKTB) {
+            if (!idAnggota) {
+                return { total: 0, terkontrolMingguIni: 0, aktif: 0, macetAtauVakum: 0 }
+            }
             const bp = await db.badanPengurus.findFirst({
                 where: { idAnggota, status: true },
                 select: { id: true },
@@ -363,7 +473,37 @@ export async function getPengontrolanMetrics() {
 }
 
 export async function getPengontrolanByKTB(idKTB: string) {
+    const authCheck = await requireRole(PENGONTROLAN_READ_ROLES)
+    if (!authCheck.success) {
+        return { success: false, data: [] }
+    }
+
     try {
+        const { user } = authCheck
+        const role = user.role
+        const idAnggota = user.idAnggota
+
+        if (role === Role.ANGGOTAKTB) {
+            if (!idAnggota) {
+                return { success: false, message: "Akses ditolak: Profil belum terhubung.", data: [] }
+            }
+            const bp = await db.badanPengurus.findFirst({
+                where: { idAnggota, status: true },
+                select: { id: true },
+            })
+            const targetKTB = await db.kTB.findUnique({
+                where: { id: idKTB },
+                select: { idPengurus: true },
+            })
+            if (!bp || targetKTB?.idPengurus !== bp.id) {
+                return {
+                    success: false,
+                    message: "Akses ditolak: Anda hanya dapat melihat riwayat kelompok KTB yang Anda dampingi.",
+                    data: [],
+                }
+            }
+        }
+
         const data = await db.pengontrolan.findMany({
             where: { idKTB },
             orderBy: { tanggal: "desc" },
@@ -371,6 +511,6 @@ export async function getPengontrolanByKTB(idKTB: string) {
         return { success: true, data }
     } catch (error) {
         console.error("Error getPengontrolanByKTB:", error)
-        return { success: false, data: [] }
+        return { success: false, message: "Gagal mengambil data pengontrolan", data: [] }
     }
 }

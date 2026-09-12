@@ -4,7 +4,15 @@ import bcrypt from "bcryptjs"
 const prisma = new PrismaClient()
 
 async function main() {
-    const password = await bcrypt.hash("password123", 10)
+    const rawSeedPassword = process.env.SEED_DEFAULT_PASSWORD;
+    if (!rawSeedPassword && process.env.NODE_ENV === "production") {
+        throw new Error("CRITICAL SECURITY: SEED_DEFAULT_PASSWORD must be set in production before running seed!");
+    }
+    const defaultPassword = rawSeedPassword || "PmkMipa@Demo2025!";
+    const password = await bcrypt.hash(defaultPassword, 10);
+    if (!rawSeedPassword) {
+        console.warn("⚠️ PERINGATAN: Menggunakan default seed password untuk development. Di lingkungan produksi, set SEED_DEFAULT_PASSWORD.");
+    }
 
     // Seed demo accounts for all roles
     const seedUsers = [
