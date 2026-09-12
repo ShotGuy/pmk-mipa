@@ -4,10 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -32,55 +31,57 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out",
         isScrolled
-          ? "bg-background/80 backdrop-blur-md shadow-sm border-b border-border/50 py-3"
-          : "bg-transparent py-5"
+          ? "bg-[#f5f3eb] border-b-2 border-foreground py-3 shadow-[0_4px_0_0_rgba(0,0,0,0.85)]"
+          : "bg-transparent py-6"
       )}
     >
-      <div className="container mx-auto px-4 flex items-center justify-between">
+      <div className="container mx-auto px-6 max-w-7xl flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 z-50">
-          <Image
-            src="/logo.png"
-            alt="PMK MIPA Logo"
-            width={40}
-            height={40}
-            className="object-contain" // Adjusted for logo fit
-          />
-          <span className="text-2xl font-serif font-bold text-primary">
+        <Link href="/" className="flex items-center gap-3 z-50 group">
+          <div className="overflow-hidden transition-transform duration-300 group-hover:-translate-y-1">
+            <Image
+              src="/logo.png"
+              alt="PMK MIPA Logo"
+              width={48}
+              height={48}
+              className="object-contain"
+            />
+          </div>
+          <span className="text-2xl font-serif font-bold text-foreground tracking-tight flex items-center gap-1">
             PMK MIPA
+            <Sparkles className="w-4 h-4 text-primary animate-pulse" />
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-10">
           {navLinks.map((link) => (
             <Link
               key={link.name}
               href={link.href}
-              className="text-foreground/80 hover:text-primary transition-colors font-medium text-sm"
+              className="text-foreground hover:text-primary transition-colors duration-300 font-serif font-semibold text-lg relative group"
             >
               {link.name}
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
             </Link>
           ))}
-          <ThemeToggle />
           <Link href="/login">
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 transition-transform hover:-translate-y-1 shadow-lg shadow-primary/20">
+            <Button className="bg-primary text-foreground border-2 border-foreground rounded-full px-8 py-2 font-serif font-bold text-lg hover:bg-primary/80 transition-all duration-200 retro-shadow hover:translate-y-1 hover:shadow-none">
               Login
             </Button>
           </Link>
         </nav>
 
-        {/* Mobile Toggle & Theme */}
-        <div className="md:hidden flex items-center gap-2 z-50">
-          <ThemeToggle />
+        {/* Mobile Toggle */}
+        <div className="md:hidden flex items-center z-50">
           <button
-            className="text-foreground p-1"
+            className="text-foreground p-2 hover:bg-foreground/10 rounded-full transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? "Tutup menu" : "Buka menu"}
           >
-            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            {isMobileMenuOpen ? <X size={28} strokeWidth={2} /> : <Menu size={28} strokeWidth={2} />}
           </button>
         </div>
 
@@ -91,33 +92,33 @@ export function Navbar() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed inset-0 bg-background/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-8 md:hidden"
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="fixed inset-0 bg-[#f5f3eb] z-40 flex flex-col items-center justify-center gap-8 md:hidden border-b-4 border-foreground"
             >
-              <nav className="flex flex-col items-center gap-6">
+              <nav className="flex flex-col items-center gap-8">
                 {navLinks.map((link, index) => (
                   <motion.div
                     key={link.name}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 + index * 0.1 }}
+                    transition={{ delay: 0.1 + index * 0.05, duration: 0.4, ease: "easeOut" }}
                   >
                     <Link
                       href={link.href}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-2xl font-serif font-medium hover:text-primary transition-colors"
+                      className="text-3xl font-serif font-bold text-foreground hover:text-primary transition-colors relative"
                     >
                       {link.name}
                     </Link>
                   </motion.div>
                 ))}
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
+                  transition={{ delay: 0.3, duration: 0.4 }}
                 >
-                  <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 rounded-full">
-                    Gabung Sekarang
+                  <Button size="lg" className="bg-primary text-foreground border-2 border-foreground rounded-full px-10 py-6 font-serif font-bold text-xl retro-shadow hover:translate-y-1 hover:shadow-none transition-all duration-200 mt-4">
+                    Login Sistem
                   </Button>
                 </motion.div>
               </nav>

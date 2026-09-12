@@ -21,61 +21,53 @@ export function ScheduleCard({ type, title, time, location, description }: Sched
     return (
         <div
             className={cn(
-                "relative overflow-hidden rounded-3xl border-2 p-8 transition-all hover:-translate-y-1.5 hover:shadow-xl flex flex-col justify-between",
+                "relative overflow-hidden border-4 border-foreground p-8 transition-transform hover:-translate-y-2 flex flex-col justify-between retro-shadow hover:retro-shadow-lg",
                 isFriday
-                    ? "border-primary/50 bg-primary/5 hover:shadow-primary/10"
-                    : "border-secondary/30 bg-secondary/5 hover:shadow-secondary/10"
+                    ? "bg-[#f5f3eb]"
+                    : "bg-white"
             )}
         >
-            {/* Decorative Circle */}
-            <div
-                className={cn(
-                    "absolute -right-8 -top-8 h-32 w-32 rounded-full opacity-10",
-                    isFriday ? "bg-primary" : "bg-secondary"
-                )}
-            />
-
-            <div className="relative z-10 space-y-4">
+            <div className="relative z-10 space-y-6">
                 <span
                     className={cn(
-                        "inline-block rounded-full px-3.5 py-1 text-xs font-bold uppercase tracking-wider",
-                        isFriday ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
+                        "inline-block px-4 py-1.5 text-xs font-serif font-bold uppercase tracking-[0.2em] border-2 border-foreground retro-shadow-sm",
+                        isFriday ? "bg-primary text-foreground" : "bg-foreground text-[#f5f3eb]"
                     )}
                 >
                     {isFriday ? "Ibadah Raya Jumat" : "Persekutuan Doa"}
                 </span>
 
-                <h3 className="text-2xl font-serif font-bold text-foreground">{title}</h3>
+                <h3 className="text-3xl font-serif font-bold text-foreground leading-snug">{title}</h3>
 
-                <div className="space-y-3 text-muted-foreground text-sm">
+                <div className="space-y-4 text-foreground/80 text-sm font-serif font-bold">
                     <div className="flex items-center gap-3">
-                        <Clock className="h-4 w-4 shrink-0 text-primary" />
-                        <span>{time}</span>
+                        <Clock className="h-5 w-5 shrink-0 text-primary" />
+                        <span className="uppercase tracking-widest">{time}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                        <MapPin className="h-4 w-4 shrink-0 text-primary" />
-                        <span>{location}</span>
+                        <MapPin className="h-5 w-5 shrink-0 text-primary" />
+                        <span className="uppercase tracking-widest">{location}</span>
                     </div>
-                    <div className="flex items-start gap-3 pt-1">
-                        <Calendar className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                    <div className="flex items-start gap-3 pt-2">
+                        <Calendar className="h-5 w-5 shrink-0 text-primary mt-0.5" />
                         <p className="leading-relaxed">{description}</p>
                     </div>
                 </div>
             </div>
 
             {/* Add to Calendar Button */}
-            <div className="relative z-10 pt-6 mt-6 border-t border-border/60 flex items-center justify-between">
+            <div className="relative z-10 pt-6 mt-6 border-t-2 border-dashed border-foreground/30 flex items-center justify-between">
                 <a
                     href={googleCalendarUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline"
+                    className="inline-flex items-center gap-2 px-4 py-2 border-2 border-foreground bg-white hover:bg-primary transition-colors text-xs font-serif font-bold uppercase tracking-widest text-foreground retro-shadow-sm"
                 >
                     <CalendarPlus className="w-4 h-4" />
                     <span>Simpan ke Kalender</span>
                 </a>
 
-                <span className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
+                <span className="text-xs text-foreground uppercase tracking-[0.2em] font-serif font-bold">
                     Rutin Mingguan
                 </span>
             </div>

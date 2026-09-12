@@ -51,8 +51,8 @@ const missionPoints = [
 
 export function VisionMission() {
     return (
-        <section className="py-24 bg-secondary/5 relative overflow-hidden border-y border-border/50">
-            <div className="container mx-auto px-4 max-w-6xl space-y-20">
+        <section className="py-24 bg-transparent relative overflow-hidden border-b-2 border-foreground/10">
+            <div className="container mx-auto px-6 max-w-6xl space-y-20">
                 {/* Vision & Mission Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {/* Vision Card */}
@@ -61,28 +61,28 @@ export function VisionMission() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
-                        className="flex flex-col justify-between p-8 sm:p-10 rounded-3xl bg-card border border-primary/30 shadow-md relative overflow-hidden"
+                        className="flex flex-col justify-between p-10 bg-white border-4 border-foreground retro-shadow-lg relative overflow-hidden"
                     >
                         <div className="space-y-6">
-                            <div className="w-14 h-14 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
+                            <div className="w-14 h-14 bg-primary border-2 border-foreground retro-shadow-sm flex items-center justify-center text-foreground">
                                 <Compass className="w-7 h-7" />
                             </div>
 
                             <div className="space-y-3">
-                                <span className="text-xs uppercase font-bold tracking-widest text-primary">
+                                <span className="text-xs uppercase font-serif font-bold tracking-[0.2em] text-primary">
                                     Visi Kami
                                 </span>
-                                <h3 className="text-2xl sm:text-3xl font-serif font-bold text-foreground leading-snug">
+                                <h3 className="text-3xl sm:text-4xl font-serif font-bold text-foreground leading-[1.2]">
                                     Menghasilkan Sarjana Sains yang Berakar Kuat dalam Kristus
                                 </h3>
                             </div>
 
-                            <p className="text-base text-muted-foreground leading-relaxed">
+                            <p className="text-base text-foreground/80 font-serif font-bold leading-relaxed">
                                 &ldquo;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.&rdquo;
                             </p>
                         </div>
 
-                        <div className="pt-6 mt-6 border-t border-border/60 flex items-center gap-2 text-xs font-semibold text-primary">
+                        <div className="pt-6 mt-6 border-t-2 border-dashed border-foreground/30 flex items-center gap-2 text-xs font-serif font-bold uppercase tracking-widest text-primary">
                             <BookOpen className="w-4 h-4" />
                             <span>Matius 5:14 — Garam dan Terang Dunia</span>
                         </div>
@@ -94,25 +94,25 @@ export function VisionMission() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1, duration: 0.5 }}
-                        className="flex flex-col justify-between p-8 sm:p-10 rounded-3xl bg-card border border-border shadow-md"
+                        className="flex flex-col justify-between p-10 bg-[#f5f3eb] border-4 border-foreground retro-shadow-lg"
                     >
                         <div className="space-y-6">
-                            <div className="w-14 h-14 rounded-2xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary-foreground">
+                            <div className="w-14 h-14 bg-white border-2 border-foreground retro-shadow-sm flex items-center justify-center text-foreground">
                                 <Target className="w-7 h-7 text-primary" />
                             </div>
 
                             <div className="space-y-2">
-                                <span className="text-xs uppercase font-bold tracking-widest text-primary">
+                                <span className="text-xs uppercase font-serif font-bold tracking-[0.2em] text-primary">
                                     Misi Kami
                                 </span>
-                                <h3 className="text-2xl sm:text-3xl font-serif font-bold text-foreground">
+                                <h3 className="text-3xl sm:text-4xl font-serif font-bold text-foreground leading-[1.2]">
                                     Langkah Nyata Pelayanan
                                 </h3>
                             </div>
 
-                            <ul className="space-y-3.5 pt-2">
+                            <ul className="space-y-4 pt-2">
                                 {missionPoints.map((point, idx) => (
-                                    <li key={idx} className="flex items-start gap-3 text-sm text-muted-foreground leading-relaxed">
+                                    <li key={idx} className="flex items-start gap-3 text-sm font-serif font-bold text-foreground/80 leading-relaxed">
                                         <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                                         <span>{point}</span>
                                     </li>
@@ -124,19 +124,19 @@ export function VisionMission() {
 
                 {/* Core Values Section */}
                 <div className="space-y-12">
-                    <div className="text-center max-w-2xl mx-auto space-y-3">
-                        <span className="text-xs uppercase font-bold tracking-widest text-primary">
+                    <div className="text-center max-w-2xl mx-auto space-y-4">
+                        <span className="text-xs uppercase font-serif font-bold tracking-[0.2em] text-primary">
                             Pondasi Karakter
                         </span>
-                        <h3 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
+                        <h3 className="text-4xl md:text-5xl font-serif font-bold text-foreground">
                             Nilai-Nilai Inti (Core Values)
                         </h3>
-                        <p className="text-sm md:text-base text-muted-foreground">
+                        <p className="text-base text-foreground/80 font-serif font-bold">
                             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {coreValues.map((val, idx) => {
                             const Icon = val.icon;
                             return (
@@ -146,15 +146,15 @@ export function VisionMission() {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: idx * 0.1, duration: 0.5 }}
-                                    className="p-6 rounded-2xl bg-card border border-border/80 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                                    className="p-8 bg-white border-2 border-foreground retro-shadow hover:-translate-y-2 hover:retro-shadow-lg transition-all duration-300"
                                 >
-                                    <div className="w-12 h-12 rounded-xl bg-accent text-accent-foreground border border-primary/20 flex items-center justify-center mb-4 text-primary">
+                                    <div className="w-12 h-12 bg-primary border-2 border-foreground retro-shadow-sm flex items-center justify-center mb-6 text-foreground">
                                         <Icon className="w-6 h-6" />
                                     </div>
-                                    <h4 className="text-lg font-bold font-serif text-foreground mb-2">
+                                    <h4 className="text-xl font-bold font-serif text-foreground mb-3 leading-tight">
                                         {val.title}
                                     </h4>
-                                    <p className="text-xs text-muted-foreground leading-relaxed">
+                                    <p className="text-sm font-serif font-bold text-foreground/70 leading-relaxed uppercase tracking-wide">
                                         {val.description}
                                     </p>
                                 </motion.div>
