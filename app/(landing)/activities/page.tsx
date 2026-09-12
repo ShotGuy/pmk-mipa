@@ -6,6 +6,7 @@ import { AnnualPrograms } from "@/components/activities/AnnualPrograms";
 import { GalleryCarousel } from "@/components/landing/GalleryCarousel";
 import { ActivitiesFAQ } from "@/components/activities/ActivitiesFAQ";
 import { CallToAction } from "@/components/landing/CallToAction";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 import { Calendar } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -20,6 +21,12 @@ export const metadata: Metadata = {
 export default function ActivitiesPage() {
     return (
         <div className="flex flex-col min-h-screen">
+            <BreadcrumbJsonLd
+                items={[
+                    { name: "Beranda", url: "https://www.pmkmipa.web.id" },
+                    { name: "Kegiatan & Jadwal Ibadah", url: "https://www.pmkmipa.web.id/activities" },
+                ]}
+            />
             {/* Header Hero */}
             <ActivitiesHero />
 
