@@ -15,8 +15,7 @@ export default async function DashboardLayout({
     if (!session?.user) {
         // In a real app, redirect to login. For now, we'll redirect, but the user said use "user dummy".
         // I assume flow is: User logs in -> Session exists.
-        // If no session, redirect to home or login.
-        redirect("/api/auth/signin");
+        redirect("/login");
     }
 
     // Ensure role is typed correctly if needed, but session.user.role should be typed from auth.ts

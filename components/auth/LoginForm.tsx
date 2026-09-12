@@ -106,10 +106,10 @@ export function LoginForm() {
                     </form>
                 </Form>
             </CardContent>
-            <CardFooter className="flex justify-center">
-                <Button variant="link" size="sm" asChild>
-                    <a href="/register">Don&apos;t have an account? Register</a>
-                </Button>
+            <CardFooter className="flex justify-center text-center">
+                <p className="text-xs text-muted-foreground">
+                    Akses internal Pengurus PMK MIPA. Hubungi Administrator jika mengalami kendala login.
+                </p>
             </CardFooter>
         </Card>
     );

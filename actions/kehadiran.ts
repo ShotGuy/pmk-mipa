@@ -4,7 +4,13 @@ import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import crypto from "crypto"
-import { auth } from "@/auth"
+import { requireRole } from "@/lib/rbac"
+import { Role } from "@prisma/client"
+import { rateLimit } from "@/lib/rate-limit"
+import { sanitizeString } from "@/lib/sanitize"
+
+const KEHADIRAN_READ_ROLES = [Role.ADMIN, Role.KETUA, Role.SEKRETARIS, Role.KOORACARA, Role.ANGGOTAACARA]
+const KEHADIRAN_MUTATION_ROLES = [Role.ADMIN, Role.SEKRETARIS, Role.KOORACARA, Role.ANGGOTAACARA]
 
 // Helper function to generate unique alphanumeric token
 function generateToken(): string {
@@ -40,6 +46,11 @@ export type PengunjungValues = z.infer<typeof PengunjungSchema>
  * Mengambil daftar seluruh kegiatan untuk dropdown manajemen presensi admin
  */
 export async function getKegiatanListForKehadiran() {
+    const authCheck = await requireRole(KEHADIRAN_READ_ROLES)
+    if (!authCheck.success) {
+        return []
+    }
+
     try {
         const list = await db.kegiatan.findMany({
             orderBy: { tanggal: "desc" },
@@ -70,6 +81,11 @@ export async function getKegiatanListForKehadiran() {
  * Mengambil seluruh data rekaman kehadiran untuk 1 kegiatan terpilih
  */
 export async function getKehadiranByKegiatan(idKegiatan: string) {
+    const authCheck = await requireRole(KEHADIRAN_READ_ROLES)
+    if (!authCheck.success) {
+        return []
+    }
+
     try {
         return await db.kehadiran.findMany({
             where: { idKegiatan },
@@ -103,6 +119,17 @@ export async function getKehadiranByKegiatan(idKegiatan: string) {
  * Mengambil kartu metrik ringkasan kehadiran untuk kegiatan terpilih
  */
 export async function getKehadiranMetrics(idKegiatan: string) {
+    const authCheck = await requireRole(KEHADIRAN_READ_ROLES)
+    if (!authCheck.success) {
+        return {
+            totalHadir: 0,
+            totalAnggotaHadir: 0,
+            totalPengunjung: 0,
+            totalAnggotaPMK: 0,
+            persentaseHadir: 0,
+        }
+    }
+
     try {
         const [totalHadir, totalAnggotaHadir, totalPengunjung, totalAnggotaPMK] = await Promise.all([
             db.kehadiran.count({ where: { idKegiatan } }),
@@ -147,9 +174,9 @@ export async function getKehadiranMetrics(idKegiatan: string) {
  * Toggle Buka/Tutup Presensi dan pastikan token unik terbentuk
  */
 export async function togglePresensiKegiatan(idKegiatan: string, forceStatus?: boolean) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    const authCheck = await requireRole(KEHADIRAN_MUTATION_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     try {
@@ -231,6 +258,15 @@ export async function getPublicKegiatanByToken(token: string) {
  */
 export async function getAnggotaListForPresensi(idKegiatan: string) {
     try {
+        const kegiatan = await db.kegiatan.findUnique({
+            where: { id: idKegiatan },
+            select: { isPresensiOpen: true },
+        })
+
+        if (!kegiatan || !kegiatan.isPresensiOpen) {
+            return []
+        }
+
         const [anggotaList, alreadyAttended] = await Promise.all([
             db.anggota.findMany({
                 select: {
@@ -281,6 +317,13 @@ export async function getAnggotaListForPresensi(idKegiatan: string) {
  * Submit presensi mandiri oleh Anggota PMK (Cegah dobel absen)
  */
 export async function submitPresensiAnggota(token: string, idAnggota: string) {
+    // Rate limit: max 5 percobaan per menit per anggota & token
+    const limitKey = `presensi_anggota:${token}:${idAnggota}`
+    const limitCheck = rateLimit(limitKey, { maxAttempts: 5, windowMs: 60 * 1000 })
+    if (!limitCheck.success) {
+        return { success: false, message: "Terlalu banyak permintaan presensi. Silakan coba kembali dalam beberapa saat." }
+    }
+
     try {
         const kegiatan = await db.kegiatan.findUnique({
             where: { presensiToken: token },
@@ -383,6 +426,14 @@ export async function submitPresensiPengunjung(token: string, rawValues: Pengunj
         }
 
         const values = validated.data
+        const cleanName = sanitizeString(values.nama)
+
+        // Rate limit: max 5 percobaan per menit per nama & token
+        const limitKey = `presensi_pengunjung:${token}:${cleanName.toLowerCase()}`
+        const limitCheck = rateLimit(limitKey, { maxAttempts: 5, windowMs: 60 * 1000 })
+        if (!limitCheck.success) {
+            return { success: false, message: "Terlalu banyak permintaan presensi. Silakan coba kembali dalam beberapa saat." }
+        }
 
         const kegiatan = await db.kegiatan.findUnique({
             where: { presensiToken: token },
@@ -405,14 +456,14 @@ export async function submitPresensiPengunjung(token: string, rawValues: Pengunj
             where: {
                 idKegiatan: kegiatan.id,
                 idAnggota: null,
-                nama: { equals: values.nama.trim(), mode: "insensitive" },
+                nama: { equals: cleanName, mode: "insensitive" },
             },
         })
 
         if (existing) {
             return {
                 success: false,
-                message: `Presensi atas nama "${values.nama}" sudah pernah dikirimkan sebelumnya pada kegiatan ini.`,
+                message: `Presensi atas nama "${cleanName}" sudah pernah dikirimkan sebelumnya pada kegiatan ini.`,
             }
         }
 
@@ -420,13 +471,13 @@ export async function submitPresensiPengunjung(token: string, rawValues: Pengunj
             data: {
                 idKegiatan: kegiatan.id,
                 idAnggota: null,
-                nama: values.nama.trim(),
+                nama: cleanName,
                 status: "NON_APMK",
-                prodi: values.prodi || null,
+                prodi: values.prodi ? sanitizeString(values.prodi) : null,
                 angkatan: values.angkatan ? Number(values.angkatan) : null,
-                noHp: values.noHp || null,
+                noHp: values.noHp ? sanitizeString(values.noHp) : null,
                 jenisKelamin: values.jenisKelamin,
-                tauPmkDariMana: values.tauPmkDariMana || null,
+                tauPmkDariMana: values.tauPmkDariMana ? sanitizeString(values.tauPmkDariMana) : null,
             },
         })
 
@@ -435,8 +486,8 @@ export async function submitPresensiPengunjung(token: string, rawValues: Pengunj
 
         return {
             success: true,
-            nama: values.nama,
-            message: `Selamat datang di PMK MIPA, ${values.nama}! Presensi Anda telah berhasil dicatat.`,
+            nama: cleanName,
+            message: `Selamat datang di PMK MIPA, ${cleanName}! Presensi Anda telah berhasil dicatat.`,
         }
     } catch (error) {
         console.error("Failed to submit presensi pengunjung:", error)
@@ -448,9 +499,9 @@ export async function submitPresensiPengunjung(token: string, rawValues: Pengunj
  * Input manual kehadiran oleh Badan Pengurus melalui Admin Dashboard
  */
 export async function createManualKehadiran(rawValues: ManualKehadiranValues) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    const authCheck = await requireRole(KEHADIRAN_MUTATION_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     try {
@@ -528,9 +579,9 @@ export async function createManualKehadiran(rawValues: ManualKehadiranValues) {
  * Menghapus data rekaman kehadiran
  */
 export async function deleteKehadiran(id: string) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    const authCheck = await requireRole(KEHADIRAN_MUTATION_ROLES)
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     try {

@@ -23,13 +23,15 @@ export default function ContactPage() {
             />
             <div className="container mx-auto px-6 max-w-6xl">
                 <div className="text-center mb-16 space-y-6">
-                    <h1 className="text-5xl md:text-7xl font-serif font-bold text-foreground leading-[1.1]">Hubungi <span className="italic font-light">Kami</span></h1>
+                    <h1 className="text-5xl md:text-7xl font-serif font-bold text-foreground leading-[1.1]">
+                        Hubungi <span className="italic font-light">Kami</span>
+                    </h1>
                     <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto font-serif font-bold">
                         Jangan ragu untuk menghubungi kami jika ada pertanyaan atau ingin bergabung.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12 items-start">
                     {/* Info Side */}
                     <div className="space-y-8">
                         <div className="bg-white p-8 border-4 border-foreground retro-shadow space-y-8">
@@ -80,7 +82,7 @@ export default function ContactPage() {
                                 style={{ border: 0 }}
                                 allowFullScreen
                                 loading="lazy"
-                                referrerPolicy="no-referrer-when-downgrade"
+                                referrerPolicy="strict-origin-when-cross-origin"
                                 className="w-full h-full grayscale opacity-90 contrast-125 border-2 border-foreground"
                                 title="Peta Lokasi Sekretariat PMK MIPA"
                             />

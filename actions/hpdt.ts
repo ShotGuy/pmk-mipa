@@ -3,7 +3,8 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { auth } from "@/auth";
+import { Role } from "@prisma/client";
+import { requireAuth } from "@/lib/rbac";
 
 const HpdtInputSchema = z.object({
     idPengurus: z.string().min(1, "Badan Pengurus wajib dipilih"),
@@ -27,13 +28,20 @@ function normalizeToDateOnly(d: Date): Date {
 }
 
 export async function getPengurusOptionsForHPDT() {
-    try {
-        const session = await auth();
-        const role = session?.user?.role;
-        const idAnggota = session?.user?.idAnggota;
+    const authCheck = await requireAuth();
+    if (!authCheck.success) {
+        return [];
+    }
 
-        // Jika bukan ADMIN (yaitu KETUA, BENDAHARA, SEKRETARIS, KOORKTB, ANGGOTAKTB), hanya boleh mengisi HPDT untuk diri sendiri
-        if (role !== "ADMIN" && idAnggota) {
+    const { user } = authCheck;
+    const role = user.role;
+    const idAnggota = user.idAnggota;
+
+    try {
+        // Jika bukan ADMIN / KETUA, hanya boleh mengisi HPDT untuk profil kepengurusan diri sendiri
+        if (role !== Role.ADMIN && role !== Role.KETUA) {
+            if (!idAnggota) return [];
+
             const bp = await db.badanPengurus.findFirst({
                 where: { idAnggota, status: true },
                 include: {
@@ -88,11 +96,29 @@ export async function getPengurusOptionsForHPDT() {
 }
 
 export async function getHPDTOverview(month: number, year: number) {
-    try {
-        const session = await auth();
-        const role = session?.user?.role;
-        const idAnggota = session?.user?.idAnggota;
+    const authCheck = await requireAuth();
+    if (!authCheck.success) {
+        return {
+            success: false,
+            message: authCheck.message,
+            data: {
+                month,
+                year,
+                elapsedDays: 0,
+                daysInMonth: 0,
+                avgSatePercentage: 0,
+                avgDoaPercentage: 0,
+                totalPengurus: 0,
+                pengurusStats: [],
+            },
+        };
+    }
 
+    const { user } = authCheck;
+    const role = user.role;
+    const idAnggota = user.idAnggota;
+
+    try {
         const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
         const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
 
@@ -101,29 +127,30 @@ export async function getHPDTOverview(month: number, year: number) {
         const daysInMonth = new Date(year, month, 0).getDate();
         const elapsedDays = isCurrentMonth ? Math.min(now.getDate(), daysInMonth) : daysInMonth;
 
-        // Scoping per role:
-        // ANGGOTAKTB: hanya dirinya sendiri
-        // KOORKTB: dirinya sendiri dan anggota seksi KTB
-        // BENDAHARA: dirinya sendiri dan Seksi Doa & Pemerhati
-        // SEKRETARIS: dirinya sendiri dan Seksi Acara
-        // KETUA / ADMIN: seluruh badan pengurus
+        // Scoping ketat per role (Fail-closed)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let bpWhere: any = { status: true };
-        if (role === "ANGGOTAKTB" && idAnggota) {
+        let bpWhere: any = null;
+
+        if (role === Role.ADMIN || role === Role.KETUA) {
+            bpWhere = { status: true };
+        } else if ((role === Role.ANGGOTAKTB || role === Role.ANGGOTAACARA || role === Role.ANGGOTADOA) && idAnggota) {
             bpWhere = { idAnggota, status: true };
-        } else if (role === "ANGGOTAACARA" && idAnggota) {
-            bpWhere = { idAnggota, status: true };
-        } else if (role === "KOORACARA") {
+        } else if (role === Role.KOORACARA) {
             bpWhere = {
                 status: true,
                 jabatan: { in: ["KOORDINATOR_ACARA", "ANGGOTA_ACARA"] },
             };
-        } else if (role === "KOORKTB") {
+        } else if (role === Role.KOORKTB) {
             bpWhere = {
                 status: true,
                 jabatan: { in: ["KOORDINATOR_KTB", "ANGGOTA_KTB"] },
             };
-        } else if (role === "BENDAHARA" && idAnggota) {
+        } else if (role === Role.KOORDOA) {
+            bpWhere = {
+                status: true,
+                jabatan: { in: ["KOORDINATOR_DOA_DAN_PEMERHATI", "ANGGOTA_DOA_DAN_PEMERHATI"] },
+            };
+        } else if (role === Role.BENDAHARA && idAnggota) {
             bpWhere = {
                 status: true,
                 OR: [
@@ -131,7 +158,7 @@ export async function getHPDTOverview(month: number, year: number) {
                     { jabatan: { in: ["KOORDINATOR_DOA_DAN_PEMERHATI", "ANGGOTA_DOA_DAN_PEMERHATI"] } },
                 ],
             };
-        } else if (role === "SEKRETARIS" && idAnggota) {
+        } else if (role === Role.SEKRETARIS && idAnggota) {
             bpWhere = {
                 status: true,
                 OR: [
@@ -139,12 +166,23 @@ export async function getHPDTOverview(month: number, year: number) {
                     { jabatan: { in: ["KOORDINATOR_ACARA", "ANGGOTA_ACARA"] } },
                 ],
             };
-        } else if (role === "ANGGOTADOA" && idAnggota) {
-            bpWhere = { idAnggota, status: true };
-        } else if (role === "KOORDOA") {
-            bpWhere = {
-                status: true,
-                jabatan: { in: ["KOORDINATOR_DOA_DAN_PEMERHATI", "ANGGOTA_DOA_DAN_PEMERHATI"] },
+        }
+
+        // Jika role tidak berhak atau idAnggota belum terhubung, tolak akses (Fail-closed)
+        if (!bpWhere) {
+            return {
+                success: false,
+                message: "Akses ditolak atau profil Anda belum terhubung dengan data kepengurusan.",
+                data: {
+                    month,
+                    year,
+                    elapsedDays: 0,
+                    daysInMonth: 0,
+                    avgSatePercentage: 0,
+                    avgDoaPercentage: 0,
+                    totalPengurus: 0,
+                    pengurusStats: [],
+                },
             };
         }
 
@@ -235,15 +273,21 @@ export async function getHPDTLogs(params?: {
     endDate?: string;
     idPengurus?: string;
 }) {
-    try {
-        const session = await auth();
-        const role = session?.user?.role;
-        const idAnggota = session?.user?.idAnggota;
+    const authCheck = await requireAuth();
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message, data: [] };
+    }
 
+    const { user } = authCheck;
+    const role = user.role;
+    const idAnggota = user.idAnggota;
+
+    try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const whereClause: any = {};
 
-        if ((role === "ANGGOTAKTB" || role === "ANGGOTAACARA" || role === "ANGGOTADOA") && idAnggota) {
+        if ((role === Role.ANGGOTAKTB || role === Role.ANGGOTAACARA || role === Role.ANGGOTADOA)) {
+            if (!idAnggota) return { success: true, data: [] };
             const myBp = await db.badanPengurus.findFirst({
                 where: { idAnggota, status: true },
                 select: { id: true },
@@ -253,7 +297,7 @@ export async function getHPDTLogs(params?: {
             } else {
                 return { success: true, data: [] };
             }
-        } else if (role === "KOORDOA") {
+        } else if (role === Role.KOORDOA) {
             const teamBps = await db.badanPengurus.findMany({
                 where: {
                     status: true,
@@ -267,7 +311,7 @@ export async function getHPDTLogs(params?: {
             } else {
                 whereClause.idPengurus = { in: teamIds };
             }
-        } else if (role === "KOORACARA") {
+        } else if (role === Role.KOORACARA) {
             const teamBps = await db.badanPengurus.findMany({
                 where: {
                     status: true,
@@ -281,7 +325,7 @@ export async function getHPDTLogs(params?: {
             } else {
                 whereClause.idPengurus = { in: teamIds };
             }
-        } else if (role === "KOORKTB") {
+        } else if (role === Role.KOORKTB) {
             const teamBps = await db.badanPengurus.findMany({
                 where: {
                     status: true,
@@ -295,7 +339,8 @@ export async function getHPDTLogs(params?: {
             } else {
                 whereClause.idPengurus = { in: teamIds };
             }
-        } else if (role === "BENDAHARA" && idAnggota) {
+        } else if (role === Role.BENDAHARA) {
+            if (!idAnggota) return { success: true, data: [] };
             const teamBps = await db.badanPengurus.findMany({
                 where: {
                     status: true,
@@ -312,7 +357,8 @@ export async function getHPDTLogs(params?: {
             } else {
                 whereClause.idPengurus = { in: teamIds };
             }
-        } else if (role === "SEKRETARIS" && idAnggota) {
+        } else if (role === Role.SEKRETARIS) {
+            if (!idAnggota) return { success: true, data: [] };
             const teamBps = await db.badanPengurus.findMany({
                 where: {
                     status: true,
@@ -329,10 +375,12 @@ export async function getHPDTLogs(params?: {
             } else {
                 whereClause.idPengurus = { in: teamIds };
             }
-        } else {
+        } else if (role === Role.ADMIN || role === Role.KETUA) {
             if (params?.idPengurus && params.idPengurus !== "all") {
                 whereClause.idPengurus = params.idPengurus;
             }
+        } else {
+            return { success: false, message: "Akses ditolak.", data: [] };
         }
 
         if (params?.startDate || params?.endDate) {
@@ -370,18 +418,28 @@ export async function getHPDTLogs(params?: {
         return { success: true, data };
     } catch (error) {
         console.error("Error getting HPDT logs:", error);
-        return { success: false, message: "Gagal mengambil log HPDT" };
+        return { success: false, message: "Gagal mengambil log HPDT", data: [] };
     }
 }
 
 export async function getHPDTDetailByPengurus(idPengurus: string, month: number, year: number) {
-    try {
-        const session = await auth();
-        const role = session?.user?.role;
-        const idAnggota = session?.user?.idAnggota;
+    const authCheck = await requireAuth();
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
+    }
 
-        // Validasi akses detail jurnal
-        if ((role === "ANGGOTAKTB" || role === "ANGGOTAACARA" || role === "ANGGOTADOA") && idAnggota) {
+    const { user } = authCheck;
+    const role = user.role;
+    const idAnggota = user.idAnggota;
+
+    try {
+        // Validasi akses detail jurnal (Fail-closed)
+        if (role === Role.ADMIN || role === Role.KETUA) {
+            // Admin & Ketua memiliki akses menyeluruh untuk monitoring
+        } else if (role === Role.ANGGOTAKTB || role === Role.ANGGOTAACARA || role === Role.ANGGOTADOA) {
+            if (!idAnggota) {
+                return { success: false, message: "Akses ditolak. Profil Anda belum terhubung." };
+            }
             const myBp = await db.badanPengurus.findFirst({
                 where: { idAnggota, status: true },
                 select: { id: true },
@@ -389,7 +447,7 @@ export async function getHPDTDetailByPengurus(idPengurus: string, month: number,
             if (!myBp || myBp.id !== idPengurus) {
                 return { success: false, message: "Akses ditolak. Anda hanya dapat melihat jurnal HPDT Anda sendiri." };
             }
-        } else if (role === "KOORDOA") {
+        } else if (role === Role.KOORDOA) {
             const targetBp = await db.badanPengurus.findUnique({
                 where: { id: idPengurus },
                 select: { jabatan: true },
@@ -397,7 +455,7 @@ export async function getHPDTDetailByPengurus(idPengurus: string, month: number,
             if (!targetBp || (targetBp.jabatan !== "KOORDINATOR_DOA_DAN_PEMERHATI" && targetBp.jabatan !== "ANGGOTA_DOA_DAN_PEMERHATI")) {
                 return { success: false, message: "Akses ditolak. Koordinator Doa hanya dapat memantau jurnal seksi Doa & Pemerhati." };
             }
-        } else if (role === "KOORACARA") {
+        } else if (role === Role.KOORACARA) {
             const targetBp = await db.badanPengurus.findUnique({
                 where: { id: idPengurus },
                 select: { jabatan: true },
@@ -405,7 +463,7 @@ export async function getHPDTDetailByPengurus(idPengurus: string, month: number,
             if (!targetBp || (targetBp.jabatan !== "KOORDINATOR_ACARA" && targetBp.jabatan !== "ANGGOTA_ACARA")) {
                 return { success: false, message: "Akses ditolak. Koordinator Acara hanya dapat memantau jurnal seksi Acara." };
             }
-        } else if (role === "KOORKTB") {
+        } else if (role === Role.KOORKTB) {
             const targetBp = await db.badanPengurus.findUnique({
                 where: { id: idPengurus },
                 select: { jabatan: true },
@@ -413,7 +471,10 @@ export async function getHPDTDetailByPengurus(idPengurus: string, month: number,
             if (!targetBp || (targetBp.jabatan !== "KOORDINATOR_KTB" && targetBp.jabatan !== "ANGGOTA_KTB")) {
                 return { success: false, message: "Akses ditolak. Koordinator KTB hanya dapat memantau jurnal seksi KTB." };
             }
-        } else if (role === "BENDAHARA" && idAnggota) {
+        } else if (role === Role.BENDAHARA) {
+            if (!idAnggota) {
+                return { success: false, message: "Akses ditolak. Profil Anda belum terhubung." };
+            }
             const myBp = await db.badanPengurus.findFirst({
                 where: { idAnggota, status: true },
                 select: { id: true },
@@ -427,7 +488,10 @@ export async function getHPDTDetailByPengurus(idPengurus: string, month: number,
             if (!isOwn && !isSeksiDoa) {
                 return { success: false, message: "Akses ditolak. Bendahara hanya dapat memantau jurnal sendiri dan Seksi Doa & Pemerhati." };
             }
-        } else if (role === "SEKRETARIS" && idAnggota) {
+        } else if (role === Role.SEKRETARIS) {
+            if (!idAnggota) {
+                return { success: false, message: "Akses ditolak. Profil Anda belum terhubung." };
+            }
             const myBp = await db.badanPengurus.findFirst({
                 where: { idAnggota, status: true },
                 select: { id: true },
@@ -441,6 +505,8 @@ export async function getHPDTDetailByPengurus(idPengurus: string, month: number,
             if (!isOwn && !isSeksiAcara) {
                 return { success: false, message: "Akses ditolak. Sekretaris hanya dapat memantau jurnal sendiri dan Seksi Acara." };
             }
+        } else {
+            return { success: false, message: "Akses ditolak." };
         }
 
         const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
@@ -474,6 +540,15 @@ export async function getHPDTDetailByPengurus(idPengurus: string, month: number,
 }
 
 export async function getHPDT(id: string) {
+    const authCheck = await requireAuth();
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
+    }
+
+    const { user } = authCheck;
+    const role = user.role;
+    const idAnggota = user.idAnggota;
+
     try {
         const data = await db.hpdt.findUnique({
             where: { id },
@@ -487,6 +562,23 @@ export async function getHPDT(id: string) {
                 },
             },
         });
+
+        if (!data) return { success: false, message: "Data HPDT tidak ditemukan" };
+
+        // Jika bukan ADMIN / KETUA, pastikan hanya boleh melihat data milik sendiri
+        if (role !== Role.ADMIN && role !== Role.KETUA) {
+            if (!idAnggota) {
+                return { success: false, message: "Akses ditolak: Profil belum terhubung." };
+            }
+            const myBp = await db.badanPengurus.findFirst({
+                where: { idAnggota, status: true },
+                select: { id: true },
+            });
+            if (!myBp || data.idPengurus !== myBp.id) {
+                return { success: false, message: "Akses ditolak: Anda hanya dapat mengakses catatan HPDT milik Anda sendiri." };
+            }
+        }
+
         return { success: true, data };
     } catch (error) {
         console.error("Error fetching HPDT by id:", error);
@@ -495,9 +587,14 @@ export async function getHPDT(id: string) {
 }
 
 export async function createHPDT(values: HpdtFormValues) {
-    const session = await auth();
-    const role = session?.user?.role;
-    const idAnggota = session?.user?.idAnggota;
+    const authCheck = await requireAuth();
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
+    }
+
+    const { user } = authCheck;
+    const role = user.role;
+    const idAnggota = user.idAnggota;
 
     const validated = HpdtInputSchema.safeParse(values);
     if (!validated.success) {
@@ -507,8 +604,11 @@ export async function createHPDT(values: HpdtFormValues) {
     let { idPengurus } = validated.data;
     const { tanggal, isSate, isDoa, isAttendedKTB, isGereja, ayatAlkitab, judulBuku } = validated.data;
 
-    // Untuk seluruh role non-ADMIN (KETUA, BENDAHARA, SEKRETARIS, KOORKTB, ANGGOTAKTB), paksa idPengurus adalah ID pengurus pengguna itu sendiri
-    if (role !== "ADMIN" && idAnggota) {
+    // Fail-Closed: Untuk seluruh role non-ADMIN, paksa idPengurus adalah ID pengurus pengguna itu sendiri
+    if (role !== Role.ADMIN) {
+        if (!idAnggota) {
+            return { success: false, message: "Akses ditolak: Akun Anda tidak terhubung dengan data Anggota/Pengurus." };
+        }
         const myBp = await db.badanPengurus.findFirst({
             where: { idAnggota, status: true },
             select: { id: true },
@@ -568,9 +668,14 @@ export async function createHPDT(values: HpdtFormValues) {
 }
 
 export async function updateHPDT(id: string, values: HpdtFormValues) {
-    const session = await auth();
-    const role = session?.user?.role;
-    const idAnggota = session?.user?.idAnggota;
+    const authCheck = await requireAuth();
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
+    }
+
+    const { user } = authCheck;
+    const role = user.role;
+    const idAnggota = user.idAnggota;
 
     const validated = HpdtInputSchema.safeParse(values);
     if (!validated.success) {
@@ -580,8 +685,11 @@ export async function updateHPDT(id: string, values: HpdtFormValues) {
     let { idPengurus } = validated.data;
     const { tanggal, isSate, isDoa, isAttendedKTB, isGereja, ayatAlkitab, judulBuku } = validated.data;
 
-    // Cek kepemilikan untuk seluruh role non-ADMIN (hanya boleh mengedit milik sendiri)
-    if (role !== "ADMIN" && idAnggota) {
+    // Fail-Closed: Cek kepemilikan untuk seluruh role non-ADMIN (hanya boleh mengedit milik sendiri)
+    if (role !== Role.ADMIN) {
+        if (!idAnggota) {
+            return { success: false, message: "Akses ditolak: Akun Anda tidak terhubung dengan data Anggota/Pengurus." };
+        }
         const myBp = await db.badanPengurus.findFirst({
             where: { idAnggota, status: true },
             select: { id: true },
@@ -646,13 +754,21 @@ export async function updateHPDT(id: string, values: HpdtFormValues) {
 }
 
 export async function deleteHPDT(id: string) {
-    try {
-        const session = await auth();
-        const role = session?.user?.role;
-        const idAnggota = session?.user?.idAnggota;
+    const authCheck = await requireAuth();
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
+    }
 
-        // Cek kepemilikan untuk seluruh role non-ADMIN
-        if (role !== "ADMIN" && idAnggota) {
+    const { user } = authCheck;
+    const role = user.role;
+    const idAnggota = user.idAnggota;
+
+    try {
+        // Fail-Closed: Cek kepemilikan untuk seluruh role non-ADMIN
+        if (role !== Role.ADMIN) {
+            if (!idAnggota) {
+                return { success: false, message: "Akses ditolak: Akun Anda tidak terhubung dengan data Anggota/Pengurus." };
+            }
             const myBp = await db.badanPengurus.findFirst({
                 where: { idAnggota, status: true },
                 select: { id: true },

@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useState } from "react";
 import { Loader2, Send } from "lucide-react";
+import { toast } from "sonner";
+import { submitContactMessage } from "@/actions/landing";
 
 const formSchema = z.object({
     name: z.string().min(2, { message: "Nama harus diisi minimal 2 karakter." }),
@@ -30,13 +32,21 @@ export function ContactForm() {
 
     const onSubmit = async (data: FormData) => {
         setIsSubmitting(true);
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        console.log(data);
-        setIsSubmitting(false);
-        setIsSuccess(true);
-        reset();
-        setTimeout(() => setIsSuccess(false), 3000);
+        try {
+            const res = await submitContactMessage(data);
+            if (res.success) {
+                toast.success(res.message);
+                setIsSuccess(true);
+                reset();
+                setTimeout(() => setIsSuccess(false), 4000);
+            } else {
+                toast.error(res.message);
+            }
+        } catch {
+            toast.error("Gagal mengirim pesan. Silakan coba lagi.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
