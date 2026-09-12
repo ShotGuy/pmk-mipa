@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -33,7 +34,7 @@ export function Navbar() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out",
         isScrolled
-          ? "bg-[#f5f3eb] border-b-2 border-foreground py-3 shadow-[0_4px_0_0_rgba(0,0,0,0.85)]"
+          ? "bg-[#f5f3eb] dark:bg-[#1a1816] border-b-2 border-foreground py-3 shadow-[0_4px_0_0_rgba(0,0,0,0.85)] dark:shadow-[0_4px_0_0_rgba(245,243,235,0.35)]"
           : "bg-transparent py-6"
       )}
     >
@@ -56,7 +57,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-10">
+        <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <Link
               key={link.name}
@@ -67,15 +68,17 @@ export function Navbar() {
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-foreground transition-all duration-300 group-hover:w-full"></span>
             </Link>
           ))}
+          <ThemeToggle />
           <Link href="/login">
-            <Button className="bg-primary text-foreground border-2 border-foreground rounded-full px-8 py-2 font-serif font-bold text-lg hover:bg-primary/80 transition-all duration-200 retro-shadow hover:translate-y-1 hover:shadow-none">
+            <Button className="bg-primary text-zinc-900 border-2 border-foreground rounded-full px-8 py-2 font-serif font-bold text-lg hover:bg-primary/80 transition-all duration-200 retro-shadow hover:translate-y-1 hover:shadow-none cursor-pointer">
               Login
             </Button>
           </Link>
         </nav>
 
         {/* Mobile Toggle */}
-        <div className="md:hidden flex items-center z-50">
+        <div className="md:hidden flex items-center gap-3 z-50">
+          <ThemeToggle />
           <button
             className="text-foreground p-2 hover:bg-foreground/10 rounded-full transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -93,7 +96,7 @@ export function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="fixed inset-0 bg-[#f5f3eb] z-40 flex flex-col items-center justify-center gap-8 md:hidden border-b-4 border-foreground"
+              className="fixed inset-0 bg-[#f5f3eb] dark:bg-[#1a1816] z-40 flex flex-col items-center justify-center gap-8 md:hidden border-b-4 border-foreground"
             >
               <nav className="flex flex-col items-center gap-8">
                 {navLinks.map((link, index) => (
@@ -117,9 +120,14 @@ export function Navbar() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.4 }}
                 >
-                  <Button size="lg" className="bg-primary text-foreground border-2 border-foreground rounded-full px-10 py-6 font-serif font-bold text-xl retro-shadow hover:translate-y-1 hover:shadow-none transition-all duration-200 mt-4">
-                    Login Sistem
-                  </Button>
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Button size="lg" className="bg-primary text-zinc-900 border-2 border-foreground rounded-full px-10 py-6 font-serif font-bold text-xl retro-shadow hover:translate-y-1 hover:shadow-none transition-all duration-200 mt-4 cursor-pointer">
+                      Login Sistem
+                    </Button>
+                  </Link>
                 </motion.div>
               </nav>
             </motion.div>

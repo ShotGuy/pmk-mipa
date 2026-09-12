@@ -168,27 +168,27 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-muted/20 py-8 px-4 sm:px-6">
+        <div className="min-h-screen bg-background py-8 px-4 sm:px-6">
             <div className="max-w-xl mx-auto space-y-6">
                 {/* Header Identitas Kegiatan */}
                 <div className="text-center space-y-3">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 text-primary mb-1 shadow-sm">
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white dark:bg-[#25211f] border-2 border-foreground text-primary mb-1 retro-shadow-sm">
                         <Church className="w-8 h-8" />
                     </div>
                     <div>
-                        <Badge variant="outline" className="mb-2 font-medium px-3 py-1 bg-background shadow-xs">
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white dark:bg-[#191715] border-2 border-foreground text-foreground text-xs font-serif font-bold tracking-[0.2em] uppercase retro-shadow-sm mb-3">
                             {kegiatan.jenisKegiatan.nama}
-                        </Badge>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                        </div>
+                        <h1 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-foreground">
                             {kegiatan.nama}
                         </h1>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-sm text-muted-foreground font-serif mt-1">
                             PMK MIPA FST Universitas Nusa Cendana
                         </p>
                     </div>
 
                     {/* Quick Info Bar */}
-                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm text-muted-foreground pt-1">
+                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm text-foreground/80 font-serif pt-1">
                         <div className="flex items-center gap-1.5">
                             <Calendar className="w-4 h-4 text-primary" />
                             <span>{tanggalFormatted}</span>
@@ -216,48 +216,48 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
 
                 {/* Kondisi 1: Presensi Sedang Ditutup */}
                 {!kegiatan.isPresensiOpen ? (
-                    <Card className="border-destructive/30 bg-destructive/5 text-center shadow-md">
+                    <Card className="border-4 border-foreground bg-white dark:bg-[#25211f] text-center retro-shadow">
                         <CardHeader className="pb-4">
-                            <div className="w-12 h-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mx-auto mb-2">
+                            <div className="w-12 h-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mx-auto mb-2 border border-destructive/30">
                                 <Lock className="w-6 h-6" />
                             </div>
-                            <CardTitle className="text-lg sm:text-xl text-destructive">
+                            <CardTitle className="text-lg sm:text-xl font-serif font-bold text-destructive">
                                 Presensi Sedang Ditutup
                             </CardTitle>
-                            <CardDescription className="text-foreground/70 max-w-sm mx-auto">
+                            <CardDescription className="text-foreground/80 font-serif max-w-sm mx-auto">
                                 Presensi untuk kegiatan ini belum diaktifkan atau telah ditutup oleh panitia / Badan Pengurus.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="text-xs text-muted-foreground pb-6">
+                        <CardContent className="text-xs text-muted-foreground font-serif pb-6">
                             Jika Anda hadir pada kegiatan ini dan membutuhkan bantuan presensi, silakan hubungi pengurus atau panitia penerima tamu di lokasi.
                         </CardContent>
                     </Card>
                 ) : successData ? (
                     /* Kondisi 2: Sukses Mengisi Presensi */
-                    <Card className="border-emerald-500/30 bg-card text-center shadow-lg animate-in fade-in zoom-in-95 duration-300">
+                    <Card className="border-4 border-foreground bg-white dark:bg-[#25211f] text-center retro-shadow animate-in fade-in zoom-in-95 duration-300">
                         <CardHeader className="pt-8 pb-4">
-                            <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-inner">
+                            <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-3 border-2 border-emerald-500/30">
                                 <CheckCircle2 className="w-9 h-9 animate-in spin-in-90 duration-300" />
                             </div>
-                            <Badge className="w-fit mx-auto bg-emerald-600 hover:bg-emerald-600 text-white font-medium">
+                            <Badge className="w-fit mx-auto bg-emerald-600 hover:bg-emerald-600 text-white font-serif font-bold uppercase tracking-wider">
                                 Presensi Berhasil
                             </Badge>
-                            <CardTitle className="text-2xl font-bold mt-2">
+                            <CardTitle className="text-2xl font-serif font-bold mt-2 text-foreground">
                                 {successData.nama}
                             </CardTitle>
-                            <CardDescription className="text-foreground/80 max-w-sm mx-auto mt-1">
+                            <CardDescription className="text-foreground/80 font-serif max-w-sm mx-auto mt-1">
                                 {successData.message}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4 pb-8">
-                            <div className="p-4 rounded-xl bg-muted/40 border text-xs sm:text-sm text-muted-foreground flex items-center justify-center gap-2">
+                            <div className="p-4 bg-[#f5f3eb] dark:bg-[#191715] border-2 border-foreground text-xs sm:text-sm text-foreground flex items-center justify-center gap-2 font-serif">
                                 <HeartHandshake className="w-4 h-4 text-primary shrink-0" />
                                 <span>Selamat beribadah bersama kami. Kiranya Tuhan Yesus memberkati!</span>
                             </div>
 
                             <Button
                                 variant="outline"
-                                className="w-full h-11"
+                                className="w-full h-11 border-2 border-foreground bg-white dark:bg-[#191715] font-serif font-bold text-foreground hover:bg-primary dark:hover:text-zinc-900 retro-shadow-sm transition-all"
                                 onClick={handleReset}
                             >
                                 Isi Presensi Lainnya
@@ -266,10 +266,10 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                     </Card>
                 ) : (
                     /* Kondisi 3: Presensi Terbuka & Form Aktif */
-                    <Card className="shadow-md border bg-card">
+                    <Card className="border-4 border-foreground bg-white dark:bg-[#25211f] retro-shadow">
                         <CardHeader className="pb-3 text-center">
-                            <CardTitle className="text-xl">Formulir Presensi Mandiri</CardTitle>
-                            <CardDescription>
+                            <CardTitle className="text-xl font-serif font-bold text-foreground">Formulir Presensi Mandiri</CardTitle>
+                            <CardDescription className="text-foreground/70 font-serif">
                                 Pilih kategori kehadiran Anda di bawah ini:
                             </CardDescription>
                         </CardHeader>
@@ -279,17 +279,17 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                 onValueChange={(v) => setActiveTab(v as "anggota" | "pengunjung")}
                                 className="w-full"
                             >
-                                <TabsList className="grid w-full grid-cols-2 h-12 p-1 bg-muted/70 rounded-xl">
+                                <TabsList className="grid w-full grid-cols-2 h-12 p-1 bg-stone-200 dark:bg-[#191715] border-2 border-foreground rounded-lg">
                                     <TabsTrigger
                                         value="anggota"
-                                        className="rounded-lg font-medium text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                                        className="rounded-md font-serif font-bold text-xs sm:text-sm gap-2 data-[state=active]:bg-primary data-[state=active]:text-zinc-900 transition-all"
                                     >
                                         <UserCheck className="w-4 h-4" />
                                         <span>Anggota PMK</span>
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="pengunjung"
-                                        className="rounded-lg font-medium text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                                        className="rounded-md font-serif font-bold text-xs sm:text-sm gap-2 data-[state=active]:bg-primary data-[state=active]:text-zinc-900 transition-all"
                                     >
                                         <Sparkles className="w-4 h-4" />
                                         <span>Pengunjung / Tamu</span>
@@ -300,7 +300,7 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                 <TabsContent value="anggota" className="pt-4 space-y-4">
                                     <form onSubmit={handleAnggotaSubmit} className="space-y-4">
                                         <div className="space-y-2">
-                                            <Label className="text-sm font-medium">
+                                            <Label className="text-xs font-serif font-bold uppercase tracking-wider text-foreground">
                                                 Cari Nama Anda di Daftar Anggota *
                                             </Label>
                                             <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
@@ -310,8 +310,8 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                                         role="combobox"
                                                         aria-expanded={openCombobox}
                                                         className={cn(
-                                                            "w-full justify-between bg-card text-left font-normal h-12 text-sm",
-                                                            !selectedAnggotaId && "text-muted-foreground"
+                                                            "w-full justify-between bg-[#f5f3eb] dark:bg-[#191715] border-2 border-foreground text-left font-serif font-bold h-12 text-sm retro-shadow-sm",
+                                                            !selectedAnggotaId && "text-foreground/50"
                                                         )}
                                                         disabled={isSubmitting}
                                                     >
@@ -323,14 +323,14 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                                     </Button>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0 border-2 border-foreground" align="start">
                                                     <Command>
                                                         <CommandInput placeholder="Cari nama, prodi, atau angkatan..." />
                                                         <CommandList className="max-h-64">
                                                             <CommandEmpty>
                                                                 <div className="py-4 text-center space-y-1">
-                                                                    <p className="text-sm font-medium">Nama tidak ditemukan</p>
-                                                                    <p className="text-xs text-muted-foreground">
+                                                                    <p className="text-sm font-serif font-bold">Nama tidak ditemukan</p>
+                                                                    <p className="text-xs text-muted-foreground font-serif">
                                                                         Bukan anggota terdaftar? Silakan gunakan tab <strong>Pengunjung / Tamu</strong>.
                                                                     </p>
                                                                 </div>
@@ -347,14 +347,14 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                                                         className="flex items-center justify-between py-2.5"
                                                                     >
                                                                         <div className="flex flex-col">
-                                                                            <span className="font-medium text-sm">{a.nama}</span>
-                                                                            <span className="text-xs text-muted-foreground">
+                                                                            <span className="font-serif font-bold text-sm text-foreground">{a.nama}</span>
+                                                                            <span className="text-xs text-muted-foreground font-serif">
                                                                                 {a.prodi} {a.angkatan ? `• Angkatan ${a.angkatan}` : ""}
                                                                             </span>
                                                                         </div>
                                                                         <div className="flex items-center gap-1.5">
                                                                             {a.sudahHadir && (
-                                                                                <Badge variant="outline" className="text-[10px] text-emerald-600 bg-emerald-50 border-emerald-200">
+                                                                                <Badge variant="outline" className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800">
                                                                                     Sudah Hadir
                                                                                 </Badge>
                                                                             )}
@@ -372,9 +372,9 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                         </div>
 
                                         {selectedAnggota && (
-                                            <div className="p-3.5 rounded-xl bg-primary/5 border border-primary/20 space-y-1.5 animate-in fade-in-50 duration-200">
+                                            <div className="p-3.5 rounded-lg bg-[#f5f3eb] dark:bg-[#191715] border-2 border-foreground space-y-1.5 animate-in fade-in-50 duration-200">
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <div className="text-xs text-primary font-medium">Anggota Terpilih:</div>
+                                                    <div className="text-xs text-primary font-serif font-bold uppercase tracking-wider">Anggota Terpilih:</div>
                                                     <Badge
                                                         variant="outline"
                                                         className={cn(
@@ -387,12 +387,12 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                                         {selectedAnggota.isAKTB ? "AKTB (Anggota KTB)" : "APMK (Anggota PMK)"}
                                                     </Badge>
                                                 </div>
-                                                <div className="text-sm font-bold">{selectedAnggota.nama}</div>
-                                                <div className="text-xs text-muted-foreground">
+                                                <div className="text-sm font-serif font-bold text-foreground">{selectedAnggota.nama}</div>
+                                                <div className="text-xs text-muted-foreground font-serif">
                                                     Prodi {selectedAnggota.prodi} {selectedAnggota.angkatan ? `• Angkatan ${selectedAnggota.angkatan}` : ""}
                                                 </div>
                                                 {selectedAnggota.sudahHadir && (
-                                                    <div className="text-xs text-amber-600 font-medium pt-1">
+                                                    <div className="text-xs text-amber-600 dark:text-amber-400 font-serif font-bold pt-1">
                                                         ⚠️ Nama ini sudah tercatat hadir sebelumnya.
                                                     </div>
                                                 )}
@@ -401,7 +401,7 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
 
                                         <Button
                                             type="submit"
-                                            className="w-full h-12 text-sm sm:text-base font-semibold shadow-sm"
+                                            className="w-full h-12 text-sm sm:text-base font-serif font-bold uppercase tracking-wider bg-primary hover:bg-amber-400 text-zinc-900 border-2 border-foreground retro-shadow-sm hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50"
                                             disabled={isSubmitting || !selectedAnggotaId || selectedAnggota?.sudahHadir}
                                         >
                                             {isSubmitting ? "Menyimpan Kehadiran..." : "Saya Hadir"}
@@ -413,7 +413,7 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                 <TabsContent value="pengunjung" className="pt-4 space-y-4">
                                     <form onSubmit={handlePengunjungSubmit} className="space-y-4">
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="namaPengunjung" className="text-sm font-medium">
+                                            <Label htmlFor="namaPengunjung" className="text-xs font-serif font-bold uppercase tracking-wider text-foreground">
                                                 Nama Lengkap *
                                             </Label>
                                             <Input
@@ -421,7 +421,7 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                                 placeholder="Contoh: Jonathan Situmorang"
                                                 value={namaPengunjung}
                                                 onChange={(e) => setNamaPengunjung(e.target.value)}
-                                                className="h-11"
+                                                className="h-11 bg-[#f5f3eb] dark:bg-[#191715] border-2 border-foreground text-foreground font-serif font-bold placeholder:text-foreground/40 placeholder:font-normal retro-shadow-sm transition-all"
                                                 disabled={isSubmitting}
                                                 required
                                             />
@@ -429,16 +429,16 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
 
                                         {/* Jenis Kelamin */}
                                         <div className="space-y-1.5">
-                                            <Label className="text-sm font-medium">Jenis Kelamin *</Label>
+                                            <Label className="text-xs font-serif font-bold uppercase tracking-wider text-foreground">Jenis Kelamin *</Label>
                                             <div className="grid grid-cols-2 gap-3">
                                                 <button
                                                     type="button"
                                                     onClick={() => setJenisKelamin("L")}
                                                     className={cn(
-                                                        "h-11 rounded-lg border text-sm font-medium transition-all flex items-center justify-center gap-2",
+                                                        "h-11 rounded-lg border-2 text-sm font-serif font-bold transition-all flex items-center justify-center gap-2",
                                                         jenisKelamin === "L"
-                                                            ? "border-primary bg-primary/10 text-primary font-semibold shadow-xs"
-                                                            : "border-input bg-card text-muted-foreground hover:bg-muted"
+                                                            ? "border-foreground bg-primary text-zinc-900 retro-shadow-sm"
+                                                            : "border-foreground/30 bg-[#f5f3eb] dark:bg-[#191715] text-foreground/70 hover:bg-muted"
                                                     )}
                                                     disabled={isSubmitting}
                                                 >
@@ -448,10 +448,10 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                                     type="button"
                                                     onClick={() => setJenisKelamin("P")}
                                                     className={cn(
-                                                        "h-11 rounded-lg border text-sm font-medium transition-all flex items-center justify-center gap-2",
+                                                        "h-11 rounded-lg border-2 text-sm font-serif font-bold transition-all flex items-center justify-center gap-2",
                                                         jenisKelamin === "P"
-                                                            ? "border-primary bg-primary/10 text-primary font-semibold shadow-xs"
-                                                            : "border-input bg-card text-muted-foreground hover:bg-muted"
+                                                            ? "border-foreground bg-primary text-zinc-900 retro-shadow-sm"
+                                                            : "border-foreground/30 bg-[#f5f3eb] dark:bg-[#191715] text-foreground/70 hover:bg-muted"
                                                     )}
                                                     disabled={isSubmitting}
                                                 >
@@ -462,7 +462,7 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
 
                                         <div className="grid grid-cols-2 gap-3">
                                             <div className="space-y-1.5">
-                                                <Label htmlFor="prodiPengunjung" className="text-sm font-medium">
+                                                <Label htmlFor="prodiPengunjung" className="text-xs font-serif font-bold uppercase tracking-wider text-foreground">
                                                     Program Studi / Jurusan
                                                 </Label>
                                                 <Input
@@ -470,12 +470,12 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                                     placeholder="Contoh: Informatika"
                                                     value={prodiPengunjung}
                                                     onChange={(e) => setProdiPengunjung(e.target.value)}
-                                                    className="h-11"
+                                                    className="h-11 bg-[#f5f3eb] dark:bg-[#191715] border-2 border-foreground text-foreground font-serif font-bold placeholder:text-foreground/40 placeholder:font-normal retro-shadow-sm transition-all"
                                                     disabled={isSubmitting}
                                                 />
                                             </div>
                                             <div className="space-y-1.5">
-                                                <Label htmlFor="angkatanPengunjung" className="text-sm font-medium">
+                                                <Label htmlFor="angkatanPengunjung" className="text-xs font-serif font-bold uppercase tracking-wider text-foreground">
                                                     Angkatan
                                                 </Label>
                                                 <Input
@@ -484,14 +484,14 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                                     placeholder="Contoh: 2024"
                                                     value={angkatanPengunjung}
                                                     onChange={(e) => setAngkatanPengunjung(e.target.value)}
-                                                    className="h-11"
+                                                    className="h-11 bg-[#f5f3eb] dark:bg-[#191715] border-2 border-foreground text-foreground font-serif font-bold placeholder:text-foreground/40 placeholder:font-normal retro-shadow-sm transition-all"
                                                     disabled={isSubmitting}
                                                 />
                                             </div>
                                         </div>
 
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="noHpPengunjung" className="text-sm font-medium">
+                                            <Label htmlFor="noHpPengunjung" className="text-xs font-serif font-bold uppercase tracking-wider text-foreground">
                                                 No. WhatsApp (Disarankan)
                                             </Label>
                                             <Input
@@ -500,16 +500,16 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                                 placeholder="Contoh: 081234567890"
                                                 value={noHpPengunjung}
                                                 onChange={(e) => setNoHpPengunjung(e.target.value)}
-                                                className="h-11"
+                                                className="h-11 bg-[#f5f3eb] dark:bg-[#191715] border-2 border-foreground text-foreground font-serif font-bold placeholder:text-foreground/40 placeholder:font-normal retro-shadow-sm transition-all"
                                                 disabled={isSubmitting}
                                             />
-                                            <p className="text-[11px] text-muted-foreground">
+                                            <p className="text-[11px] text-muted-foreground font-serif">
                                                 Akan digunakan oleh Sie Doa & Pemerhati untuk menyapa dan membagikan informasi kegiatan.
                                             </p>
                                         </div>
 
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="tauPmk" className="text-sm font-medium">
+                                            <Label htmlFor="tauPmk" className="text-xs font-serif font-bold uppercase tracking-wider text-foreground">
                                                 Tau Info PMK MIPA Dari Mana?
                                             </Label>
                                             <Input
@@ -517,14 +517,14 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                                                 placeholder="Contoh: Diajak teman sekamar, Instagram PMK, dll."
                                                 value={tauPmkDariMana}
                                                 onChange={(e) => setTauPmkDariMana(e.target.value)}
-                                                className="h-11"
+                                                className="h-11 bg-[#f5f3eb] dark:bg-[#191715] border-2 border-foreground text-foreground font-serif font-bold placeholder:text-foreground/40 placeholder:font-normal retro-shadow-sm transition-all"
                                                 disabled={isSubmitting}
                                             />
                                         </div>
 
                                         <Button
                                             type="submit"
-                                            className="w-full h-12 text-sm sm:text-base font-semibold shadow-sm"
+                                            className="w-full h-12 text-sm sm:text-base font-serif font-bold uppercase tracking-wider bg-primary hover:bg-amber-400 text-zinc-900 border-2 border-foreground retro-shadow-sm hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50"
                                             disabled={isSubmitting || !namaPengunjung.trim()}
                                         >
                                             {isSubmitting ? "Menyimpan Kehadiran..." : "Kirim Presensi"}
@@ -537,7 +537,7 @@ export function PublicPresensiClient({ kegiatan, anggotaList }: PublicPresensiCl
                 )}
 
                 {/* Footer Note */}
-                <div className="text-center text-xs text-muted-foreground pt-4 pb-8">
+                <div className="text-center text-xs text-muted-foreground font-serif pt-4 pb-8">
                     &copy; {new Date().getFullYear()} Persekutuan Mahasiswa Kristen FST Universitas Nusa Cendana
                 </div>
             </div>

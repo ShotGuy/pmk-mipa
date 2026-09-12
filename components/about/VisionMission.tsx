@@ -61,7 +61,7 @@ export function VisionMission() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
-                        className="flex flex-col justify-between p-10 bg-white border-4 border-foreground retro-shadow-lg relative overflow-hidden"
+                        className="flex flex-col justify-between p-10 bg-white dark:bg-[#25211f] border-4 border-foreground retro-shadow-lg relative overflow-hidden"
                     >
                         <div className="space-y-6">
                             <div className="w-14 h-14 bg-primary border-2 border-foreground retro-shadow-sm flex items-center justify-center text-foreground">
@@ -94,10 +94,10 @@ export function VisionMission() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1, duration: 0.5 }}
-                        className="flex flex-col justify-between p-10 bg-[#f5f3eb] border-4 border-foreground retro-shadow-lg"
+                        className="flex flex-col justify-between p-10 bg-[#f5f3eb] dark:bg-[#25211f] border-4 border-foreground retro-shadow-lg"
                     >
                         <div className="space-y-6">
-                            <div className="w-14 h-14 bg-white border-2 border-foreground retro-shadow-sm flex items-center justify-center text-foreground">
+                            <div className="w-14 h-14 bg-white dark:bg-[#191715] border-2 border-foreground retro-shadow-sm flex items-center justify-center text-foreground">
                                 <Target className="w-7 h-7 text-primary" />
                             </div>
 
@@ -120,47 +120,6 @@ export function VisionMission() {
                             </ul>
                         </div>
                     </motion.div>
-                </div>
-
-                {/* Core Values Section */}
-                <div className="space-y-12">
-                    <div className="text-center max-w-2xl mx-auto space-y-4">
-                        <span className="text-xs uppercase font-serif font-bold tracking-[0.2em] text-primary">
-                            Pondasi Karakter
-                        </span>
-                        <h3 className="text-4xl md:text-5xl font-serif font-bold text-foreground">
-                            Nilai-Nilai Inti (Core Values)
-                        </h3>
-                        <p className="text-base text-foreground/80 font-serif font-bold">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {coreValues.map((val, idx) => {
-                            const Icon = val.icon;
-                            return (
-                                <motion.div
-                                    key={val.title}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: idx * 0.1, duration: 0.5 }}
-                                    className="p-8 bg-white border-2 border-foreground retro-shadow hover:-translate-y-2 hover:retro-shadow-lg transition-all duration-300"
-                                >
-                                    <div className="w-12 h-12 bg-primary border-2 border-foreground retro-shadow-sm flex items-center justify-center mb-6 text-foreground">
-                                        <Icon className="w-6 h-6" />
-                                    </div>
-                                    <h4 className="text-xl font-bold font-serif text-foreground mb-3 leading-tight">
-                                        {val.title}
-                                    </h4>
-                                    <p className="text-sm font-serif font-bold text-foreground/70 leading-relaxed uppercase tracking-wide">
-                                        {val.description}
-                                    </p>
-                                </motion.div>
-                            );
-                        })}
-                    </div>
                 </div>
             </div>
         </section>

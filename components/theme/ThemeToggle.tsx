@@ -30,7 +30,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
             <Button
                 variant="ghost"
                 size="icon"
-                className={cn("w-9 h-9 rounded-full text-muted-foreground", className)}
+                className={cn("w-10 h-10 rounded-full border-2 border-foreground bg-background text-muted-foreground", className)}
                 aria-label="Pilih tema tampilan"
             >
                 <Sun className="h-[1.15rem] w-[1.15rem]" />
@@ -45,7 +45,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
                     variant="ghost"
                     size="icon"
                     className={cn(
-                        "relative w-9 h-9 rounded-full border border-border/60 bg-background/50 hover:bg-accent hover:text-accent-foreground transition-colors",
+                        "relative w-10 h-10 rounded-full border-2 border-foreground bg-background hover:bg-primary/20 text-foreground transition-all duration-200 retro-shadow-sm hover:translate-y-0.5 hover:shadow-none cursor-pointer",
                         className
                     )}
                     aria-label="Pilih tema tampilan"
@@ -55,7 +55,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
                     <span className="sr-only">Toggle theme</span>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-[130px]">
+            <DropdownMenuContent align="end" className="min-w-[140px] border-2 border-foreground bg-popover text-popover-foreground retro-shadow-sm font-serif">
                 <DropdownMenuItem
                     onClick={() => setTheme("light")}
                     className="flex items-center justify-between cursor-pointer"

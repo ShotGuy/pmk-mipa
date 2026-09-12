@@ -4,7 +4,7 @@ import { Facebook, Instagram, Youtube, Mail, MapPin, Sparkles } from "lucide-rea
 
 export function Footer() {
     return (
-        <footer className="bg-[#f5f3eb] text-foreground pt-20 pb-10 border-t-4 border-foreground relative overflow-hidden">
+        <footer className="bg-[#f5f3eb] dark:bg-[#121110] text-foreground pt-20 pb-10 border-t-4 border-foreground relative overflow-hidden">
             {/* Retro decorative element */}
             <div className="absolute top-10 right-10 opacity-20 pointer-events-none">
                 <svg width="100" height="100" viewBox="0 0 100 100">
@@ -13,8 +13,8 @@ export function Footer() {
                 </svg>
             </div>
 
-            <div className="container mx-auto px-6 max-w-7xl relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-16 mb-16">
+            <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16 mb-16">
                     {/* Column 1: Info */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-4">
@@ -34,9 +34,8 @@ export function Footer() {
                                 <p className="text-sm text-foreground/80 font-bold tracking-widest uppercase mt-1">FST Undana</p>
                             </div>
                         </div>
-                        <p className="text-foreground/80 leading-relaxed max-w-sm text-lg font-serif">
+                        <p className="text-foreground/80 leading-relaxed max-w-sm text-base sm:text-lg font-serif">
                             Persekutuan Mahasiswa Kristen Fakultas Sains dan Teknik Universitas Nusa Cendana Kupang.
-                            Membangun komunitas yang bertumbuh dalam iman dan kasih Kristus.
                         </p>
                         <div className="flex items-start gap-4 text-foreground/90 mt-6 font-serif">
                             <MapPin className="w-6 h-6 mt-1 shrink-0 text-primary" strokeWidth={2} />
@@ -44,7 +43,7 @@ export function Footer() {
                                 href="https://www.google.com/maps/search/?api=1&query=-10.1577683,123.6639163"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="hover:text-primary transition-colors leading-relaxed text-lg font-bold"
+                                className="hover:text-primary transition-colors leading-relaxed text-base sm:text-lg font-bold"
                             >
                                 <span>
                                     Sekretariat PMK MIPA<br />
@@ -72,7 +71,7 @@ export function Footer() {
                                 <li key={link.name}>
                                     <Link
                                         href={link.href}
-                                        className="text-foreground/80 hover:text-primary transition-colors duration-300 text-xl font-serif font-bold flex items-center gap-3 group"
+                                        className="text-foreground/80 hover:text-primary transition-colors duration-300 text-lg sm:text-xl font-serif font-bold flex items-center gap-3 group"
                                     >
                                         <span className="w-2 h-2 bg-foreground group-hover:bg-primary transition-colors rotate-45"></span>
                                         <span className="border-b-2 border-transparent group-hover:border-primary transition-colors">{link.name}</span>
@@ -88,16 +87,16 @@ export function Footer() {
                             Hubungi Kami
                             <Sparkles className="w-5 h-5 text-primary" />
                         </h4>
-                        <div className="flex gap-4 mb-8">
+                        <div className="flex gap-4 mb-6">
                             {[
-                                { icon: Instagram, href: "#", label: "Instagram" },
-                                { icon: Youtube, href: "#", label: "Youtube" },
-                                { icon: Facebook, href: "#", label: "Facebook" },
+                                { icon: Instagram, href: "https://www.instagram.com/pmkmipa/", label: "Instagram" },
+                                { icon: Youtube, href: "https://www.youtube.com/channel/UCS4JWwI8dZegGyUPk2Rog_Q", label: "Youtube" },
+                                { icon: Facebook, href: "https://www.facebook.com/pmk.fstundana", label: "Facebook" },
                             ].map((Social, idx) => (
                                 <Link
                                     key={idx}
                                     href={Social.href}
-                                    className="w-12 h-12 bg-white border-2 border-foreground retro-shadow-sm flex items-center justify-center text-foreground hover:bg-primary hover:text-foreground transition-all duration-200 hover:translate-y-1 hover:shadow-none"
+                                    className="w-12 h-12 bg-white dark:bg-[#25211f] border-2 border-foreground retro-shadow-sm flex items-center justify-center text-foreground hover:bg-primary dark:hover:text-zinc-900 transition-all duration-200 hover:translate-y-1 hover:shadow-none"
                                     aria-label={Social.label}
                                 >
                                     <Social.icon size={24} strokeWidth={2} />
@@ -105,20 +104,17 @@ export function Footer() {
                             ))}
                         </div>
                         <a
-                            href="mailto:info@pmkmipa.id"
-                            className="inline-flex items-center gap-3 px-6 py-4 bg-white border-2 border-foreground retro-shadow text-foreground hover:bg-primary transition-all duration-200 hover:translate-y-1 hover:shadow-none group"
+                            href="mailto:pmkmipafstundana@gmail.com"
+                            className="inline-flex max-w-full items-center gap-2.5 sm:gap-3 px-3.5 sm:px-5 py-2.5 sm:py-3 bg-white dark:bg-[#25211f] border-2 border-foreground retro-shadow text-foreground hover:bg-primary dark:hover:text-zinc-900 transition-all duration-200 hover:translate-y-1 hover:shadow-none group"
                         >
-                            <Mail className="w-6 h-6 text-foreground" strokeWidth={2} />
-                            <span className="font-serif font-bold text-lg">info@pmkmipa.id</span>
+                            <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-foreground shrink-0" strokeWidth={2} />
+                            <span className="font-serif font-bold text-xs sm:text-sm md:text-base break-all sm:break-normal">pmkmipafstundana@gmail.com</span>
                         </a>
                     </div>
                 </div>
 
                 <div className="border-t-2 border-foreground pt-8 flex flex-col md:flex-row items-center justify-between gap-4 font-serif font-bold text-foreground/70">
                     <p>&copy; {new Date().getFullYear()} PMK MIPA. All rights reserved.</p>
-                    <p className="flex items-center gap-2">
-                        Didesain dengan <Sparkles className="w-4 h-4 text-primary" /> Kasih.
-                    </p>
                 </div>
             </div>
         </footer>

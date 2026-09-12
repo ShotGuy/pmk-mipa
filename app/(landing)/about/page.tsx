@@ -29,7 +29,6 @@ export default function AboutPage() {
             <VisionMission />
             <Timeline />
             <TeamGrid />
-            <AlumniNetwork />
             <CallToAction />
         </div>
     );
