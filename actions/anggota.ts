@@ -4,7 +4,30 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseIndonesianTTL } from "@/lib/date-parser";
-import { auth } from "@/auth";
+import { Role } from "@prisma/client";
+import { requireRole } from "@/lib/rbac";
+
+const ANGGOTA_READ_ROLES = [
+    Role.ADMIN,
+    Role.KETUA,
+    Role.SEKRETARIS,
+    Role.BENDAHARA,
+    Role.KOORDOA,
+    Role.ANGGOTADOA,
+    Role.KOORKTB,
+    Role.ANGGOTAKTB,
+    Role.KOORACARA,
+    Role.ANGGOTAACARA,
+];
+
+const ANGGOTA_MUTATION_ROLES = [
+    Role.ADMIN,
+    Role.SEKRETARIS,
+    Role.KOORDOA,
+    Role.ANGGOTADOA,
+    Role.KOORKTB,
+    Role.ANGGOTAKTB,
+];
 
 const AnggotaSchema = z.object({
     nama: z.string().min(1, "Nama wajib diisi"),
@@ -17,6 +40,11 @@ const AnggotaSchema = z.object({
 });
 
 export const getAnggota = async (id: string) => {
+    const authCheck = await requireRole(ANGGOTA_READ_ROLES);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
+    }
+
     try {
         const anggota = await db.anggota.findUnique({
             where: { id },
@@ -53,6 +81,11 @@ export const getAnggota = async (id: string) => {
 };
 
 export const getAllAnggota = async () => {
+    const authCheck = await requireRole(ANGGOTA_READ_ROLES);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message, data: [] };
+    }
+
     try {
         const anggota = await db.anggota.findMany({
             orderBy: { createdAt: "desc" },
@@ -74,11 +107,16 @@ export const getAllAnggota = async () => {
         });
         return { success: true, data: anggota };
     } catch {
-        return { success: false, message: "Gagal mengambil data anggota" };
+        return { success: false, message: "Gagal mengambil data anggota", data: [] };
     }
 };
 
 export const getKTBOptions = async () => {
+    const authCheck = await requireRole(ANGGOTA_READ_ROLES);
+    if (!authCheck.success) {
+        return [];
+    }
+
     try {
         const ktbList = await db.kTB.findMany({
             include: {
@@ -102,10 +140,9 @@ export const getKTBOptions = async () => {
 };
 
 export const createAnggota = async (values: z.infer<typeof AnggotaSchema>) => {
-    const session = await auth();
-    const role = session?.user?.role;
-    if (["KETUA", "BENDAHARA", "KOORACARA", "ANGGOTAACARA"].includes(role || "")) {
-        return { success: false, message: "Akses ditolak: role Anda hanya memiliki izin membaca (read-only) pada data anggota." };
+    const authCheck = await requireRole(ANGGOTA_MUTATION_ROLES);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
     }
 
     const validatedFields = AnggotaSchema.safeParse(values);
@@ -144,10 +181,9 @@ export const createAnggota = async (values: z.infer<typeof AnggotaSchema>) => {
 };
 
 export const updateAnggota = async (id: string, values: z.infer<typeof AnggotaSchema>) => {
-    const session = await auth();
-    const role = session?.user?.role;
-    if (["KETUA", "BENDAHARA", "KOORACARA", "ANGGOTAACARA"].includes(role || "")) {
-        return { success: false, message: "Akses ditolak: role Anda hanya memiliki izin membaca (read-only) pada data anggota." };
+    const authCheck = await requireRole(ANGGOTA_MUTATION_ROLES);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
     }
 
     const validatedFields = AnggotaSchema.safeParse(values);
@@ -223,10 +259,9 @@ export const updateAnggota = async (id: string, values: z.infer<typeof AnggotaSc
 };
 
 export const deleteAnggota = async (id: string) => {
-    const session = await auth();
-    const role = session?.user?.role;
-    if (["KETUA", "BENDAHARA", "KOORACARA", "ANGGOTAACARA"].includes(role || "")) {
-        return { success: false, message: "Akses ditolak: role Anda hanya memiliki izin membaca (read-only) pada data anggota." };
+    const authCheck = await requireRole(ANGGOTA_MUTATION_ROLES);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
     }
 
     try {
@@ -240,9 +275,12 @@ export const deleteAnggota = async (id: string) => {
         return { success: false, message: "Gagal menghapus anggota (Mungkin data terkait user/pengurus)" };
     }
 };
-// ... existing code ...
-
 export const getAnggotaFilterOptions = async () => {
+    const authCheck = await requireRole(ANGGOTA_READ_ROLES);
+    if (!authCheck.success) {
+        return { prodi: [] };
+    }
+
     try {
         // Fetch specific unique values for filters
         const prodiList = await db.anggota.findMany({
@@ -289,12 +327,22 @@ export async function importAnggotaBulk(
     options: ImportAnggotaOptions = { skipDuplicates: true }
 ): Promise<ImportAnggotaResult> {
     try {
-        const session = await auth();
-        const role = session?.user?.role;
-        if (["KETUA", "BENDAHARA", "KOORACARA", "ANGGOTAACARA"].includes(role || "")) {
+        const authCheck = await requireRole(ANGGOTA_MUTATION_ROLES);
+        if (!authCheck.success) {
             return {
                 success: false,
-                message: "Akses ditolak: role Anda hanya memiliki izin membaca (read-only) pada data anggota.",
+                message: authCheck.message,
+                totalProcessed: 0,
+                insertedCount: 0,
+                skippedCount: 0,
+                duplicateCount: 0,
+            };
+        }
+
+        if (rows.length > 1000) {
+            return {
+                success: false,
+                message: "Jumlah baris data melebihi batas maksimal (maksimal 1.000 baris per proses import).",
                 totalProcessed: 0,
                 insertedCount: 0,
                 skippedCount: 0,

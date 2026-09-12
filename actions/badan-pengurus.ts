@@ -3,8 +3,8 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { Jabatan } from "@prisma/client";
-import { auth } from "@/auth";
+import { Jabatan, Role } from "@prisma/client";
+import { requireRole } from "@/lib/rbac";
 
 const JABATAN_ENUM = [
     "KETUA",
@@ -29,7 +29,25 @@ const BadanPengurusSchema = z.object({
 
 export type BadanPengurusFormValues = z.infer<typeof BadanPengurusSchema>;
 
+const BP_READ_ROLES = [
+    Role.ADMIN,
+    Role.KETUA,
+    Role.SEKRETARIS,
+    Role.BENDAHARA,
+    Role.KOORDOA,
+    Role.ANGGOTADOA,
+    Role.KOORKTB,
+    Role.ANGGOTAKTB,
+    Role.KOORACARA,
+    Role.ANGGOTAACARA,
+];
+
 export async function getAnggotaOptionsForBP() {
+    const authCheck = await requireRole([Role.ADMIN, Role.KOORDOA, Role.ANGGOTADOA]);
+    if (!authCheck.success) {
+        return [];
+    }
+
     try {
         const anggotaList = await db.anggota.findMany({
             orderBy: { nama: "asc" },
@@ -53,6 +71,11 @@ export async function getAnggotaOptionsForBP() {
 }
 
 export async function getAllBadanPengurus() {
+    const authCheck = await requireRole(BP_READ_ROLES);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message, data: [] };
+    }
+
     try {
         const data = await db.badanPengurus.findMany({
             orderBy: { createdAt: "desc" },
@@ -61,20 +84,27 @@ export async function getAllBadanPengurus() {
                     select: {
                         id: true,
                         nama: true,
+                        angkatan: true,
                         prodi: true,
-                        angkatan: true
+                        noHp: true,
                     }
                 }
             }
         });
+
         return { success: true, data };
     } catch (error) {
         console.error("Error fetching all badan pengurus:", error);
-        return { success: false, message: "Gagal mengambil data badan pengurus" };
+        return { success: false, message: "Gagal memuat data badan pengurus", data: [] };
     }
 }
 
 export async function getBadanPengurus(id: string) {
+    const authCheck = await requireRole(BP_READ_ROLES);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
+    }
+
     try {
         const data = await db.badanPengurus.findUnique({
             where: { id },
@@ -83,23 +113,28 @@ export async function getBadanPengurus(id: string) {
                     select: {
                         id: true,
                         nama: true,
+                        angkatan: true,
                         prodi: true,
-                        angkatan: true
                     }
                 }
             }
         });
+
+        if (!data) {
+            return { success: false, message: "Data badan pengurus tidak ditemukan" };
+        }
+
         return { success: true, data };
     } catch (error) {
         console.error("Error fetching badan pengurus by id:", error);
-        return { success: false, message: "Gagal mengambil data badan pengurus" };
+        return { success: false, message: "Gagal memuat detail badan pengurus" };
     }
 }
 
 export async function createBadanPengurus(values: BadanPengurusFormValues) {
-    const session = await auth();
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." };
+    const authCheck = await requireRole([Role.ADMIN, Role.KOORDOA, Role.ANGGOTADOA]);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
     }
 
     const validatedFields = BadanPengurusSchema.safeParse(values);
@@ -133,9 +168,9 @@ export async function createBadanPengurus(values: BadanPengurusFormValues) {
 }
 
 export async function updateBadanPengurus(id: string, values: BadanPengurusFormValues) {
-    const session = await auth();
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." };
+    const authCheck = await requireRole([Role.ADMIN, Role.KOORDOA, Role.ANGGOTADOA]);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
     }
 
     const validatedFields = BadanPengurusSchema.safeParse(values);
@@ -170,9 +205,9 @@ export async function updateBadanPengurus(id: string, values: BadanPengurusFormV
 }
 
 export async function deleteBadanPengurus(id: string) {
-    const session = await auth();
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." };
+    const authCheck = await requireRole([Role.ADMIN, Role.KOORDOA, Role.ANGGOTADOA]);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
     }
 
     try {

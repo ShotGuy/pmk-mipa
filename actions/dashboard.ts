@@ -1,11 +1,11 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { StatusPengontrolan } from "@prisma/client"
+import { StatusPengontrolan, Role } from "@prisma/client"
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns"
 import { id as localeId } from "date-fns/locale"
-import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
+import { requireAuth, requireRole } from "@/lib/rbac"
 
 export interface DashboardSummaryData {
     greeting: string
@@ -97,6 +97,11 @@ export async function getDashboardSummary(): Promise<{
     data?: DashboardSummaryData
     message?: string
 }> {
+    const authCheck = await requireRole([Role.ADMIN])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
+
     try {
         const now = new Date()
         const startCurrentMonth = startOfMonth(now)
@@ -515,10 +520,15 @@ export async function getKTBDashboardData(): Promise<{
     data?: KTBDashboardData
     message?: string
 }> {
+    const authCheck = await requireRole([Role.ADMIN, Role.KOORKTB, Role.ANGGOTAKTB])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
+
     try {
-        const session = await auth()
-        const role = (session?.user?.role || "ANGGOTAKTB") as "KOORKTB" | "ANGGOTAKTB"
-        const idAnggota = session?.user?.idAnggota
+        const { user, session } = authCheck
+        const role = user.role as "KOORKTB" | "ANGGOTAKTB"
+        const idAnggota = user.idAnggota
 
         const now = new Date()
         const startCurrentMonth = startOfMonth(now)
@@ -752,11 +762,15 @@ export async function quickSaveTodayHPDT(formData: {
     ayatAlkitab?: string | null
     judulBuku?: string | null
 }) {
+    const authCheck = await requireAuth()
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
+
     try {
-        const session = await auth()
-        const idAnggota = session?.user?.idAnggota
+        const idAnggota = authCheck.user.idAnggota
         if (!idAnggota) {
-            return { success: false, message: "Sesi tidak valid" }
+            return { success: false, message: "Sesi tidak valid atau akun belum terhubung dengan data anggota." }
         }
 
         const bp = await db.badanPengurus.findFirst({
@@ -888,9 +902,14 @@ export async function getKetuaDashboardData(): Promise<{
     data?: KetuaDashboardData
     message?: string
 }> {
+    const authCheck = await requireRole([Role.ADMIN, Role.KETUA])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
+
     try {
-        const session = await auth()
-        const idAnggota = session?.user?.idAnggota
+        const { user, session } = authCheck
+        const idAnggota = user.idAnggota
 
         const now = new Date()
         const currentHour = now.getHours()
@@ -1244,9 +1263,14 @@ export async function getBendaharaDashboardData(): Promise<{
     data?: BendaharaDashboardData
     message?: string
 }> {
+    const authCheck = await requireRole([Role.ADMIN, Role.BENDAHARA])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
+
     try {
-        const session = await auth()
-        const idAnggota = session?.user?.idAnggota
+        const { user, session } = authCheck
+        const idAnggota = user.idAnggota
 
         const now = new Date()
         const currentHour = now.getHours()
@@ -1515,9 +1539,14 @@ export async function getSekretarisDashboardData(): Promise<{
     data?: SekretarisDashboardData
     message?: string
 }> {
+    const authCheck = await requireRole([Role.ADMIN, Role.SEKRETARIS])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
+
     try {
-        const session = await auth()
-        const idAnggota = session?.user?.idAnggota
+        const { user, session } = authCheck
+        const idAnggota = user.idAnggota
 
         const now = new Date()
         const currentHour = now.getHours()
@@ -1837,10 +1866,15 @@ export async function getAcaraDashboardData(): Promise<{
     data?: AcaraDashboardData
     message?: string
 }> {
+    const authCheck = await requireRole([Role.ADMIN, Role.KOORACARA, Role.ANGGOTAACARA])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
+
     try {
-        const session = await auth()
-        const idAnggota = session?.user?.idAnggota
-        const role = session?.user?.role
+        const { user, session } = authCheck
+        const idAnggota = user.idAnggota
+        const role = user.role
         const isKoordinator = role === "KOORACARA"
         const roleLabel = isKoordinator ? "Koordinator Seksi Acara" : "Anggota Seksi Acara"
 
@@ -2178,10 +2212,15 @@ export async function getDoaDashboardData(): Promise<{
     data?: DoaDashboardData
     message?: string
 }> {
+    const authCheck = await requireRole([Role.ADMIN, Role.KOORDOA, Role.ANGGOTADOA])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
+
     try {
-        const session = await auth()
-        const idAnggota = session?.user?.idAnggota
-        const role = session?.user?.role
+        const { user, session } = authCheck
+        const idAnggota = user.idAnggota
+        const role = user.role
         const isKoordinator = role === "KOORDOA"
         const roleLabel = isKoordinator ? "Koordinator Seksi Doa & Pemerhati" : "Anggota Seksi Doa & Pemerhati"
 
