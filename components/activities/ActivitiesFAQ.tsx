@@ -40,26 +40,26 @@ export function ActivitiesFAQ() {
     };
 
     return (
-        <section className="py-24 bg-secondary/5 relative overflow-hidden border-t border-border/50">
-            <div className="container mx-auto px-4 max-w-4xl space-y-16">
+        <section className="py-24 bg-[#f5f3eb] relative overflow-hidden border-y-2 border-foreground/10">
+            <div className="container mx-auto px-6 max-w-4xl space-y-16">
                 {/* Header */}
-                <div className="text-center max-w-2xl mx-auto space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent text-accent-foreground text-xs font-semibold tracking-wide uppercase border border-primary/20">
-                        <HelpCircle className="w-3.5 h-3.5 text-primary" />
+                <div className="text-center max-w-2xl mx-auto space-y-6">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-foreground text-foreground text-xs font-serif font-bold tracking-[0.2em] uppercase retro-shadow-sm">
+                        <HelpCircle className="w-4 h-4 text-primary" />
                         <span>Tanya Jawab Seputar Kegiatan</span>
                     </div>
 
-                    <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground">
-                        Pertanyaan yang <span className="text-primary">Sering Diajukan</span>
+                    <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground leading-tight">
+                        Pertanyaan yang <span className="text-primary italic">Sering Diajukan</span>
                     </h2>
 
-                    <p className="text-base text-muted-foreground leading-relaxed">
+                    <p className="text-lg text-foreground/80 font-serif font-bold max-w-xl mx-auto">
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                     </p>
                 </div>
 
                 {/* Accordion List */}
-                <div className="space-y-4">
+                <div className="space-y-6">
                     {faqs.map((faq, index) => {
                         const isOpen = openIndex === index;
                         return (
@@ -69,18 +69,20 @@ export function ActivitiesFAQ() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.05 }}
-                                className="rounded-2xl bg-card border border-border overflow-hidden shadow-sm transition-colors"
+                                className="bg-white border-4 border-foreground retro-shadow transition-all duration-300"
                             >
                                 <button
                                     onClick={() => toggleFAQ(index)}
-                                    className="w-full flex items-center justify-between p-6 text-left font-serif font-bold text-base md:text-lg text-foreground hover:text-primary transition-colors gap-4"
+                                    className="w-full flex items-center justify-between p-6 md:p-8 text-left font-serif font-bold text-lg md:text-xl text-foreground hover:bg-primary/5 transition-colors gap-6"
                                 >
                                     <span>{faq.question}</span>
-                                    <ChevronDown
-                                        className={`w-5 h-5 text-primary shrink-0 transition-transform duration-300 ${
-                                            isOpen ? "rotate-180" : ""
-                                        }`}
-                                    />
+                                    <div className={`w-10 h-10 shrink-0 border-2 border-foreground flex items-center justify-center transition-colors ${isOpen ? 'bg-primary text-foreground' : 'bg-white text-foreground'}`}>
+                                        <ChevronDown
+                                            className={`w-6 h-6 transition-transform duration-300 ${
+                                                isOpen ? "rotate-180" : ""
+                                            }`}
+                                        />
+                                    </div>
                                 </button>
 
                                 <AnimatePresence>
@@ -91,8 +93,10 @@ export function ActivitiesFAQ() {
                                             exit={{ height: 0, opacity: 0 }}
                                             transition={{ duration: 0.3 }}
                                         >
-                                            <div className="px-6 pb-6 pt-1 text-sm text-muted-foreground leading-relaxed border-t border-border/40">
-                                                {faq.answer}
+                                            <div className="px-6 md:px-8 pb-8 pt-2 text-base font-serif font-bold text-foreground/80 leading-relaxed border-t-2 border-dashed border-foreground/20 mx-6 md:mx-8">
+                                                <div className="pt-6">
+                                                    {faq.answer}
+                                                </div>
                                             </div>
                                         </motion.div>
                                     )}

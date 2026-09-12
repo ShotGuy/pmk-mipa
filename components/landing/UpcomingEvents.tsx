@@ -12,33 +12,33 @@ interface UpcomingEventsProps {
 
 export function UpcomingEvents({ events }: UpcomingEventsProps) {
     return (
-        <section className="py-24 bg-background relative overflow-hidden">
-            <div className="container mx-auto px-4">
+        <section className="py-32 bg-transparent relative overflow-hidden">
+            <div className="container mx-auto px-6 max-w-7xl">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 max-w-6xl mx-auto">
-                    <div className="space-y-3">
-                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent text-accent-foreground text-xs font-semibold tracking-wide uppercase border border-primary/20">
-                            <Calendar className="w-3.5 h-3.5 text-primary" />
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8 border-b-4 border-foreground pb-12">
+                    <div className="space-y-6 max-w-2xl">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-foreground text-foreground text-xs font-serif font-bold tracking-[0.2em] uppercase retro-shadow-sm">
+                            <Calendar className="w-4 h-4 text-primary" />
                             <span>Agenda & Ibadah</span>
                         </div>
-                        <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground">
-                            Kegiatan <span className="text-primary">Mendatang</span>
+                        <h2 className="text-5xl md:text-6xl font-serif font-bold text-foreground leading-tight">
+                            Kegiatan <span className="text-primary italic font-light">Mendatang</span>
                         </h2>
-                        <p className="text-muted-foreground max-w-xl text-base">
+                        <p className="text-foreground/80 text-lg font-serif max-w-xl">
                             Mari bergabung bersama kami dalam persekutuan doa, ibadah raya mingguan, dan acara kebersamaan lainnya.
                         </p>
                     </div>
 
                     <Link href="/activities">
-                        <Button variant="outline" className="rounded-full px-6 hover:border-primary shrink-0">
-                            Lihat Jadwal Lengkap
-                            <ArrowRight className="ml-2 w-4 h-4" />
+                        <Button className="bg-primary text-foreground border-2 border-foreground hover:bg-primary/80 text-lg px-8 py-7 rounded-full font-serif font-bold transition-all duration-200 retro-shadow hover:translate-y-1 hover:shadow-none group">
+                            Lihat Jadwal
+                            <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </Button>
                     </Link>
                 </div>
 
                 {/* Events Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {events.map((event, index) => {
                         const isFriday = event.type === "friday";
                         const isTuesday = event.type === "tuesday";
@@ -46,79 +46,82 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
                         return (
                             <motion.div
                                 key={event.id}
-                                initial={{ opacity: 0, y: 25 }}
+                                initial={{ opacity: 0, y: 30 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                transition={{ delay: index * 0.1, duration: 0.5 }}
-                                className={`relative flex flex-col justify-between rounded-2xl border bg-card p-7 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 ${
-                                    isFriday
-                                        ? "border-primary/40 hover:border-primary"
-                                        : isTuesday
-                                        ? "border-secondary/30 hover:border-secondary"
-                                        : "border-border hover:border-primary/50"
-                                }`}
+                                transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
+                                className="group flex flex-col justify-between bg-white border-4 border-foreground p-8 retro-shadow-lg transition-transform hover:-translate-y-2 hover:retro-shadow relative"
                             >
-                                <div className="space-y-5">
+                                {/* Decorative pin */}
+                                <div className="absolute -top-4 -right-4 w-8 h-8 bg-primary rounded-full border-2 border-foreground retro-shadow z-10 hidden md:block"></div>
+
+                                <div className="space-y-6">
                                     {/* Badge & Date */}
-                                    <div className="flex items-center justify-between gap-2">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <span
-                                            className={`inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${
+                                            className={`inline-flex items-center justify-center px-4 py-2 border-2 border-foreground text-xs font-serif font-bold uppercase tracking-wider retro-shadow-sm ${
                                                 isFriday
-                                                    ? "bg-primary text-primary-foreground"
+                                                    ? "bg-primary text-foreground"
                                                     : isTuesday
-                                                    ? "bg-secondary text-secondary-foreground"
-                                                    : "bg-accent text-accent-foreground border border-primary/20"
+                                                    ? "bg-[#f5f3eb] text-foreground"
+                                                    : "bg-white text-foreground"
                                             }`}
                                         >
                                             {event.badgeText}
                                         </span>
 
-                                        <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-                                            <Calendar className="w-3.5 h-3.5 text-primary" />
+                                        <span className="text-sm font-bold text-foreground/80 font-serif flex items-center gap-2">
+                                            <Calendar className="w-4 h-4 text-primary" strokeWidth={2.5} />
                                             {event.date}
                                         </span>
                                     </div>
 
                                     {/* Title */}
-                                    <h3 className="text-xl font-serif font-bold text-foreground hover:text-primary transition-colors line-clamp-2">
+                                    <h3 className="text-3xl font-serif font-bold text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-2">
                                         {event.title}
                                     </h3>
 
                                     {/* Details */}
-                                    <div className="space-y-2.5 text-sm text-muted-foreground pt-1">
-                                        <div className="flex items-center gap-2.5">
-                                            <Clock className="w-4 h-4 text-primary shrink-0" />
-                                            <span>{event.time}</span>
+                                    <div className="space-y-4 text-foreground/90 font-serif pt-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 border-2 border-foreground bg-[#f5f3eb] flex items-center justify-center shrink-0 retro-shadow-sm">
+                                                <Clock className="w-5 h-5 text-foreground" strokeWidth={2} />
+                                            </div>
+                                            <span className="font-bold">{event.time}</span>
                                         </div>
 
-                                        <div className="flex items-center gap-2.5">
-                                            <MapPin className="w-4 h-4 text-primary shrink-0" />
-                                            <span className="truncate">{event.location}</span>
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 border-2 border-foreground bg-[#f5f3eb] flex items-center justify-center shrink-0 retro-shadow-sm">
+                                                <MapPin className="w-5 h-5 text-foreground" strokeWidth={2} />
+                                            </div>
+                                            <span className="font-bold truncate">{event.location}</span>
                                         </div>
 
                                         {event.speaker && (
-                                            <div className="flex items-center gap-2.5">
-                                                <User className="w-4 h-4 text-primary shrink-0" />
-                                                <span className="truncate">{event.speaker}</span>
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 border-2 border-foreground bg-[#f5f3eb] flex items-center justify-center shrink-0 retro-shadow-sm">
+                                                    <User className="w-5 h-5 text-foreground" strokeWidth={2} />
+                                                </div>
+                                                <span className="font-bold truncate">{event.speaker}</span>
                                             </div>
                                         )}
                                     </div>
 
                                     {/* Description */}
-                                    <p className="text-sm text-muted-foreground/90 line-clamp-3 pt-2 border-t border-border/50">
+                                    <p className="text-foreground/70 leading-relaxed font-serif line-clamp-3 pt-6 border-t-2 border-foreground/10">
                                         {event.description}
                                     </p>
                                 </div>
 
                                 {/* Action */}
-                                <div className="pt-6 mt-6 border-t border-border/50 flex items-center justify-between">
-                                    <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                                <div className="pt-8 mt-8 border-t-2 border-foreground/10 flex items-center justify-between">
+                                    <span className="text-xs font-bold text-foreground flex items-center gap-2 bg-primary px-3 py-1.5 border-2 border-foreground retro-shadow-sm font-serif">
                                         <Sparkles className="w-3.5 h-3.5" />
-                                        Terbuka untuk Semua
+                                        Terbuka Umum
                                     </span>
-                                    <Link href="/activities" className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+                                    <Link href="/activities" className="text-sm font-serif font-bold text-foreground hover:text-primary flex items-center gap-2 group-hover:translate-x-1 transition-all">
                                         Detail
-                                        <ArrowRight className="w-3.5 h-3.5" />
+                                        <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
                                     </Link>
                                 </div>
                             </motion.div>

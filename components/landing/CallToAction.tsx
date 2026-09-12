@@ -2,39 +2,41 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { MessageCircle, Heart, ArrowRight } from "lucide-react";
+import { MessageCircle, Heart, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function CallToAction() {
     return (
-        <section className="py-24 relative overflow-hidden bg-background">
-            <div className="container mx-auto px-4 relative z-10 max-w-5xl">
+        <section className="py-32 relative overflow-hidden bg-transparent border-t-2 border-foreground/10">
+            <div className="container mx-auto px-6 relative z-10 max-w-5xl">
                 <motion.div
-                    initial={{ opacity: 0, y: 25 }}
+                    initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500/15 via-amber-400/5 to-background border-2 border-primary/30 p-8 sm:p-12 md:p-16 text-center shadow-xl"
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="relative bg-primary border-4 border-foreground p-10 sm:p-16 md:p-20 text-center retro-shadow-lg"
                 >
-                    {/* Decorative Ambient Light */}
-                    <div className="absolute top-0 right-0 w-80 h-80 bg-primary/20 rounded-full blur-3xl pointer-events-none -z-10" />
-                    <div className="absolute bottom-0 left-0 w-80 h-80 bg-primary/20 rounded-full blur-3xl pointer-events-none -z-10" />
+                    {/* Decorative Top Left Badge */}
+                    <div className="absolute -top-6 -left-6 z-20 bg-foreground text-[#f5f3eb] p-3 border-4 border-white retro-shadow rotate-[-10deg]">
+                        <Heart className="w-8 h-8 fill-primary stroke-none animate-pulse" />
+                    </div>
 
-                    <div className="max-w-2xl mx-auto space-y-6">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/20 text-foreground text-xs font-semibold uppercase tracking-wider">
-                            <Heart className="w-3.5 h-3.5 text-primary fill-primary" />
-                            <span>Pintu Kami Terbuka untuk Anda</span>
+                    <div className="max-w-3xl mx-auto space-y-8">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-foreground text-foreground text-xs font-serif font-bold uppercase tracking-[0.2em] retro-shadow-sm">
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            <span>Pintu Kami Terbuka</span>
                         </div>
 
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-foreground leading-tight">
-                            Rindu Memiliki Keluarga Rohani di Kampus?
+                        <h2 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-foreground leading-[1.1]">
+                            Rindu Memiliki <br className="hidden sm:block" />
+                            <span className="italic font-light">Keluarga Rohani</span> di Kampus?
                         </h2>
 
-                        <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                        <p className="text-lg md:text-xl text-foreground/90 font-serif font-bold leading-relaxed max-w-2xl mx-auto">
                             Apapun jurusanmu di Fakultas MIPA, mari bertumbuh bersama dalam iman, saling mendukung dalam perkuliahan, dan melayani dengan segenap hati.
                         </p>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8">
                             <a
                                 href="https://wa.me/6281234567890?text=Halo%20Pengurus%20PMK%20MIPA,%20saya%20ingin%20bergabung"
                                 target="_blank"
@@ -43,28 +45,31 @@ export function CallToAction() {
                             >
                                 <Button
                                     size="lg"
-                                    className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 text-base px-8 py-6 rounded-full font-semibold shadow-lg shadow-primary/25 hover:-translate-y-1 transition-all"
+                                    className="w-full sm:w-auto bg-foreground text-[#f5f3eb] hover:bg-foreground/90 text-lg px-10 py-7 border-2 border-foreground rounded-full font-serif font-bold retro-shadow hover:translate-y-1 hover:shadow-none transition-all duration-200"
                                 >
-                                    <MessageCircle className="mr-2 h-5 w-5" />
-                                    Gabung via WhatsApp
+                                    <MessageCircle className="mr-3 h-5 w-5" />
+                                    WhatsApp Kami
                                 </Button>
                             </a>
 
                             <Link href="/contact" className="w-full sm:w-auto">
                                 <Button
                                     size="lg"
-                                    variant="outline"
-                                    className="w-full sm:w-auto text-base px-8 py-6 rounded-full font-semibold hover:border-primary hover:-translate-y-1 transition-all"
+                                    className="w-full sm:w-auto bg-white text-foreground hover:bg-[#f5f3eb] text-lg px-10 py-7 border-2 border-foreground rounded-full font-serif font-bold retro-shadow hover:translate-y-1 hover:shadow-none transition-all duration-200 group"
                                 >
-                                    Kirim Pesan / Pokok Doa
-                                    <ArrowRight className="ml-2 h-5 w-5" />
+                                    Kirim Pesan
+                                    <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                                 </Button>
                             </Link>
                         </div>
 
-                        <p className="text-xs text-muted-foreground pt-4">
-                            Sekretariat PMK MIPA Undana • Buka setiap hari perkuliahan
-                        </p>
+                        <div className="pt-8 flex items-center justify-center gap-4">
+                            <div className="h-0.5 flex-1 bg-foreground/20 max-w-[100px]"></div>
+                            <p className="text-sm text-foreground/80 font-serif font-bold uppercase tracking-widest">
+                                Sekretariat PMK MIPA Undana
+                            </p>
+                            <div className="h-0.5 flex-1 bg-foreground/20 max-w-[100px]"></div>
+                        </div>
                     </div>
                 </motion.div>
             </div>
