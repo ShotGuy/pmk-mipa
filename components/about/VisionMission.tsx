@@ -1,46 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Compass, Target, CheckCircle2, ShieldCheck, Heart, Sparkles, BookOpen } from "lucide-react";
-
-const coreValues = [
-    {
-        icon: CrossIcon,
-        title: "Kristosentris",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt.",
-    },
-    {
-        icon: ShieldCheck,
-        title: "Integritas Sains",
-        description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.",
-    },
-    {
-        icon: Heart,
-        title: "Kasih Persaudaraan",
-        description: "Excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit.",
-    },
-    {
-        icon: Sparkles,
-        title: "Pelayanan Berdampak",
-        description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea.",
-    },
-];
-
-function CrossIcon(props: React.SVGProps<SVGSVGElement>) {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            {...props}
-        >
-            <path d="M12 2v20M7 8h10" />
-        </svg>
-    );
-}
+import { Compass, Target, CheckCircle2, BookOpen } from "lucide-react";
 
 const missionPoints = [
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt.",

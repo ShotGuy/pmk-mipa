@@ -74,9 +74,9 @@ export function Hero() {
                     >
                         {/* Decorative Badge */}
                         <div className="absolute -top-8 -left-8 z-20 bg-[#f5f3eb] dark:bg-[#25211f] rounded-full border-2 border-foreground retro-shadow w-28 h-28 flex items-center justify-center animate-[spin_10s_linear_infinite]">
-                            <svg viewBox="0 0 100 100" className="w-full h-full">
+                            <svg viewBox="0 0 100 100" className="w-full h-full text-foreground">
                                 <path id="curve" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="transparent" />
-                                <text className="text-[14px] font-bold font-sans uppercase tracking-widest fill-foreground">
+                                <text className="text-[14px] font-bold font-sans uppercase tracking-widest fill-current">
                                     <textPath href="#curve" startOffset="0">
                                         • PMK MIPA • FST UNDANA
                                     </textPath>
