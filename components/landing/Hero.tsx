@@ -33,7 +33,7 @@ export function Hero() {
                         </h1>
 
                         <p className="text-lg md:text-xl text-foreground/80 max-w-md font-serif leading-relaxed">
-                            Wadah persekutuan mahasiswa Kristen di FMIPA yang berkomitmen untuk tumbuh bersama dalam iman dan kasih Kristus.
+                            Wadah persekutuan mahasiswa Kristen di FST UNDANA yang berkomitmen untuk tumbuh bersama dalam iman dan kasih Kristus.
                         </p>
 
                         <div className="pt-8">
@@ -51,15 +51,15 @@ export function Hero() {
                         {/* Stats / Numbers like in reference */}
                         <div className="grid grid-cols-3 gap-8 pt-16 border-t-2 border-foreground/10 max-w-md">
                             <div>
-                                <h4 className="text-3xl font-serif font-bold text-primary">15+</h4>
+                                <h4 className="text-3xl font-serif font-bold text-primary">20+</h4>
                                 <p className="text-sm font-bold text-foreground/70 uppercase tracking-widest mt-1">Tahun</p>
                             </div>
                             <div>
-                                <h4 className="text-3xl font-serif font-bold text-primary">500+</h4>
+                                <h4 className="text-3xl font-serif font-bold text-primary">350+</h4>
                                 <p className="text-sm font-bold text-foreground/70 uppercase tracking-widest mt-1">Alumni</p>
                             </div>
                             <div>
-                                <h4 className="text-3xl font-serif font-bold text-primary">50+</h4>
+                                <h4 className="text-3xl font-serif font-bold text-primary">20+</h4>
                                 <p className="text-sm font-bold text-foreground/70 uppercase tracking-widest mt-1">Kegiatan</p>
                             </div>
                         </div>
@@ -73,19 +73,19 @@ export function Hero() {
                         className="relative w-full max-w-md mx-auto lg:ml-auto"
                     >
                         {/* Decorative Badge */}
-                        <div className="absolute -top-8 -left-8 z-20 bg-[#f5f3eb] rounded-full border-2 border-foreground retro-shadow w-28 h-28 flex items-center justify-center animate-[spin_10s_linear_infinite]">
+                        <div className="absolute -top-8 -left-8 z-20 bg-[#f5f3eb] dark:bg-[#25211f] rounded-full border-2 border-foreground retro-shadow w-28 h-28 flex items-center justify-center animate-[spin_10s_linear_infinite]">
                             <svg viewBox="0 0 100 100" className="w-full h-full">
                                 <path id="curve" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="transparent" />
                                 <text className="text-[14px] font-bold font-sans uppercase tracking-widest fill-foreground">
                                     <textPath href="#curve" startOffset="0">
-                                        • PMK MIPA • UNDANA
+                                        • PMK MIPA • FST UNDANA
                                     </textPath>
                                 </text>
                             </svg>
                         </div>
 
                         {/* Arched Frame */}
-                        <div className="relative aspect-[3/4] w-full rounded-t-full rounded-b-none overflow-hidden border-4 border-foreground retro-shadow-lg bg-white">
+                        <div className="relative aspect-[3/4] w-full rounded-t-full rounded-b-none overflow-hidden border-4 border-foreground retro-shadow-lg bg-white dark:bg-[#25211f]">
                             <Image
                                 src="/images/hero-bg.jpg"
                                 alt="Kegiatan PMK MIPA"
@@ -102,7 +102,7 @@ export function Hero() {
                             initial={{ y: 20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.8, duration: 0.5 }}
-                            className="absolute bottom-10 -left-12 bg-foreground text-[#f5f3eb] p-4 border-2 border-foreground retro-shadow w-48 hidden md:block"
+                            className="absolute bottom-10 -left-12 bg-zinc-900 text-[#f5f3eb] dark:bg-[#25211f] dark:text-[#f5f3eb] p-4 border-2 border-foreground retro-shadow w-48 hidden md:block"
                         >
                             <h5 className="font-serif font-bold text-lg mb-1">Berakar & Bertumbuh</h5>
                             <p className="text-xs opacity-80">Menjadi berkat bagi sesama mahasiswa di FST Undana.</p>

@@ -27,7 +27,7 @@ export function SpiritualCore() {
                     className="space-y-12"
                 >
                     {/* Badge Icon */}
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#f5f3eb] border-2 border-foreground text-foreground text-xs font-serif font-bold uppercase tracking-[0.2em] retro-shadow-sm">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#f5f3eb] dark:bg-[#25211f] border-2 border-foreground text-foreground text-xs font-serif font-bold uppercase tracking-[0.2em] retro-shadow-sm">
                         <Sparkles className="w-4 h-4 text-primary" />
                         <span>Landasan Pelayanan</span>
                         <Sparkles className="w-4 h-4 text-primary" />
@@ -43,12 +43,12 @@ export function SpiritualCore() {
                         </div>
 
                         <p className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif text-foreground leading-[1.3] font-bold">
-                            "Dan di atas semuanya itu: <span className="text-primary italic font-light">kenakanlah kasih</span>, sebagai pengikat yang mempersatukan dan menyempurnakan."
+                            "Kamu telah menerima Kristus Yesus, Tuhan kita. Karena itu hendaklah hidupmu <span className="text-primary italic font-light">tetap di dalam Dia</span>."
                         </p>
-                        
+
                         <footer className="pt-8 flex flex-col items-center gap-4">
                             <cite className="not-italic text-sm md:text-base font-bold font-serif text-foreground/80 uppercase tracking-[0.3em] block">
-                                — Kolose 3:14 (TB)
+                                — Kolose 2 : 6 (TB)
                             </cite>
                         </footer>
 
@@ -58,11 +58,6 @@ export function SpiritualCore() {
                             <div className="h-0.5 flex-1 bg-foreground"></div>
                         </div>
                     </blockquote>
-
-                    {/* Short Reflection */}
-                    <p className="text-base md:text-lg text-foreground/70 max-w-2xl mx-auto leading-relaxed pt-4 font-serif font-semibold">
-                        Di tengah kesibukan kuliah sains dan dinamika kehidupan kampus, kasih Kristus adalah kompas dan pondasi utama kami dalam melayani serta berelasi satu sama lain.
-                    </p>
                 </motion.div>
             </div>
         </section>

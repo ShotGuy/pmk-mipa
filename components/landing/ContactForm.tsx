@@ -50,7 +50,7 @@ export function ContactForm() {
     };
 
     return (
-        <div className="bg-white p-8 md:p-10 border-4 border-foreground retro-shadow">
+        <div className="bg-white dark:bg-[#25211f] p-8 md:p-10 border-4 border-foreground retro-shadow">
             <div className="border-b-4 border-foreground pb-6 mb-8">
                 <h3 className="text-4xl font-serif font-bold text-foreground">Kirim Pesan</h3>
                 <p className="text-foreground/80 font-serif font-bold mt-2">Punya pertanyaan atau masukan? Silahkan isi form di bawah ini.</p>
@@ -59,11 +59,11 @@ export function ContactForm() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                 <div className="space-y-3">
                     <label htmlFor="name" className="text-sm font-serif font-bold uppercase tracking-widest text-foreground">Nama Lengkap</label>
-                    <input 
-                        id="name" 
-                        placeholder="Cth: John Doe" 
-                        className="w-full bg-[#f5f3eb] border-2 border-foreground p-4 text-foreground font-serif font-bold placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent retro-shadow-sm transition-shadow"
-                        {...register("name")} 
+                    <input
+                        id="name"
+                        placeholder="Cth: Hendrick Lili"
+                        className="w-full bg-[#f5f3eb] dark:bg-[#191715] border-2 border-foreground p-4 text-foreground font-serif font-bold placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent retro-shadow-sm transition-shadow"
+                        {...register("name")}
                     />
                     {errors.name && <p className="text-red-500 text-xs font-serif font-bold uppercase tracking-wider">{errors.name.message}</p>}
                 </div>
@@ -71,22 +71,22 @@ export function ContactForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
                         <label htmlFor="major" className="text-sm font-serif font-bold uppercase tracking-widest text-foreground">Jurusan/Angkatan</label>
-                        <input 
-                            id="major" 
-                            placeholder="Cth: Ilmu Komputer 2024" 
-                            className="w-full bg-[#f5f3eb] border-2 border-foreground p-4 text-foreground font-serif font-bold placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent retro-shadow-sm transition-shadow"
-                            {...register("major")} 
+                        <input
+                            id="major"
+                            placeholder="Cth: Ilmu Komputer 2024"
+                            className="w-full bg-[#f5f3eb] dark:bg-[#191715] border-2 border-foreground p-4 text-foreground font-serif font-bold placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent retro-shadow-sm transition-shadow"
+                            {...register("major")}
                         />
                         {errors.major && <p className="text-red-500 text-xs font-serif font-bold uppercase tracking-wider">{errors.major.message}</p>}
                     </div>
                     <div className="space-y-3">
                         <label htmlFor="email" className="text-sm font-serif font-bold uppercase tracking-widest text-foreground">Email</label>
-                        <input 
-                            id="email" 
-                            type="email" 
-                            placeholder="Cth: john@example.com" 
-                            className="w-full bg-[#f5f3eb] border-2 border-foreground p-4 text-foreground font-serif font-bold placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent retro-shadow-sm transition-shadow"
-                            {...register("email")} 
+                        <input
+                            id="email"
+                            type="email"
+                            placeholder="Cth: hendrick@gmail.com"
+                            className="w-full bg-[#f5f3eb] dark:bg-[#191715] border-2 border-foreground p-4 text-foreground font-serif font-bold placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent retro-shadow-sm transition-shadow"
+                            {...register("email")}
                         />
                         {errors.email && <p className="text-red-500 text-xs font-serif font-bold uppercase tracking-wider">{errors.email.message}</p>}
                     </div>
@@ -96,16 +96,16 @@ export function ContactForm() {
                     <label htmlFor="message" className="text-sm font-serif font-bold uppercase tracking-widest text-foreground">Pesan</label>
                     <textarea
                         id="message"
-                        className="flex min-h-[160px] w-full bg-[#f5f3eb] border-2 border-foreground p-4 text-foreground font-serif font-bold placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent retro-shadow-sm transition-shadow resize-y"
+                        className="flex min-h-[160px] w-full bg-[#f5f3eb] dark:bg-[#191715] border-2 border-foreground p-4 text-foreground font-serif font-bold placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent retro-shadow-sm transition-shadow resize-y"
                         placeholder="Tulis pesanmu di sini..."
                         {...register("message")}
                     />
                     {errors.message && <p className="text-red-500 text-xs font-serif font-bold uppercase tracking-wider">{errors.message.message}</p>}
                 </div>
 
-                <button 
-                    type="submit" 
-                    className="w-full flex items-center justify-center bg-primary text-foreground border-2 border-foreground hover:bg-foreground hover:text-white transition-colors px-6 py-5 font-serif font-bold uppercase tracking-widest retro-shadow hover:retro-shadow-none disabled:opacity-50 disabled:cursor-not-allowed" 
+                <button
+                    type="submit"
+                    className="w-full flex items-center justify-center bg-primary text-foreground border-2 border-foreground hover:bg-zinc-900 hover:text-white dark:hover:bg-[#191715] dark:hover:text-primary transition-colors px-6 py-5 font-serif font-bold uppercase tracking-widest retro-shadow hover:retro-shadow-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     disabled={isSubmitting}
                 >
                     {isSubmitting ? (

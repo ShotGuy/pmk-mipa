@@ -17,15 +17,15 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8 border-b-4 border-foreground pb-12">
                     <div className="space-y-6 max-w-2xl">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-foreground text-foreground text-xs font-serif font-bold tracking-[0.2em] uppercase retro-shadow-sm">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#25211f] border-2 border-foreground text-foreground text-xs font-serif font-bold tracking-[0.2em] uppercase retro-shadow-sm">
                             <Calendar className="w-4 h-4 text-primary" />
-                            <span>Agenda & Ibadah</span>
+                            <span>Ibadah Mendatang</span>
                         </div>
                         <h2 className="text-5xl md:text-6xl font-serif font-bold text-foreground leading-tight">
                             Kegiatan <span className="text-primary italic font-light">Mendatang</span>
                         </h2>
                         <p className="text-foreground/80 text-lg font-serif max-w-xl">
-                            Mari bergabung bersama kami dalam persekutuan doa, ibadah raya mingguan, dan acara kebersamaan lainnya.
+                            Jangan Lupa bergabung dalam ibadah-ibadah kami yang akan datang.
                         </p>
                     </div>
 
@@ -50,7 +50,7 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
-                                className="group flex flex-col justify-between bg-white border-4 border-foreground p-8 retro-shadow-lg transition-transform hover:-translate-y-2 hover:retro-shadow relative"
+                                className="group flex flex-col justify-between bg-white dark:bg-[#25211f] border-4 border-foreground p-8 retro-shadow-lg transition-transform hover:-translate-y-2 hover:retro-shadow relative"
                             >
                                 {/* Decorative pin */}
                                 <div className="absolute -top-4 -right-4 w-8 h-8 bg-primary rounded-full border-2 border-foreground retro-shadow z-10 hidden md:block"></div>
@@ -59,13 +59,12 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
                                     {/* Badge & Date */}
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <span
-                                            className={`inline-flex items-center justify-center px-4 py-2 border-2 border-foreground text-xs font-serif font-bold uppercase tracking-wider retro-shadow-sm ${
-                                                isFriday
-                                                    ? "bg-primary text-foreground"
-                                                    : isTuesday
-                                                    ? "bg-[#f5f3eb] text-foreground"
-                                                    : "bg-white text-foreground"
-                                            }`}
+                                            className={`inline-flex items-center justify-center px-4 py-2 border-2 border-foreground text-xs font-serif font-bold uppercase tracking-wider retro-shadow-sm ${isFriday
+                                                ? "bg-primary text-foreground"
+                                                : isTuesday
+                                                    ? "bg-[#f5f3eb] dark:bg-zinc-800 text-foreground"
+                                                    : "bg-white dark:bg-zinc-800 text-foreground"
+                                                }`}
                                         >
                                             {event.badgeText}
                                         </span>
@@ -84,14 +83,14 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
                                     {/* Details */}
                                     <div className="space-y-4 text-foreground/90 font-serif pt-4">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 border-2 border-foreground bg-[#f5f3eb] flex items-center justify-center shrink-0 retro-shadow-sm">
+                                            <div className="w-10 h-10 border-2 border-foreground bg-[#f5f3eb] dark:bg-[#191715] flex items-center justify-center shrink-0 retro-shadow-sm">
                                                 <Clock className="w-5 h-5 text-foreground" strokeWidth={2} />
                                             </div>
                                             <span className="font-bold">{event.time}</span>
                                         </div>
 
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 border-2 border-foreground bg-[#f5f3eb] flex items-center justify-center shrink-0 retro-shadow-sm">
+                                            <div className="w-10 h-10 border-2 border-foreground bg-[#f5f3eb] dark:bg-[#191715] flex items-center justify-center shrink-0 retro-shadow-sm">
                                                 <MapPin className="w-5 h-5 text-foreground" strokeWidth={2} />
                                             </div>
                                             <span className="font-bold truncate">{event.location}</span>
@@ -99,7 +98,7 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
 
                                         {event.speaker && (
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 border-2 border-foreground bg-[#f5f3eb] flex items-center justify-center shrink-0 retro-shadow-sm">
+                                                <div className="w-10 h-10 border-2 border-foreground bg-[#f5f3eb] dark:bg-[#191715] flex items-center justify-center shrink-0 retro-shadow-sm">
                                                     <User className="w-5 h-5 text-foreground" strokeWidth={2} />
                                                 </div>
                                                 <span className="font-bold truncate">{event.speaker}</span>

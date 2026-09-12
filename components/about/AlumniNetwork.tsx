@@ -34,7 +34,7 @@ const sectors = [
 
 export function AlumniNetwork() {
     return (
-        <section className="py-24 bg-foreground relative overflow-hidden border-t-2 border-foreground/10">
+        <section className="py-24 bg-zinc-900 text-zinc-100 dark:bg-[#121110] relative overflow-hidden border-t-2 border-foreground/10">
             {/* Ambient Background Light */}
             <div className="absolute top-0 right-1/3 w-[500px] h-[500px] bg-primary/20 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl pointer-events-none" />
@@ -42,7 +42,7 @@ export function AlumniNetwork() {
             <div className="container mx-auto px-6 max-w-6xl relative z-10 space-y-20">
                 {/* Header */}
                 <div className="text-center max-w-2xl mx-auto space-y-6">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white text-foreground border-2 border-foreground text-xs font-serif font-bold tracking-[0.2em] uppercase retro-shadow-sm">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#25211f] text-foreground border-2 border-foreground text-xs font-serif font-bold tracking-[0.2em] uppercase retro-shadow-sm">
                         <Network className="w-4 h-4 text-primary" />
                         <span>Jejaring & Dampak</span>
                     </div>
@@ -67,7 +67,7 @@ export function AlumniNetwork() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.1, duration: 0.5 }}
-                                className="p-8 bg-[#f5f3eb] border-4 border-foreground retro-shadow transition-all flex flex-col justify-between space-y-6 hover:-translate-y-2 hover:retro-shadow-lg"
+                                className="p-8 bg-[#f5f3eb] dark:bg-[#25211f] border-4 border-foreground retro-shadow transition-all flex flex-col justify-between space-y-6 hover:-translate-y-2 hover:retro-shadow-lg"
                             >
                                 <div className="space-y-4">
                                     <div className="w-14 h-14 bg-primary border-2 border-foreground flex items-center justify-center text-foreground retro-shadow-sm">
@@ -90,7 +90,7 @@ export function AlumniNetwork() {
                 </div>
 
                 {/* Mentorship Program Highlight */}
-                <div className="p-8 sm:p-12 bg-white border-4 border-foreground retro-shadow-lg flex flex-col lg:flex-row items-center justify-between gap-8">
+                <div className="p-8 sm:p-12 bg-white dark:bg-[#25211f] border-4 border-foreground retro-shadow-lg flex flex-col lg:flex-row items-center justify-between gap-8">
                     <div className="space-y-4 max-w-2xl">
                         <div className="inline-flex items-center gap-2 text-xs uppercase font-serif font-bold tracking-[0.2em] text-primary">
                             <HeartHandshake className="w-4 h-4" />
@@ -106,7 +106,7 @@ export function AlumniNetwork() {
 
                     <div className="shrink-0 flex flex-col sm:flex-row gap-4 w-full lg:w-auto mt-4 lg:mt-0">
                         <Link href="/contact" className="w-full sm:w-auto">
-                            <Button className="w-full bg-primary text-foreground border-2 border-foreground hover:bg-primary/90 rounded-none px-10 py-8 font-serif font-bold uppercase tracking-widest retro-shadow hover:retro-shadow-sm hover:translate-y-1 transition-all">
+                            <Button className="w-full bg-primary text-foreground border-2 border-foreground hover:bg-primary/90 dark:hover:text-zinc-900 rounded-none px-10 py-8 font-serif font-bold uppercase tracking-widest retro-shadow hover:retro-shadow-sm hover:translate-y-1 transition-all">
                                 Hubungi Pengurus Alumni
                             </Button>
                         </Link>

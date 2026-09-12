@@ -24,7 +24,7 @@ export function ActivitiesHero() {
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-foreground text-[#f5f3eb] border-2 border-foreground text-xs font-serif font-bold uppercase tracking-[0.2em] retro-shadow-sm"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 text-[#f5f3eb] dark:bg-[#25211f] dark:text-primary border-2 border-foreground text-xs font-serif font-bold uppercase tracking-[0.2em] retro-shadow-sm"
                 >
                     <CalendarDays className="w-4 h-4 text-primary" />
                     <span>Jadwal & Kepelayanan</span>
@@ -40,16 +40,6 @@ export function ActivitiesHero() {
                     Wadah Bertumbuh, <br />
                     <span className="italic font-light">Melayani, dan Berbuah</span>
                 </motion.h1>
-
-                {/* Subtitle */}
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2, duration: 0.6 }}
-                    className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto font-serif font-bold"
-                >
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
-                </motion.p>
             </div>
         </section>
     );

@@ -11,7 +11,7 @@ const features = [
         title: "Akademik Prioritas",
         tag: "Dukungan Studi",
         description:
-            "Kuliah sains dan matematika memang menantang, tapi kamu tidak sendirian. Kami saling mendukung melalui kelompok belajar, bimbingan materi, dan tips sukses dari senior.",
+            "Kuliah sains dan matematika memang menantang, tapi kamu tidak sendirian. Kami saling mendukung melalui Kelompok Tumbuh Bersama",
     },
     {
         icon: Users,
@@ -23,9 +23,9 @@ const features = [
     {
         icon: Briefcase,
         title: "Koneksi Alumni",
-        tag: "Mentorship Karir",
+        tag: "Mentorship",
         description:
-            "Terhubung dengan jejaring ratusan alumni PMK MIPA yang berkarier di industri teknologi, riset sains, pendidikan, dan pemerintahan yang siap memberikan bimbingan masa depan.",
+            "Terhubung dengan jejaring alumni PMK MIPA yang berkarier di berbagai bidang yang siap memberikan bimbingan masa depan.",
     },
 ];
 
@@ -39,7 +39,7 @@ export function ValueProps() {
                         initial={{ opacity: 0, y: 15 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-foreground text-[#f5f3eb] border-2 border-foreground text-xs font-serif font-bold uppercase tracking-widest retro-shadow-sm"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 text-[#f5f3eb] dark:bg-[#25211f] dark:text-primary border-2 border-foreground text-xs font-serif font-bold uppercase tracking-widest retro-shadow-sm"
                     >
                         <Sparkles className="w-4 h-4 text-primary" />
                         <span>Mengapa PMK MIPA?</span>
@@ -67,7 +67,7 @@ export function ValueProps() {
                         transition={{ delay: 0.2 }}
                         className="text-lg md:text-xl text-foreground/80 leading-relaxed font-serif max-w-2xl mx-auto"
                     >
-                        Kami percaya bahwa sains dan iman tidak saling bertentangan, melainkan saling melengkapi. 
+                        Kami percaya bahwa sains dan iman tidak saling bertentangan, melainkan saling melengkapi.
                         Tempat di mana studimu didukung dan kerohanianmu dikuatkan.
                     </motion.p>
                 </div>
@@ -82,10 +82,10 @@ export function ValueProps() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.1 * (index + 1), duration: 0.5, ease: "easeOut" }}
-                                className="group relative flex flex-col justify-between p-8 md:p-10 bg-white border-4 border-foreground retro-shadow-lg transition-transform hover:-translate-y-2 hover:retro-shadow"
+                                className="group relative flex flex-col justify-between p-8 md:p-10 bg-white dark:bg-[#25211f] border-4 border-foreground retro-shadow-lg transition-transform hover:-translate-y-2 hover:retro-shadow"
                             >
                                 {/* Step Number */}
-                                <div className="absolute -top-6 -left-6 w-12 h-12 bg-foreground text-[#f5f3eb] font-serif font-bold text-2xl flex items-center justify-center border-4 border-white retro-shadow z-10">
+                                <div className="absolute -top-6 -left-6 w-12 h-12 bg-zinc-900 text-[#f5f3eb] dark:bg-[#191715] dark:text-primary font-serif font-bold text-2xl flex items-center justify-center border-4 border-white dark:border-[#25211f] retro-shadow z-10">
                                     {index + 1}
                                 </div>
 
@@ -119,7 +119,7 @@ export function ValueProps() {
                 {/* Bottom Link to About */}
                 <div className="text-center mt-24">
                     <Link href="/about">
-                        <Button className="rounded-full px-10 py-7 text-lg font-serif font-bold bg-white text-foreground border-2 border-foreground hover:bg-primary retro-shadow hover:translate-y-1 hover:shadow-none transition-all duration-200 group">
+                        <Button className="rounded-full px-10 py-7 text-lg font-serif font-bold bg-white dark:bg-[#25211f] text-foreground border-2 border-foreground hover:bg-primary dark:hover:text-zinc-900 retro-shadow hover:translate-y-1 hover:shadow-none transition-all duration-200 group">
                             Pelajari Visi & Misi Kami
                             <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </Button>

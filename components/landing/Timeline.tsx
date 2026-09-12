@@ -32,7 +32,7 @@ export function Timeline() {
         <section className="py-24 relative overflow-hidden bg-transparent border-b-2 border-foreground/10">
             <div className="container mx-auto px-6 max-w-5xl">
                 <div className="text-center mb-24 space-y-4">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-foreground text-foreground text-xs font-serif font-bold uppercase tracking-[0.2em] retro-shadow-sm mb-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#25211f] border-2 border-foreground text-foreground text-xs font-serif font-bold uppercase tracking-[0.2em] retro-shadow-sm mb-4">
                         <Sparkles className="w-4 h-4 text-primary" />
                         <span>Jejak Langkah</span>
                     </div>
@@ -44,9 +44,9 @@ export function Timeline() {
 
                 <div className="relative mx-auto max-w-4xl">
                     {/* Vertical Line */}
-                    <div className="absolute left-1/2 -translate-x-1/2 w-1 h-full bg-foreground" />
+                    <div className="absolute left-4 sm:left-6 md:left-1/2 md:-translate-x-1/2 w-1 h-full bg-foreground" />
 
-                    <div className="space-y-16">
+                    <div className="space-y-12 md:space-y-16">
                         {timelineEvents.map((event, index) => (
                             <TimelineItem key={index} event={event} index={index} />
                         ))}
@@ -68,34 +68,36 @@ function TimelineItem({ event, index }: { event: { year: string; title: string; 
             transition={{ duration: 0.5, delay: index * 0.1 }}
             className={cn(
                 "relative flex items-center justify-between gap-8 md:gap-16 group",
-                isEven ? "flex-row-reverse" : ""
+                isEven ? "md:flex-row-reverse" : ""
             )}
         >
-            {/* Content Side */}
+            {/* Desktop Ghost Year (Left or Right) */}
             <div className={cn("hidden md:block w-1/2", isEven ? "text-right" : "text-left")}>
                 <span className="text-7xl lg:text-8xl font-serif font-bold text-foreground/5 select-none absolute top-0 -z-10 w-full group-hover:text-primary/10 transition-colors duration-300">
                     {event.year}
                 </span>
             </div>
 
-            {/* Dot */}
-            <div className="absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-none bg-primary border-4 border-foreground z-10 group-hover:rotate-45 transition-transform duration-300" />
+            {/* Marker Dot (Left on Mobile, Center on Desktop) */}
+            <div className="absolute left-4 sm:left-6 md:left-1/2 -translate-x-1/2 top-7 sm:top-8 md:top-1/2 md:-translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 rounded-none bg-primary border-3 sm:border-4 border-foreground z-10 group-hover:rotate-45 transition-transform duration-300" />
 
             {/* Card Side */}
-            <div className="w-full md:w-1/2 pl-12 md:pl-0">
+            <div className="w-full md:w-1/2 pl-10 sm:pl-14 md:pl-0">
                 <div className={cn(
-                    "bg-[#f5f3eb] p-8 border-4 border-foreground retro-shadow transition-transform duration-300 group-hover:-translate-y-2 group-hover:retro-shadow-lg relative",
-                    "before:absolute before:top-8 before:w-6 before:h-1 before:bg-foreground md:before:hidden", // Mobile line to dot
+                    "bg-[#f5f3eb] dark:bg-[#25211f] p-6 sm:p-8 border-3 sm:border-4 border-foreground retro-shadow transition-transform duration-300 group-hover:-translate-y-2 group-hover:retro-shadow-lg relative",
+                    "before:absolute before:top-4 sm:before:top-5 before:-left-6 sm:before:-left-8 before:w-6 sm:before:w-8 before:h-1 before:bg-foreground md:before:hidden", // Mobile line to dot
                     "after:hidden md:block after:absolute after:top-1/2 after:-translate-y-1/2 after:w-10 after:h-1 after:bg-foreground", // Desktop connector
                     isEven ? "md:mr-12 md:after:left-full" : "md:ml-12 md:after:right-full"
                 )}>
-                    {/* Mobile Year */}
-                    <span className="md:hidden text-primary font-serif font-bold text-xl mb-3 block">{event.year}</span>
-                    
-                    <span className="hidden md:block text-primary font-serif font-bold text-2xl mb-2">{event.year}</span>
+                    {/* Year Badge */}
+                    <span className="text-primary font-serif font-bold text-xl sm:text-2xl mb-2 block tracking-wider">
+                        {event.year}
+                    </span>
 
-                    <h3 className="text-2xl font-bold font-serif mb-3 text-foreground">{event.title}</h3>
-                    <p className="text-sm font-serif font-bold text-foreground/80 leading-relaxed uppercase tracking-wide">
+                    <h3 className="text-xl sm:text-2xl font-bold font-serif mb-3 text-foreground leading-snug">
+                        {event.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm font-serif font-bold text-foreground/80 leading-relaxed tracking-wide">
                         {event.description}
                     </p>
                 </div>

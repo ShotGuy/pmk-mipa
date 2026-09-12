@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
@@ -77,6 +79,36 @@
   --radius: 0; /* Neo-brutalist / sharp edges */
 }
 
+.dark {
+  --background: 24 12% 9%;
+  --foreground: 40 33% 96%;
+
+  --card: 24 10% 14%;
+  --card-foreground: 40 33% 96%;
+
+  --popover: 24 10% 14%;
+  --popover-foreground: 40 33% 96%;
+
+  --primary: 45 100% 51%;
+  --primary-foreground: 20 10% 15%;
+
+  --secondary: 40 33% 96%;
+  --secondary-foreground: 24 12% 9%;
+
+  --muted: 24 10% 18%;
+  --muted-foreground: 40 10% 65%;
+
+  --accent: 45 100% 51%;
+  --accent-foreground: 20 10% 15%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 40 20% 70%;
+  --input: 40 20% 70%;
+  --ring: 45 100% 51%;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -98,5 +130,15 @@
   }
   .retro-shadow-lg {
     box-shadow: 8px 8px 0px 0px hsl(var(--foreground));
+  }
+
+  .dark .retro-shadow {
+    box-shadow: 5px 5px 0px 0px rgba(245, 243, 235, 0.25);
+  }
+  .dark .retro-shadow-sm {
+    box-shadow: 3px 3px 0px 0px rgba(245, 243, 235, 0.25);
+  }
+  .dark .retro-shadow-lg {
+    box-shadow: 8px 8px 0px 0px rgba(245, 243, 235, 0.25);
   }
 }

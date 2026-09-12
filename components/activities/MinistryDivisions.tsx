@@ -48,7 +48,7 @@ export function MinistryDivisions() {
             <div className="container mx-auto px-6 max-w-6xl space-y-16">
                 {/* Header */}
                 <div className="text-center max-w-2xl mx-auto space-y-6">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-foreground text-foreground text-xs font-serif font-bold tracking-[0.2em] uppercase retro-shadow-sm">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#25211f] border-2 border-foreground text-foreground text-xs font-serif font-bold tracking-[0.2em] uppercase retro-shadow-sm">
                         <Sparkles className="w-4 h-4 text-primary" />
                         <span>Salurkan Talenta & Kasih</span>
                     </div>
@@ -75,14 +75,14 @@ export function MinistryDivisions() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.1, duration: 0.5 }}
-                                className="group relative flex flex-col justify-between p-8 bg-white border-4 border-foreground retro-shadow transition-transform duration-300 hover:-translate-y-2 hover:retro-shadow-lg"
+                                className="group relative flex flex-col justify-between p-8 bg-white dark:bg-[#25211f] border-4 border-foreground retro-shadow transition-transform duration-300 hover:-translate-y-2 hover:retro-shadow-lg"
                             >
                                 <div className="space-y-6">
                                     <div className="flex items-center justify-between">
-                                        <div className="w-16 h-16 bg-[#f5f3eb] border-4 border-foreground flex items-center justify-center text-foreground retro-shadow-sm group-hover:bg-primary transition-colors">
+                                        <div className="w-16 h-16 bg-[#f5f3eb] dark:bg-[#191715] border-4 border-foreground flex items-center justify-center text-foreground retro-shadow-sm group-hover:bg-primary transition-colors">
                                             <Icon className="w-8 h-8" />
                                         </div>
-                                        <span className="text-xs font-serif font-bold uppercase tracking-widest px-4 py-1.5 bg-foreground text-white border-2 border-foreground retro-shadow-sm">
+                                        <span className="text-xs font-serif font-bold uppercase tracking-widest px-4 py-1.5 bg-zinc-900 text-white dark:bg-[#191715] dark:text-[#f5f3eb] border-2 border-foreground retro-shadow-sm">
                                             {div.tag}
                                         </span>
                                     </div>
@@ -101,7 +101,7 @@ export function MinistryDivisions() {
                                         {div.roles.map((role) => (
                                             <span
                                                 key={role}
-                                                className="text-xs font-serif font-bold uppercase tracking-wider px-3 py-1.5 bg-white border-2 border-foreground text-foreground retro-shadow-sm"
+                                                className="text-xs font-serif font-bold uppercase tracking-wider px-3 py-1.5 bg-white dark:bg-[#191715] border-2 border-foreground text-foreground retro-shadow-sm"
                                             >
                                                 {role}
                                             </span>
@@ -112,7 +112,7 @@ export function MinistryDivisions() {
                                 {/* Action CTA */}
                                 <div className="pt-6 mt-8 border-t-2 border-dashed border-foreground/30">
                                     <a href={waUrl} target="_blank" rel="noopener noreferrer">
-                                        <button className="w-full flex items-center justify-center bg-primary text-foreground border-2 border-foreground hover:bg-foreground hover:text-white transition-colors px-6 py-4 font-serif font-bold uppercase tracking-widest retro-shadow-sm hover:retro-shadow-none">
+                                        <button className="w-full flex items-center justify-center bg-primary text-foreground border-2 border-foreground hover:bg-zinc-900 hover:text-white dark:hover:bg-[#191715] dark:hover:text-primary transition-colors px-6 py-4 font-serif font-bold uppercase tracking-widest retro-shadow-sm hover:retro-shadow-none cursor-pointer">
                                             <MessageCircle className="w-5 h-5 mr-3" />
                                             Gabung ke Divisi Ini
                                         </button>

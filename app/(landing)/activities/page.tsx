@@ -41,32 +41,26 @@ export default function ActivitiesPage() {
                         <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground">
                             Jadwal <span className="text-primary">Ibadah Rutin</span>
                         </h2>
-                        <p className="text-muted-foreground text-base">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.
-                        </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                         <ScheduleCard
                             type="friday"
-                            title="Ibadah Raya Jumat"
-                            time="11.30 – 13.00 WITA"
-                            location="Ruang Multimedia FMIPA Undana"
-                            description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                            title="Persekutuan Besar"
+                            time="10.00 – 12.00 WITA"
+                            location="Tentatif"
+                            description="Persekutuan Besar diakan setiap Dua Minggu Sekali Pada Hari Sabtu"
                         />
                         <ScheduleCard
                             type="tuesday"
-                            title="Persekutuan Doa Syafaat"
-                            time="16.00 – 17.30 WITA"
-                            location="Sekretariat PMK (JULANOFA'S KOST)"
-                            description="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat."
+                            title="Ibadah Penerimaan Mahasiswa Baru"
+                            time="10.00 – 12.00 WITA"
+                            location="Tentatif"
+                            description="Ibadah Penerimaan Mahasiswa Baru (IPMB) dilakukan setiap awal tahun ajaran Baru"
                         />
                     </div>
                 </div>
             </section>
-
-            {/* Ministry Divisions (2x2 Grid) */}
-            <MinistryDivisions />
 
             {/* Annual Programs */}
             <AnnualPrograms />
@@ -79,7 +73,7 @@ export default function ActivitiesPage() {
                             Galeri <span className="text-primary">Momen Pelayanan</span>
                         </h2>
                         <p className="text-muted-foreground text-base">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.
+                            Kenangan Indah selama menjalankan pelayanan di PMK MIPA Undana Fakultas Sains dan Teknik Selama Bertahun tahun.
                         </p>
                     </div>
                     <GalleryCarousel />

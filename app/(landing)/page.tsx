@@ -2,7 +2,6 @@ import { Hero } from "@/components/landing/Hero";
 import { ValueProps } from "@/components/landing/ValueProps";
 import { SpiritualCore } from "@/components/landing/SpiritualCore";
 import { UpcomingEvents } from "@/components/landing/UpcomingEvents";
-import { StatsSection } from "@/components/landing/StatsSection";
 import { MiniGallery } from "@/components/landing/MiniGallery";
 import { LocationSection } from "@/components/landing/LocationSection";
 import { CallToAction } from "@/components/landing/CallToAction";
@@ -20,7 +19,6 @@ export default async function Home() {
             <ValueProps />
             <SpiritualCore />
             <UpcomingEvents events={events} />
-            <StatsSection />
             <MiniGallery galleries={galleries} />
             <LocationSection />
             <CallToAction />

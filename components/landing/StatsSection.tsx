@@ -32,7 +32,7 @@ const stats = [
 
 export function StatsSection() {
     return (
-        <section className="py-32 bg-zinc-900 text-zinc-50 relative overflow-hidden">
+        <section className="py-32 bg-zinc-900 dark:bg-[#121110] text-zinc-50 relative overflow-hidden">
             {/* Ambient Background Gradient */}
             <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
