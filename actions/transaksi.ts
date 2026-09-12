@@ -3,7 +3,8 @@
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
-import { auth } from "@/auth"
+import { Role } from "@prisma/client"
+import { requireRole } from "@/lib/rbac"
 
 const TransaksiInputSchema = z.object({
     idKas: z.string().min(1, "Akun kas wajib dipilih"),
@@ -18,6 +19,11 @@ const TransaksiInputSchema = z.object({
 export type TransaksiFormValues = z.infer<typeof TransaksiInputSchema>
 
 export async function getKasOptionsForTransaksi() {
+    const authCheck = await requireRole([Role.ADMIN, Role.KETUA, Role.BENDAHARA])
+    if (!authCheck.success) {
+        return []
+    }
+
     try {
         const kasList = await db.kas.findMany({
             orderBy: { nama: "asc" },
@@ -55,6 +61,11 @@ export async function getKasOptionsForTransaksi() {
 }
 
 export async function getAllTransaksi() {
+    const authCheck = await requireRole([Role.ADMIN, Role.KETUA, Role.BENDAHARA])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message, data: [] }
+    }
+
     try {
         const rawData = await db.transaksi.findMany({
             orderBy: { createdAt: "desc" },
@@ -68,14 +79,14 @@ export async function getAllTransaksi() {
             },
         })
 
-        const data = rawData.map((t) => ({
-            id: t.id,
-            jenisTransaksi: t.jenisTransaksi,
-            nominal: Number(t.nominal),
-            keterangan: t.keterangan,
-            idKas: t.idKas,
-            kas: t.kas,
-            createdAt: t.createdAt,
+        const data = rawData.map((item) => ({
+            id: item.id,
+            jenisTransaksi: item.jenisTransaksi,
+            nominal: Number(item.nominal),
+            keterangan: item.keterangan,
+            idKas: item.idKas,
+            kasNama: item.kas?.nama || "Kas Dihapus",
+            createdAt: item.createdAt,
         }))
 
         return { success: true, data }
@@ -86,6 +97,11 @@ export async function getAllTransaksi() {
 }
 
 export async function getTransaksi(id: string) {
+    const authCheck = await requireRole([Role.ADMIN, Role.KETUA, Role.BENDAHARA])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
+    }
+
     try {
         const data = await db.transaksi.findUnique({
             where: { id },
@@ -122,6 +138,15 @@ export async function getTransaksi(id: string) {
 }
 
 export async function getTransaksiMetrics() {
+    const authCheck = await requireRole([Role.ADMIN, Role.KETUA, Role.BENDAHARA])
+    if (!authCheck.success) {
+        return {
+            totalPemasukan: 0,
+            totalPengeluaran: 0,
+            netMutasi: 0,
+        }
+    }
+
     try {
         const summary = await db.transaksi.groupBy({
             by: ["jenisTransaksi"],
@@ -155,9 +180,9 @@ export async function getTransaksiMetrics() {
 }
 
 export async function createTransaksi(values: TransaksiFormValues) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    const authCheck = await requireRole([Role.ADMIN, Role.BENDAHARA])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     const validated = TransaksiInputSchema.safeParse(values)
@@ -193,9 +218,9 @@ export async function createTransaksi(values: TransaksiFormValues) {
 }
 
 export async function updateTransaksi(id: string, values: TransaksiFormValues) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    const authCheck = await requireRole([Role.ADMIN, Role.BENDAHARA])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     const validated = TransaksiInputSchema.safeParse(values)
@@ -231,9 +256,9 @@ export async function updateTransaksi(id: string, values: TransaksiFormValues) {
 }
 
 export async function deleteTransaksi(id: string) {
-    const session = await auth()
-    if (session?.user?.role === "KETUA") {
-        return { success: false, message: "Ketua hanya memiliki hak akses membaca (read-only)." }
+    const authCheck = await requireRole([Role.ADMIN, Role.BENDAHARA])
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message }
     }
 
     try {

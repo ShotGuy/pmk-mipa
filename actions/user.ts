@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { hash } from "bcryptjs";
 import { Role } from "@prisma/client";
+import { requireRole } from "@/lib/rbac";
 
 const UserSchema = z.object({
     name: z.string().min(1, "Nama wajib diisi"),
@@ -16,6 +17,11 @@ const UserSchema = z.object({
 });
 
 export const getEligibleAnggotaForDropdown = async () => {
+    const authCheck = await requireRole([Role.ADMIN]);
+    if (!authCheck.success) {
+        return [];
+    }
+
     try {
         // Fetch active Badan Pengurus options
         // We link User -> Anggota directly, but we only want to show Anggota who are Active BP
@@ -42,6 +48,11 @@ export const getEligibleAnggotaForDropdown = async () => {
 };
 
 export const getAllUsers = async () => {
+    const authCheck = await requireRole([Role.ADMIN]);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
+    }
+
     try {
         const users = await db.user.findMany({
             orderBy: { createdAt: "desc" },
@@ -58,6 +69,11 @@ export const getAllUsers = async () => {
 };
 
 export const getUser = async (id: string) => {
+    const authCheck = await requireRole([Role.ADMIN]);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
+    }
+
     try {
         const user = await db.user.findUnique({
             where: { id },
@@ -69,6 +85,11 @@ export const getUser = async (id: string) => {
 };
 
 export const createUser = async (values: z.infer<typeof UserSchema>) => {
+    const authCheck = await requireRole([Role.ADMIN]);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
+    }
+
     const validatedFields = UserSchema.safeParse(values);
 
     if (!validatedFields.success) {
@@ -86,9 +107,9 @@ export const createUser = async (values: z.infer<typeof UserSchema>) => {
 
         await db.user.create({
             data: {
-                name,
-                username,
-                email,
+                name: name.trim(),
+                username: username.trim().toLowerCase(),
+                email: email.trim().toLowerCase(),
                 password: hashedPassword,
                 role,
                 idAnggota: idAnggota || null,
@@ -99,11 +120,16 @@ export const createUser = async (values: z.infer<typeof UserSchema>) => {
         return { success: true, message: "User berhasil dibuat" };
     } catch (error) {
         console.error("Error creating user:", error);
-        return { success: false, message: "Gagal membuat user (Email mungkin sudah terdaftar)" };
+        return { success: false, message: "Gagal membuat user (Email atau username mungkin sudah terdaftar)" };
     }
 };
 
 export const updateUser = async (id: string, values: z.infer<typeof UserSchema>) => {
+    const authCheck = await requireRole([Role.ADMIN]);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
+    }
+
     const validatedFields = UserSchema.safeParse(values);
 
     if (!validatedFields.success) {
@@ -115,9 +141,9 @@ export const updateUser = async (id: string, values: z.infer<typeof UserSchema>)
     try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const updateData: Record<string, any> = {
-            name,
-            username,
-            email,
+            name: name.trim(),
+            username: username.trim().toLowerCase(),
+            email: email.trim().toLowerCase(),
             role,
             idAnggota: idAnggota || null,
         };
@@ -141,6 +167,16 @@ export const updateUser = async (id: string, values: z.infer<typeof UserSchema>)
 };
 
 export const deleteUser = async (id: string) => {
+    const authCheck = await requireRole([Role.ADMIN]);
+    if (!authCheck.success) {
+        return { success: false, message: authCheck.message };
+    }
+
+    // Prevent deleting own account
+    if (authCheck.user.id === id) {
+        return { success: false, message: "Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif." };
+    }
+
     try {
         await db.user.delete({
             where: { id }
